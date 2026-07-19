@@ -1,26 +1,206 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+  Xpectra Media brand theme.
+  Palette is taken directly from the logo: deep black canvas, white wordmark,
+  electric blue accent, with dark grey surfaces layered in between.
+*/
+@theme {
+  /* Core brand colours */
+  --color-ink: #04070c;
+  --color-ink-soft: #080c13;
+  --color-surface: #0e131b;
+  --color-surface-2: #151b25;
+  --color-surface-3: #1c232f;
+  --color-line: #242c3a;
+  --color-line-soft: #1a212c;
+
+  --color-brand: #1e90ff;
+  --color-brand-bright: #4dabff;
+  --color-brand-deep: #0b63c5;
+
+  --color-mist: #9dabbd;
+  --color-mist-dim: #6f7d90;
+
+  --color-background: var(--color-ink);
+  --color-foreground: #ffffff;
+
+  /* Typography */
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-outfit), sans-serif;
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Visible, brand consistent focus ring for keyboard users */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--color-brand);
+    color: #ffffff;
+  }
+
+  /* Slim branded scrollbar where the browser supports it */
+  @supports (scrollbar-color: red blue) {
+    html {
+      scrollbar-color: var(--color-surface-3) var(--color-ink);
+      scrollbar-width: thin;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Frosted panel used for cards, dropdowns and overlays */
+  .glass {
+    background: color-mix(in srgb, var(--color-surface) 78%, transparent);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+  }
+
+  /* Section shell keeps horizontal rhythm identical across every page */
+  .shell {
+    width: 100%;
+    margin-inline: auto;
+    max-width: 80rem;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .shell {
+      padding-inline: 2rem;
+    }
+  }
+
+  .text-gradient {
+    background: linear-gradient(
+      100deg,
+      #ffffff 0%,
+      #ffffff 45%,
+      var(--color-brand-bright) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+@layer utilities {
+  /* Scroll reveal: elements start shifted and settle once observed */
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition:
+      opacity 0.7s var(--ease-out-soft),
+      transform 0.7s var(--ease-out-soft);
+    will-change: opacity, transform;
+  }
+
+  .reveal-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Horizontal marquee used by the announcement strip */
+  @keyframes xm-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-marquee {
+    animation: xm-marquee 32s linear infinite;
+  }
+
+  @keyframes xm-shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Skeleton sheen for loading placeholders */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-surface-2);
+  }
+
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--color-surface-3) 90%, white 10%),
+      transparent
+    );
+    animation: xm-shimmer 1.6s infinite;
+  }
+
+  @keyframes xm-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .animate-fade-up {
+    animation: xm-fade-up 0.45s var(--ease-out-soft) both;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Respect reduced motion preferences across every animated surface */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
 }
