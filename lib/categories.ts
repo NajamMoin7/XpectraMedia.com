@@ -1,85 +1,272 @@
-import type { Category, Subcategory } from "@/lib/types";
+import type { Category, CategorySlug, Subcategory } from "@/lib/types";
 
-/** The three shopping departments used across navigation and landing pages. */
+/** The five shopping departments used across navigation and landing pages. */
 export const categories: Category[] = [
   {
     slug: "men",
     name: "Men",
-    tagline: "Sharp everyday essentials",
+    tagline: "Everyday essentials, elevated",
     description:
-      "Men clothing online in Pakistan built around pieces you actually reach for: breathable casual shirts, crisp formal shirts, chinos, tailored trousers and traditional kurta shalwar sets ready for work, weekends and celebrations.",
-    image: "/assets/images/categories/men.svg",
+      "Men's clothing online built around pieces you actually reach for: oversized tees, premium cotton shirts, slim fit jeans, cargo pants, hoodies and jackets made for real weeks.",
+    image: "/assets/images/categories/men.jpg",
     href: "/categories/men",
   },
   {
     slug: "women",
     name: "Women",
-    tagline: "Elegant and effortless",
+    tagline: "Effortless modern style",
     description:
-      "Women clothing online covering soft lawn and rayon shirts, straight and palazzo trousers, comfortable stretch pants and festive kurta shalwar sets, chosen for fabrics that stay comfortable in Pakistani weather.",
-    image: "/assets/images/categories/women.svg",
+      "Women's clothing online spanning everyday tops, casual dresses, wide leg pants, denim jackets, knit sweaters and activewear sets designed for comfort and confidence.",
+    image: "/assets/images/categories/women.jpg",
     href: "/categories/women",
   },
   {
     slug: "kids",
     name: "Kids",
-    tagline: "Play ready and gentle",
+    tagline: "Built for play",
     description:
-      "Kids clothes online alongside baby clothes in Pakistan and toys online in Pakistan, from durable school trousers and soft cotton shirts to newborn sets, sleep suits, educational toys and cuddly soft toys.",
-    image: "/assets/images/categories/kids.svg",
+      "Kids clothing online that survives real childhoods, from graphic tees and zip hoodies to jogger sets, denim sets and soft everyday layers.",
+    image: "/assets/images/categories/kids.jpg",
     href: "/categories/kids",
+  },
+  {
+    slug: "baby",
+    name: "Baby",
+    tagline: "Gentle from the first wear",
+    description:
+      "Baby clothes online in soft cotton, including rompers, everyday sets, sleepwear and light jackets designed around easy changing.",
+    image: "/assets/images/categories/baby.jpg",
+    href: "/categories/baby",
+  },
+  {
+    slug: "toys",
+    name: "Toys",
+    tagline: "Play worth keeping",
+    description:
+      "Toys online chosen for safety and play value, covering educational toys, wooden toys, soft toys, activity toys and creative building sets.",
+    image: "/assets/images/categories/toys.jpg",
+    href: "/categories/toys",
   },
 ];
 
 /** Product families shown on the categories page and used by filters. */
 export const subcategories: Subcategory[] = [
+  // Men
+  {
+    slug: "t-shirts",
+    name: "T Shirts",
+    description:
+      "Oversized and classic fit tees in heavyweight cotton that hold their shape wash after wash.",
+    image: "/assets/images/categories/t-shirts.jpg",
+    categories: ["men", "kids"],
+  },
   {
     slug: "shirts",
     name: "Shirts",
     description:
-      "Casual and formal shirts for men, women and kids in cotton, lawn and rayon, cut for comfort and finished to hold their shape.",
-    image: "/assets/images/categories/shirts.svg",
-    categories: ["men", "women", "kids"],
+      "Premium cotton and linen blend shirts cut for the office, the weekend and everything between.",
+    image: "/assets/images/categories/shirts.jpg",
+    categories: ["men"],
+  },
+  {
+    slug: "jeans",
+    name: "Jeans",
+    description:
+      "Slim, straight and relaxed denim with real stretch and a soft broken in finish.",
+    image: "/assets/images/categories/jeans.jpg",
+    categories: ["men", "women"],
   },
   {
     slug: "pants",
     name: "Pants",
     description:
-      "Everyday pants including stretch chinos, cotton cargos and soft joggers, made to move with you from morning until evening.",
-    image: "/assets/images/categories/pants.svg",
+      "Twill and chino pants that move easily and keep a clean line through a long day.",
+    image: "/assets/images/categories/pants.jpg",
+    categories: ["men"],
+  },
+  {
+    slug: "cargo-pants",
+    name: "Cargo Pants",
+    description:
+      "Utility cargo pants with reinforced pockets and a tapered modern leg.",
+    image: "/assets/images/products/utility-cargo-pants-1.jpg",
+    categories: ["men"],
+  },
+  {
+    slug: "hoodies",
+    name: "Hoodies",
+    description:
+      "Brushed fleece hoodies with a heavyweight feel and a hood that actually holds its shape.",
+    image: "/assets/images/categories/hoodies.jpg",
     categories: ["men", "women", "kids"],
   },
   {
-    slug: "trousers",
-    name: "Trousers",
+    slug: "jackets",
+    name: "Jackets",
     description:
-      "Tailored formal trousers, relaxed denim and lightweight palazzos with clean lines and fabrics that resist creasing.",
-    image: "/assets/images/categories/trousers.svg",
-    categories: ["men", "women", "kids"],
+      "Bomber jackets, denim jackets and light layers for shoulder season.",
+    image: "/assets/images/categories/jackets.jpg",
+    categories: ["men", "women", "baby"],
   },
   {
-    slug: "kurta-shalwar",
-    name: "Kurta Shalwar",
+    slug: "sweatshirts",
+    name: "Sweatshirts",
     description:
-      "Kurta shalwar online for men and women, from breathable everyday cotton sets to embroidered chikankari and velvet pieces for Eid and weddings.",
-    image: "/assets/images/categories/kurta-shalwar.svg",
-    categories: ["men", "women"],
+      "Crewneck sweatshirts in soft loopback cotton, easy to layer and easy to wear.",
+    image: "/assets/images/categories/sweatshirts.jpg",
+    categories: ["men"],
+  },
+
+  // Women
+  {
+    slug: "tops",
+    name: "Tops",
+    description:
+      "Everyday tops and crop styles in breathable knits that pair with everything.",
+    image: "/assets/images/categories/tops.jpg",
+    categories: ["women"],
   },
   {
-    slug: "baby-clothes",
-    name: "Baby Clothes",
+    slug: "dresses",
+    name: "Dresses",
     description:
-      "Baby clothes in Pakistan made from gentle cotton, including rompers, newborn sets and warm sleep suits designed for easy changing.",
-    image: "/assets/images/categories/baby-clothes.svg",
+      "Casual dresses in flowing fabrics, cut to move and finished with care.",
+    image: "/assets/images/categories/dresses.jpg",
+    categories: ["women"],
+  },
+  {
+    slug: "wide-leg-pants",
+    name: "Wide Leg Pants",
+    description:
+      "High rise wide leg pants with a fluid drape that lengthens every outfit.",
+    image: "/assets/images/products/high-rise-wide-leg-pants-1.jpg",
+    categories: ["women"],
+  },
+  {
+    slug: "sweaters",
+    name: "Sweaters",
+    description:
+      "Chunky and fine gauge knits in yarns chosen for softness and warmth.",
+    image: "/assets/images/categories/sweaters.jpg",
+    categories: ["women"],
+  },
+  {
+    slug: "activewear",
+    name: "Activewear",
+    description:
+      "Seamless activewear sets with real compression and a smooth second skin feel.",
+    image: "/assets/images/categories/activewear.jpg",
+    categories: ["women"],
+  },
+
+  // Kids
+  {
+    slug: "jogger-sets",
+    name: "Jogger Sets",
+    description:
+      "Matching jogger sets in soft fleece with elastic waists kids can manage alone.",
+    image: "/assets/images/products/kids-jogger-set-1.jpg",
     categories: ["kids"],
   },
   {
-    slug: "toys",
-    name: "Toys",
+    slug: "denim-sets",
+    name: "Denim Sets",
     description:
-      "Toys online in Pakistan chosen for safety and play value, spanning educational wooden blocks, activity sorters and soft cuddly toys.",
-    image: "/assets/images/categories/toys.svg",
+      "Coordinated denim sets built to handle climbing, cycling and everything after school.",
+    image: "/assets/images/products/kids-denim-two-piece-set-1.jpg",
     categories: ["kids"],
+  },
+  {
+    slug: "casual-wear",
+    name: "Casual Wear",
+    description:
+      "Everyday outfits that mix and match easily and wash back to looking neat.",
+    image: "/assets/images/products/kids-everyday-casual-outfit-1.jpg",
+    categories: ["kids"],
+  },
+  {
+    slug: "outerwear",
+    name: "Outerwear",
+    description:
+      "Cardigans and light layers for cool mornings and unpredictable afternoons.",
+    image: "/assets/images/products/kids-knit-cardigan-1.jpg",
+    categories: ["kids"],
+  },
+
+  // Baby
+  {
+    slug: "rompers",
+    name: "Rompers",
+    description:
+      "Organic cotton rompers with full length snaps that make changing quick.",
+    image: "/assets/images/categories/rompers.jpg",
+    categories: ["baby"],
+  },
+  {
+    slug: "cotton-sets",
+    name: "Cotton Sets",
+    description:
+      "Multi piece cotton sets that layer together and make a genuinely useful gift.",
+    image: "/assets/images/products/baby-cotton-essentials-set-1.jpg",
+    categories: ["baby"],
+  },
+  {
+    slug: "sleepwear",
+    name: "Sleepwear",
+    description:
+      "Soft sleepwear with covered feet and two way zips for easier night changes.",
+    image: "/assets/images/products/baby-sleepwear-set-1.jpg",
+    categories: ["baby"],
+  },
+  {
+    slug: "accessories",
+    name: "Accessories",
+    description:
+      "Caps, mittens, booties and the small pieces that complete a baby wardrobe.",
+    image: "/assets/images/products/baby-accessories-gift-set-1.jpg",
+    categories: ["baby"],
+  },
+
+  // Toys
+  {
+    slug: "educational-toys",
+    name: "Educational Toys",
+    description:
+      "Counting, sorting and early literacy toys that turn learning into play.",
+    image: "/assets/images/categories/educational-toys.jpg",
+    categories: ["toys"],
+  },
+  {
+    slug: "wooden-toys",
+    name: "Wooden Toys",
+    description:
+      "Solid wood toys with hand rounded edges and water based non toxic paint.",
+    image: "/assets/images/categories/wooden-toys.jpg",
+    categories: ["toys"],
+  },
+  {
+    slug: "soft-toys",
+    name: "Soft Toys",
+    description:
+      "Plush companions with embroidered features and no small parts.",
+    image: "/assets/images/categories/soft-toys.jpg",
+    categories: ["toys"],
+  },
+  {
+    slug: "activity-toys",
+    name: "Activity Toys",
+    description:
+      "Hands on toys that build coordination, patience and problem solving.",
+    image: "/assets/images/products/creative-building-blocks-set-1.jpg",
+    categories: ["toys"],
+  },
+  {
+    slug: "creative-toys",
+    name: "Creative Toys",
+    description:
+      "Open ended sets that reward imagination rather than a single right answer.",
+    image: "/assets/images/products/wooden-toy-vehicle-set-1.jpg",
+    categories: ["toys"],
   },
 ];
 
@@ -92,7 +279,7 @@ export function getSubcategory(slug: string): Subcategory | undefined {
 }
 
 /** Product families available inside a single department. */
-export function subcategoriesFor(categorySlug: Category["slug"]): Subcategory[] {
+export function subcategoriesFor(categorySlug: CategorySlug): Subcategory[] {
   return subcategories.filter((sub) => sub.categories.includes(categorySlug));
 }
 

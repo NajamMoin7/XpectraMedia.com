@@ -12,25 +12,18 @@ import { site } from "@/lib/site";
 export const metadata = buildMetadata({
   title: "Contact Us",
   description:
-    "Contact the Xpectra Media customer support team by phone, email or WhatsApp. Find our Lahore office address, our working hours and answers to the questions we are asked most.",
+    "Contact the Xpectra Media customer support team by phone or email for help with orders, sizing, shipping, returns and exchanges. Find our business address, working hours and answers to the questions we are asked most.",
   path: "/contact",
   keywords: [
     "contact Xpectra Media",
     "Xpectra Media customer support",
-    "online shopping help in Pakistan",
-    "Xpectra Media WhatsApp",
-    "Xpectra Media Lahore office",
+    "online clothing store support",
+    "order help",
+    "returns and exchanges",
   ],
 });
 
 const { contact } = site;
-
-/** Single line postal address reused by the map panel and the directions link. */
-const fullAddress = `${contact.addressLine}, ${contact.city}, ${contact.region} ${contact.postalCode}, ${contact.country}`;
-
-const directionsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-  fullAddress,
-)}`;
 
 interface ContactCard {
   icon: IconName;
@@ -43,12 +36,18 @@ interface ContactCard {
 
 const cards: ContactCard[] = [
   {
+    icon: "headset",
+    label: "Your point of contact",
+    lines: [contact.name],
+    note: "Gerard leads our customer support team and makes sure every message reaches the right person.",
+  },
+  {
     icon: "phone",
     label: "Call our team",
     lines: [contact.phone],
     href: contact.phoneHref,
     linkText: contact.phone,
-    note: "Speak to a support agent during working hours for order help and product advice.",
+    note: "Speak to a support agent during business hours for order help and product advice.",
   },
   {
     icon: "mail",
@@ -56,17 +55,18 @@ const cards: ContactCard[] = [
     lines: [contact.email],
     href: contact.emailHref,
     linkText: contact.email,
-    note: "Best for exchange requests, bulk enquiries and anything that needs a written record.",
+    note: "Best for return requests, bulk enquiries and anything that needs a written record.",
   },
   {
     icon: "pin",
-    label: "Visit our office",
+    label: "Our business address",
     lines: [
-      contact.addressLine,
-      `${contact.city}, ${contact.region} ${contact.postalCode}`,
+      contact.street,
+      contact.unit,
+      `${contact.city}, ${contact.state} ${contact.postalCode}`,
       contact.country,
     ],
-    note: "Our team works from here Monday to Saturday. Please message ahead before visiting.",
+    note: "Our support and dispatch team works from here. Please email ahead before visiting in person.",
   },
 ];
 
@@ -78,46 +78,47 @@ export default function ContactPage() {
       <PageBanner
         eyebrow="We are here to help"
         title="Contact Us"
-        description="Questions about an order, a size, a delivery or a product? Our customer support team in Lahore is ready to help you by phone, email or WhatsApp, every working day."
+        description="Questions about an order, a size, a shipment or a product? Our customer support team is ready to help you by phone or email every business day."
         crumbs={[{ name: "Contact Us", href: "/contact" }]}
       />
 
       {/* Contact details and enquiry form */}
-      <section className="shell py-16 md:py-20">
+      <section className="shell bg-canvas py-16 md:py-20">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-12">
           <Reveal className="flex flex-col gap-5">
             <div>
-              <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              <h2 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
                 Ways to reach us
               </h2>
-              <p className="mt-3 text-base leading-relaxed text-mist">
-                Pick whichever suits you best. WhatsApp is usually the fastest
-                way to get an answer.
+              <p className="mt-3 text-base leading-relaxed text-slate">
+                Pick whichever suits you best. Email is usually the fastest way
+                to get a written answer, and the phone is best for anything
+                urgent.
               </p>
             </div>
 
             {cards.map((card) => (
               <article
                 key={card.label}
-                className="rounded-2xl border border-line-soft bg-surface p-6 transition-all duration-300 hover:border-brand/60 hover:shadow-[0_18px_50px_-28px_rgba(30,144,255,0.85)]"
+                className="rounded-3xl border border-line bg-card p-6 shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-[var(--shadow-lift)]"
               >
                 <div className="flex items-start gap-4">
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-brand/40 bg-brand/10 text-brand-bright">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-tint text-brand">
                     <Icon name={card.icon} size={20} />
                   </span>
                   <div className="min-w-0">
-                    <h3 className="font-display text-base font-semibold tracking-tight text-white">
+                    <h3 className="font-display text-base font-semibold tracking-tight text-ink">
                       {card.label}
                     </h3>
                     {card.href ? (
                       <a
                         href={card.href}
-                        className="mt-1 block break-words text-sm font-medium text-brand-bright underline-offset-4 transition-colors hover:text-white hover:underline"
+                        className="mt-1 block break-words text-sm font-semibold text-brand underline-offset-4 transition-colors hover:text-brand-deep hover:underline"
                       >
                         {card.linkText}
                       </a>
                     ) : (
-                      <address className="mt-1 not-italic text-sm leading-relaxed text-mist">
+                      <address className="mt-1 not-italic text-sm leading-relaxed text-slate">
                         {card.lines.map((line) => (
                           <span key={line} className="block">
                             {line}
@@ -125,7 +126,7 @@ export default function ContactPage() {
                         ))}
                       </address>
                     )}
-                    <p className="mt-3 text-xs leading-relaxed text-mist-dim">
+                    <p className="mt-3 text-xs leading-relaxed text-muted">
                       {card.note}
                     </p>
                   </div>
@@ -134,55 +135,49 @@ export default function ContactPage() {
             ))}
 
             {/* Working hours */}
-            <article className="rounded-2xl border border-line-soft bg-surface p-6 transition-all duration-300 hover:border-brand/60 hover:shadow-[0_18px_50px_-28px_rgba(30,144,255,0.85)]">
+            <article className="rounded-3xl border border-line bg-card p-6 shadow-[var(--shadow-soft)]">
               <div className="flex items-start gap-4">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-brand/40 bg-brand/10 text-brand-bright">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-tint text-brand">
                   <Icon name="clock" size={20} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h3 className="font-display text-base font-semibold tracking-tight text-white">
+                  <h3 className="font-display text-base font-semibold tracking-tight text-ink">
                     Working hours
                   </h3>
                   <dl className="mt-3 flex flex-col gap-2">
                     {contact.hours.map((slot) => (
                       <div
                         key={slot.days}
-                        className="flex flex-col gap-0.5 border-b border-line-soft pb-2 last:border-0 last:pb-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
+                        className="flex flex-col gap-0.5 border-b border-line pb-2 last:border-0 last:pb-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
                       >
-                        <dt className="text-sm font-medium text-white">
-                          {slot.days}
-                        </dt>
-                        <dd className="text-sm text-mist sm:text-right">
+                        <dt className="text-sm font-medium text-ink">{slot.days}</dt>
+                        <dd className="text-sm text-slate sm:text-right">
                           {slot.time}
                         </dd>
                       </div>
                     ))}
                   </dl>
-                  <p className="mt-3 text-xs leading-relaxed text-mist-dim">
-                    All times shown are Pakistan Standard Time.
+                  <p className="mt-3 text-xs leading-relaxed text-muted">
+                    All times shown are Pacific Time. Messages sent outside these
+                    hours are answered on the next business day.
                   </p>
                 </div>
               </div>
             </article>
 
-            {/* WhatsApp call to action */}
-            <div className="rounded-2xl border border-brand/40 bg-gradient-to-br from-brand/15 via-surface to-surface p-6 shadow-[0_20px_60px_-32px_rgba(30,144,255,0.9)]">
-              <h3 className="font-display text-lg font-bold tracking-tight text-white">
-                Chat with us on WhatsApp
+            {/* Support promise */}
+            <div className="rounded-3xl border border-line bg-brand-tint p-6 shadow-[var(--shadow-soft)]">
+              <h3 className="font-display text-lg font-bold tracking-tight text-ink">
+                One business day, every time
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-mist">
-                Send your order number or a product photo and our team will
-                reply during working hours, usually within a few minutes.
+              <p className="mt-2 text-sm leading-relaxed text-slate">
+                Every message is read by a real member of our team and answered
+                within one business day. Include your order number and we will
+                have the full history in front of us before we reply.
               </p>
-              <Button
-                href={contact.whatsappHref}
-                external
-                size="lg"
-                fullWidth
-                className="mt-5"
-              >
-                <Icon name="whatsapp" size={18} />
-                Message {contact.whatsapp} on WhatsApp
+              <Button href={contact.emailHref} size="lg" fullWidth className="mt-5">
+                <Icon name="mail" size={18} />
+                Email {contact.email}
               </Button>
             </div>
           </Reveal>
@@ -194,24 +189,24 @@ export default function ContactPage() {
       </section>
 
       {/* Location panel standing in for a map embed */}
-      <section className="border-y border-line-soft bg-ink-soft py-16 md:py-20">
+      <section className="border-y border-line bg-mist py-16 md:py-20">
         <div className="shell">
           <Reveal>
             <SectionHeading
               eyebrow="Find us"
-              title="Our office in Lahore"
-              description="Our support and dispatch team works from Gulberg Trade Centre. Orders across Pakistan are packed and handed to our courier partners from this address."
+              title="Where to find Xpectra Media"
+              description="Our support and dispatch team works from the address below. Orders are packed and handed to our shipping partners from here every business day."
             />
           </Reveal>
 
           <Reveal delay={100} className="mt-10">
-            <div className="overflow-hidden rounded-2xl border border-line-soft bg-surface">
-              {/* Stylised map surface. No external embed is loaded. */}
+            <div className="overflow-hidden rounded-3xl border border-line bg-card shadow-[var(--shadow-soft)]">
+              {/* Stylised map surface. No external embed or API is loaded. */}
               <div
-                className="relative grid h-64 place-items-center bg-surface-2 sm:h-80 md:h-96"
+                className="relative grid h-64 place-items-center bg-mist-2 sm:h-80 md:h-96"
                 style={{
                   backgroundImage:
-                    "linear-gradient(rgba(30,144,255,0.10) 1px, transparent 1px), linear-gradient(90deg, rgba(30,144,255,0.10) 1px, transparent 1px)",
+                    "linear-gradient(rgba(13,127,242,0.10) 1px, transparent 1px), linear-gradient(90deg, rgba(13,127,242,0.10) 1px, transparent 1px)",
                   backgroundSize: "44px 44px",
                 }}
               >
@@ -220,37 +215,37 @@ export default function ContactPage() {
                   className="pointer-events-none absolute inset-0"
                   style={{
                     background:
-                      "radial-gradient(50% 70% at 50% 50%, rgba(30,144,255,0.20) 0%, rgba(4,7,12,0.85) 75%)",
+                      "radial-gradient(50% 70% at 50% 50%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.35) 75%)",
                   }}
                 />
                 <div className="relative flex flex-col items-center px-6 text-center">
-                  <span className="grid h-16 w-16 place-items-center rounded-full border border-brand/50 bg-brand/15 text-brand-bright shadow-[0_0_0_10px_rgba(30,144,255,0.08)]">
+                  <span className="grid h-16 w-16 place-items-center rounded-full bg-brand text-white shadow-[var(--shadow-brand)]">
                     <Icon name="pin" size={28} />
                   </span>
-                  <p className="mt-5 font-display text-lg font-bold tracking-tight text-white sm:text-xl">
+                  <p className="mt-5 font-display text-lg font-bold tracking-tight text-ink sm:text-xl">
                     {site.name}
                   </p>
-                  <address className="mt-2 max-w-sm not-italic text-sm leading-relaxed text-mist">
-                    {fullAddress}
+                  <address className="mt-2 max-w-sm not-italic text-sm leading-relaxed text-slate">
+                    {contact.full}
                   </address>
-                  <p className="mt-3 text-xs uppercase tracking-[0.28em] text-mist-dim">
+                  <p className="mt-3 text-xs uppercase tracking-[0.28em] text-muted">
                     Map view
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-4 border-t border-line-soft p-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-4 border-t border-line p-6 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="font-display text-sm font-semibold tracking-tight text-white">
+                  <p className="font-display text-sm font-semibold tracking-tight text-ink">
                     Plan your visit
                   </p>
-                  <p className="mt-1 text-sm leading-relaxed text-mist">
-                    Parking is available on the ground floor and the office sits
-                    on the second floor.
+                  <p className="mt-1 text-sm leading-relaxed text-slate">
+                    Open the address in Google Maps for turn by turn directions
+                    and current parking information.
                   </p>
                 </div>
                 <Button
-                  href={directionsHref}
+                  href={contact.mapsHref}
                   external
                   variant="outline"
                   size="md"
@@ -266,12 +261,12 @@ export default function ContactPage() {
       </section>
 
       {/* Frequently asked questions */}
-      <section id="faq" className="shell scroll-mt-24 py-16 md:py-20">
+      <section id="faq" className="shell scroll-mt-24 bg-canvas py-16 md:py-20">
         <Reveal>
           <SectionHeading
             eyebrow="Good to know"
             title="Frequently asked questions"
-            description="Answers to the questions our customers ask most about delivery, payment, sizing and exchanges. If yours is not covered here, send us a message above."
+            description="Answers to the questions our customers ask most about shipping, payment, sizing and returns. If yours is not covered here, send us a message above."
           />
         </Reveal>
 
@@ -280,29 +275,28 @@ export default function ContactPage() {
         </Reveal>
 
         <Reveal delay={160} className="mt-10">
-          <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 rounded-2xl border border-line-soft bg-surface p-6 text-center sm:flex-row sm:justify-between sm:text-left">
+          <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 rounded-3xl border border-line bg-card p-6 text-center shadow-[var(--shadow-soft)] sm:flex-row sm:justify-between sm:text-left">
             <div className="flex items-center gap-4">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-brand/40 bg-brand/10 text-brand-bright">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-tint text-brand">
                 <Icon name="headset" size={20} />
               </span>
               <div>
-                <p className="font-display text-base font-semibold tracking-tight text-white">
+                <p className="font-display text-base font-semibold tracking-tight text-ink">
                   Still need a hand?
                 </p>
-                <p className="mt-1 text-sm leading-relaxed text-mist">
+                <p className="mt-1 text-sm leading-relaxed text-slate">
                   Our support team answers every message personally.
                 </p>
               </div>
             </div>
             <Button
-              href={contact.whatsappHref}
-              external
+              href={contact.phoneHref}
               variant="outline"
               size="md"
               className="sm:shrink-0"
             >
-              <Icon name="whatsapp" size={16} />
-              Chat on WhatsApp
+              <Icon name="phone" size={16} />
+              Call {contact.phone}
             </Button>
           </div>
         </Reveal>

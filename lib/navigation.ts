@@ -14,21 +14,11 @@ export const primaryNav: NavLink[] = [
 
 /** Entries inside the Categories dropdown. */
 export const categoryNav: NavLink[] = [
-  {
-    label: "Men",
-    href: "/categories/men",
-    description: "Shirts, pants, trousers and kurta shalwar",
-  },
-  {
-    label: "Women",
-    href: "/categories/women",
-    description: "Lawn shirts, trousers and festive sets",
-  },
-  {
-    label: "Kids",
-    href: "/categories/kids",
-    description: "Kids clothes, baby clothes and toys",
-  },
+  { label: "Men", href: "/categories/men", description: "Tees, shirts, denim and outerwear" },
+  { label: "Women", href: "/categories/women", description: "Tops, dresses, knitwear and activewear" },
+  { label: "Kids", href: "/categories/kids", description: "Everyday clothing built for play" },
+  { label: "Baby", href: "/categories/baby", description: "Soft cotton rompers and sets" },
+  { label: "Toys", href: "/categories/toys", description: "Wooden, soft and educational toys" },
 ];
 
 export const contactNav: NavLink = { label: "Contact Us", href: "/contact" };
@@ -37,27 +27,28 @@ export const contactNav: NavLink = { label: "Contact Us", href: "/contact" };
 export const footerQuickLinks: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
-  { label: "All Products", href: "/products" },
-  { label: "Product Categories", href: "/categories" },
+  { label: "Shop All Products", href: "/products" },
+  { label: "New Arrivals", href: "/products?sort=latest" },
+  { label: "Best Sellers", href: "/products?filter=bestsellers" },
   { label: "Contact Us", href: "/contact" },
 ];
 
 /** Category column in the footer. */
 export const footerCategoryLinks: NavLink[] = [
-  { label: "Men Clothing", href: "/categories/men" },
-  { label: "Women Clothing", href: "/categories/women" },
-  { label: "Kids Clothes", href: "/categories/kids" },
-  { label: "Baby Clothes", href: "/products?category=kids&type=baby-clothes" },
-  { label: "Toys", href: "/products?category=kids&type=toys" },
-  { label: "Kurta Shalwar", href: "/products?type=kurta-shalwar" },
+  { label: "Men's Clothing", href: "/categories/men" },
+  { label: "Women's Clothing", href: "/categories/women" },
+  { label: "Kids Clothing", href: "/categories/kids" },
+  { label: "Baby Clothes", href: "/categories/baby" },
+  { label: "Toys", href: "/categories/toys" },
+  { label: "Sale", href: "/products?filter=sale" },
 ];
 
 /** Customer support column in the footer. */
 export const footerSupportLinks: NavLink[] = [
   { label: "Shopping Cart", href: "/cart" },
-  { label: "Checkout", href: "/checkout" },
-  { label: "Delivery and Returns", href: "/contact#faq" },
-  { label: "Frequently Asked Questions", href: "/contact#faq" },
+  { label: "Secure Checkout", href: "/checkout" },
+  { label: "Shipping Information", href: "/contact#faq" },
+  { label: "Easy Returns", href: "/contact#faq" },
   { label: "Privacy Policy", href: "/privacy-policy" },
   { label: "Terms and Conditions", href: "/terms-and-conditions" },
 ];

@@ -1,29 +1,41 @@
 @import "tailwindcss";
 
 /*
-  Xpectra Media brand theme.
-  Palette is taken directly from the logo: deep black canvas, white wordmark,
-  electric blue accent, with dark grey surfaces layered in between.
+  Xpectra Media light theme.
+  A white canvas with very light grey sections, near black type and the
+  electric blue accent taken from the logo. Black is reserved for the footer
+  and a small number of high contrast blocks.
 */
 @theme {
-  /* Core brand colours */
-  --color-ink: #04070c;
-  --color-ink-soft: #080c13;
-  --color-surface: #0e131b;
-  --color-surface-2: #151b25;
-  --color-surface-3: #1c232f;
-  --color-line: #242c3a;
-  --color-line-soft: #1a212c;
+  /* Surfaces */
+  --color-canvas: #ffffff;
+  --color-mist: #f6f8fc;
+  --color-mist-2: #eef2f9;
+  --color-card: #ffffff;
+  --color-night: #0a0e15;
+  --color-night-soft: #141a24;
 
-  --color-brand: #1e90ff;
-  --color-brand-bright: #4dabff;
-  --color-brand-deep: #0b63c5;
+  /* Type */
+  --color-ink: #0a0e15;
+  --color-slate: #4a5568;
+  --color-muted: #8b95a5;
 
-  --color-mist: #9dabbd;
-  --color-mist-dim: #6f7d90;
+  /* Lines */
+  --color-line: #e5eaf1;
+  --color-line-strong: #d2dae5;
 
-  --color-background: var(--color-ink);
-  --color-foreground: #ffffff;
+  /* Brand */
+  --color-brand: #0d7ff2;
+  --color-brand-deep: #0a5cc0;
+  --color-brand-bright: #4da6ff;
+  --color-brand-tint: #eaf3ff;
+
+  /* Status */
+  --color-success: #12855b;
+  --color-sale: #d92d52;
+
+  --color-background: var(--color-canvas);
+  --color-foreground: var(--color-ink);
 
   /* Typography */
   --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
@@ -31,6 +43,11 @@
 
   /* Motion */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Premium soft shadows */
+  --shadow-soft: 0 1px 2px rgba(10, 14, 21, 0.04), 0 8px 24px rgba(10, 14, 21, 0.06);
+  --shadow-lift: 0 2px 4px rgba(10, 14, 21, 0.05), 0 18px 40px rgba(10, 14, 21, 0.1);
+  --shadow-brand: 0 10px 30px -12px rgba(13, 127, 242, 0.55);
 }
 
 @layer base {
@@ -40,14 +57,20 @@
   }
 
   body {
-    background-color: var(--color-ink);
-    color: var(--color-foreground);
+    background-color: var(--color-canvas);
+    color: var(--color-slate);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
-  /* Visible, brand consistent focus ring for keyboard users */
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--color-ink);
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-brand);
     outline-offset: 3px;
@@ -58,24 +81,9 @@
     background: var(--color-brand);
     color: #ffffff;
   }
-
-  /* Slim branded scrollbar where the browser supports it */
-  @supports (scrollbar-color: red blue) {
-    html {
-      scrollbar-color: var(--color-surface-3) var(--color-ink);
-      scrollbar-width: thin;
-    }
-  }
 }
 
 @layer components {
-  /* Frosted panel used for cards, dropdowns and overlays */
-  .glass {
-    background: color-mix(in srgb, var(--color-surface) 78%, transparent);
-    backdrop-filter: blur(16px) saturate(140%);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-  }
-
   /* Section shell keeps horizontal rhythm identical across every page */
   .shell {
     width: 100%;
@@ -90,16 +98,30 @@
     }
   }
 
+  /* Frosted panel for the sticky header and overlays */
+  .glass {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+  }
+
   .text-gradient {
     background: linear-gradient(
       100deg,
-      #ffffff 0%,
-      #ffffff 45%,
-      var(--color-brand-bright) 100%
+      var(--color-ink) 0%,
+      var(--color-ink) 40%,
+      var(--color-brand) 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+
+  /* Soft blue wash used behind hero and feature sections */
+  .brand-wash {
+    background:
+      radial-gradient(60% 80% at 12% 0%, rgba(13, 127, 242, 0.1) 0%, rgba(255, 255, 255, 0) 60%),
+      radial-gradient(50% 70% at 95% 30%, rgba(77, 166, 255, 0.12) 0%, rgba(255, 255, 255, 0) 65%);
   }
 }
 
@@ -107,30 +129,16 @@
   /* Scroll reveal: elements start shifted and settle once observed */
   .reveal {
     opacity: 0;
-    transform: translateY(22px);
+    transform: translateY(20px);
     transition:
-      opacity 0.7s var(--ease-out-soft),
-      transform 0.7s var(--ease-out-soft);
+      opacity 0.65s var(--ease-out-soft),
+      transform 0.65s var(--ease-out-soft);
     will-change: opacity, transform;
   }
 
   .reveal-visible {
     opacity: 1;
     transform: none;
-  }
-
-  /* Horizontal marquee used by the announcement strip */
-  @keyframes xm-marquee {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
-  }
-
-  .animate-marquee {
-    animation: xm-marquee 32s linear infinite;
   }
 
   @keyframes xm-shimmer {
@@ -143,7 +151,7 @@
   .skeleton {
     position: relative;
     overflow: hidden;
-    background: var(--color-surface-2);
+    background: var(--color-mist-2);
   }
 
   .skeleton::after {
@@ -154,10 +162,10 @@
     background: linear-gradient(
       90deg,
       transparent,
-      color-mix(in srgb, var(--color-surface-3) 90%, white 10%),
+      rgba(255, 255, 255, 0.85),
       transparent
     );
-    animation: xm-shimmer 1.6s infinite;
+    animation: xm-shimmer 1.5s infinite;
   }
 
   @keyframes xm-fade-up {
@@ -173,6 +181,54 @@
 
   .animate-fade-up {
     animation: xm-fade-up 0.45s var(--ease-out-soft) both;
+  }
+
+  @keyframes xm-scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .animate-scale-in {
+    animation: xm-scale-in 0.28s var(--ease-out-soft) both;
+  }
+
+  @keyframes xm-pop {
+    0% {
+      transform: scale(0.6);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.15);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Cart badge and success ticks */
+  .animate-pop {
+    animation: xm-pop 0.4s var(--ease-out-soft) both;
+  }
+
+  @keyframes xm-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-float {
+    animation: xm-float 6s ease-in-out infinite;
   }
 
   .no-scrollbar::-webkit-scrollbar {

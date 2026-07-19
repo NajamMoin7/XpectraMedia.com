@@ -8,7 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 /** Accepts the common address shapes without being needlessly strict. */
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
 
-/** Minimum number of digits accepted for a Pakistani mobile or landline. */
+/** Minimum number of digits accepted for a United States phone number. */
 const MIN_PHONE_DIGITS = 10;
 
 /** Minimum characters required so a message carries enough detail to answer. */
@@ -31,13 +31,13 @@ const EMPTY_VALUES: FormValues = {
 const SUBJECTS = [
   "Order status and tracking",
   "Sizing and product advice",
-  "Exchange or return request",
-  "Delivery and payment question",
+  "Return or exchange request",
+  "Shipping and payment question",
   "Bulk or wholesale enquiry",
   "Something else",
 ];
 
-/** Counts only the digits so spaces, plus signs and dashes never break input. */
+/** Counts only the digits so spaces, plus signs and brackets never break input. */
 function countDigits(value: string): number {
   return (value.match(/\d/g) ?? []).length;
 }
@@ -81,12 +81,12 @@ function validate(values: FormValues): FormErrors {
 }
 
 const FIELD_BASE =
-  "w-full rounded-2xl border bg-surface px-4 py-3 text-sm text-white " +
-  "placeholder:text-mist-dim transition-colors focus:outline-none focus:ring-2 focus:ring-brand/50";
+  "w-full rounded-2xl border bg-canvas px-4 py-3 text-sm text-ink " +
+  "placeholder:text-muted transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35";
 
 function fieldClass(hasError: boolean): string {
   return `${FIELD_BASE} ${
-    hasError ? "border-red-500/70" : "border-line focus:border-brand"
+    hasError ? "border-sale" : "border-line-strong focus:border-brand"
   }`;
 }
 
@@ -147,19 +147,19 @@ export function ContactForm({ className = "" }: ContactFormProps) {
     return (
       <div
         role="status"
-        className={`rounded-2xl border border-brand/40 bg-brand/10 p-7 text-center sm:p-9 ${className}`}
+        className={`animate-scale-in rounded-3xl border border-line bg-card p-7 text-center shadow-[var(--shadow-lift)] sm:p-9 ${className}`}
       >
-        <span className="mx-auto grid h-14 w-14 place-items-center rounded-full border border-brand/50 bg-brand/15">
-          <Icon name="checkCircle" size={26} className="text-brand-bright" />
+        <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-brand-tint">
+          <Icon name="checkCircle" size={30} className="text-brand" />
         </span>
-        <h3 className="mt-5 font-display text-xl font-bold tracking-tight text-white sm:text-2xl">
+        <h3 className="mt-5 font-display text-xl font-bold tracking-tight text-ink sm:text-2xl">
           Your message is on its way
         </h3>
-        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-mist">
+        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-slate">
           Thank you for reaching out, {values.fullName.trim() || "friend"}. Our
-          support team replies within one working day, and we will send our
-          answer to {values.email.trim()}. For anything urgent, message us on
-          WhatsApp and we will respond right away.
+          support team replies within one business day, and we will send our
+          answer to {values.email.trim()}. If it is urgent, give us a call during
+          business hours and we will pick it up right away.
         </p>
         <Button
           type="button"
@@ -179,21 +179,21 @@ export function ContactForm({ className = "" }: ContactFormProps) {
     <form
       onSubmit={onSubmit}
       noValidate
-      className={`rounded-2xl border border-line-soft bg-surface p-6 sm:p-8 ${className}`}
+      className={`rounded-3xl border border-line bg-card p-6 shadow-[var(--shadow-soft)] sm:p-8 ${className}`}
     >
-      <h2 className="font-display text-xl font-bold tracking-tight text-white sm:text-2xl">
+      <h2 className="font-display text-xl font-bold tracking-tight text-ink sm:text-2xl">
         Send us a message
       </h2>
-      <p className="mt-2 text-sm leading-relaxed text-mist">
-        Fill in the form below and our customer support team will get back to
-        you within one working day.
+      <p className="mt-2 text-sm leading-relaxed text-slate">
+        Fill in the form below and our customer support team will get back to you
+        within one business day.
       </p>
 
       <div className="mt-7 grid gap-5 sm:grid-cols-2">
         <div>
           <label
             htmlFor="contact-fullName"
-            className="mb-2 block text-sm font-medium text-white"
+            className="mb-2 block text-sm font-medium text-ink"
           >
             Full name
           </label>
@@ -204,7 +204,7 @@ export function ContactForm({ className = "" }: ContactFormProps) {
             autoComplete="name"
             value={values.fullName}
             onChange={(event) => update("fullName", event.target.value)}
-            placeholder="Ayesha Khan"
+            placeholder="Emily Carter"
             aria-invalid={errors.fullName ? true : undefined}
             aria-describedby={errors.fullName ? "contact-fullName-error" : undefined}
             className={fieldClass(Boolean(errors.fullName))}
@@ -213,7 +213,7 @@ export function ContactForm({ className = "" }: ContactFormProps) {
             <p
               id="contact-fullName-error"
               role="alert"
-              className="mt-2 text-xs text-red-400"
+              className="mt-2 text-xs font-medium text-sale"
             >
               {errors.fullName}
             </p>
@@ -223,7 +223,7 @@ export function ContactForm({ className = "" }: ContactFormProps) {
         <div>
           <label
             htmlFor="contact-email"
-            className="mb-2 block text-sm font-medium text-white"
+            className="mb-2 block text-sm font-medium text-ink"
           >
             Email address
           </label>
@@ -243,7 +243,7 @@ export function ContactForm({ className = "" }: ContactFormProps) {
             <p
               id="contact-email-error"
               role="alert"
-              className="mt-2 text-xs text-red-400"
+              className="mt-2 text-xs font-medium text-sale"
             >
               {errors.email}
             </p>
@@ -253,7 +253,7 @@ export function ContactForm({ className = "" }: ContactFormProps) {
         <div>
           <label
             htmlFor="contact-phone"
-            className="mb-2 block text-sm font-medium text-white"
+            className="mb-2 block text-sm font-medium text-ink"
           >
             Phone number
           </label>
@@ -265,7 +265,7 @@ export function ContactForm({ className = "" }: ContactFormProps) {
             autoComplete="tel"
             value={values.phone}
             onChange={(event) => update("phone", event.target.value)}
-            placeholder="0300 1234567"
+            placeholder="(202) 555 0134"
             aria-invalid={errors.phone ? true : undefined}
             aria-describedby={
               errors.phone ? "contact-phone-error" : "contact-phone-hint"
@@ -276,12 +276,12 @@ export function ContactForm({ className = "" }: ContactFormProps) {
             <p
               id="contact-phone-error"
               role="alert"
-              className="mt-2 text-xs text-red-400"
+              className="mt-2 text-xs font-medium text-sale"
             >
               {errors.phone}
             </p>
           ) : (
-            <p id="contact-phone-hint" className="mt-2 text-xs text-mist-dim">
+            <p id="contact-phone-hint" className="mt-2 text-xs text-muted">
               We use this only if your enquiry is quicker to resolve by call.
             </p>
           )}
@@ -290,7 +290,7 @@ export function ContactForm({ className = "" }: ContactFormProps) {
         <div>
           <label
             htmlFor="contact-subject"
-            className="mb-2 block text-sm font-medium text-white"
+            className="mb-2 block text-sm font-medium text-ink"
           >
             Subject
           </label>
@@ -314,7 +314,7 @@ export function ContactForm({ className = "" }: ContactFormProps) {
             <p
               id="contact-subject-error"
               role="alert"
-              className="mt-2 text-xs text-red-400"
+              className="mt-2 text-xs font-medium text-sale"
             >
               {errors.subject}
             </p>
@@ -324,7 +324,7 @@ export function ContactForm({ className = "" }: ContactFormProps) {
         <div className="sm:col-span-2">
           <label
             htmlFor="contact-message"
-            className="mb-2 block text-sm font-medium text-white"
+            className="mb-2 block text-sm font-medium text-ink"
           >
             Message
           </label>
@@ -345,12 +345,12 @@ export function ContactForm({ className = "" }: ContactFormProps) {
             <p
               id="contact-message-error"
               role="alert"
-              className="mt-2 text-xs text-red-400"
+              className="mt-2 text-xs font-medium text-sale"
             >
               {errors.message}
             </p>
           ) : (
-            <p id="contact-message-hint" className="mt-2 text-xs text-mist-dim">
+            <p id="contact-message-hint" className="mt-2 text-xs text-muted">
               Please write at least {MIN_MESSAGE_LENGTH} characters so we can
               answer properly.
             </p>
@@ -359,7 +359,7 @@ export function ContactForm({ className = "" }: ContactFormProps) {
       </div>
 
       <div className="mt-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs leading-relaxed text-mist-dim">
+        <p className="text-xs leading-relaxed text-muted">
           Your details stay with Xpectra Media and are used only to answer your
           enquiry.
         </p>

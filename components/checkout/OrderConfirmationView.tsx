@@ -31,17 +31,20 @@ function readStoredOrder(): OrderDetails | null {
   }
 }
 
-/** One labelled row inside the delivery information card. */
+/** One labelled row inside the shipping information card. */
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-1 border-b border-line-soft py-3 last:border-b-0 sm:flex-row sm:items-start sm:gap-6">
-      <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-mist-dim sm:w-40 sm:shrink-0">
+    <div className="flex flex-col gap-1 border-b border-line py-3 last:border-b-0 sm:flex-row sm:items-start sm:gap-6">
+      <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-muted sm:w-40 sm:shrink-0">
         {label}
       </dt>
-      <dd className="text-sm leading-relaxed text-white">{value}</dd>
+      <dd className="text-sm leading-relaxed text-ink">{value}</dd>
     </div>
   );
 }
+
+const CARD =
+  "rounded-3xl border border-line bg-card p-6 shadow-[var(--shadow-soft)] sm:p-8";
 
 /**
  * Confirmation screen for the most recent order. The order is read back from
@@ -77,56 +80,60 @@ export function OrderConfirmationView() {
   }
 
   const unitCount = order.items.reduce((count, item) => count + item.quantity, 0);
+  const streetLine = order.apartment
+    ? `${order.street}, ${order.apartment}`
+    : order.street;
+  const cityLine = `${order.city}, ${order.state} ${order.zipCode}`;
 
   return (
     <div className="mx-auto max-w-4xl">
       {/* Success header */}
-      <div className="rounded-2xl border border-emerald-500/35 bg-emerald-500/10 p-7 text-center sm:p-10">
-        <span className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-emerald-400/50 bg-emerald-500/15">
-          <Icon name="checkCircle" size={30} className="text-emerald-400" />
+      <div className="animate-fade-up rounded-3xl border border-success/25 bg-success/5 p-7 text-center sm:p-10">
+        <span className="animate-pop mx-auto grid h-16 w-16 place-items-center rounded-full bg-success text-white shadow-[var(--shadow-lift)]">
+          <Icon name="check" size={30} />
         </span>
-        <h2 className="mt-6 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+        <h2 className="mt-6 font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
           Your order is placed
         </h2>
-        <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-mist">
+        <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate">
           Thank you, {order.fullName}. We have received your order and our
           packing team is already on it. A confirmation has been sent to{" "}
-          {order.email}, and our team will call you on {order.phone} to confirm
-          the delivery.
+          {order.email}, and our team will reach you on {order.phone} if we need
+          anything.
         </p>
 
-        <div className="mx-auto mt-7 inline-flex flex-col items-center rounded-2xl border border-line bg-surface px-7 py-5">
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-mist-dim">
+        <div className="mx-auto mt-7 inline-flex flex-col items-center rounded-2xl border border-line bg-card px-7 py-5 shadow-[var(--shadow-soft)]">
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
             Your order number
           </span>
-          <strong className="mt-2 font-display text-2xl font-bold tracking-[0.12em] text-brand-bright sm:text-3xl">
+          <strong className="mt-2 font-display text-2xl font-bold tracking-[0.12em] text-brand sm:text-3xl">
             {order.orderNumber}
           </strong>
-          <span className="mt-2 text-xs text-mist-dim">
+          <span className="mt-2 text-xs text-muted">
             Placed on {formatDate(order.placedAt)}
           </span>
         </div>
 
-        <p className="mt-5 text-xs leading-relaxed text-mist-dim">
+        <p className="mt-5 text-xs leading-relaxed text-muted">
           Please keep this order number safe. Quote it whenever you contact us
           about this order.
         </p>
       </div>
 
-      {/* Delivery information */}
+      {/* Shipping information */}
       <section
         aria-labelledby="confirmation-delivery-heading"
-        className="mt-8 rounded-2xl border border-line-soft bg-surface p-6 sm:p-8"
+        className={`mt-8 ${CARD}`}
       >
         <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-surface-2 text-brand">
+          <span className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-mist text-brand">
             <Icon name="truck" size={20} />
           </span>
           <h2
             id="confirmation-delivery-heading"
-            className="font-display text-lg font-bold tracking-tight text-white sm:text-xl"
+            className="font-display text-lg font-bold tracking-tight text-ink sm:text-xl"
           >
-            Delivery Information
+            Shipping Information
           </h2>
         </div>
 
@@ -136,57 +143,48 @@ export function OrderConfirmationView() {
           {order.altPhone ? (
             <DetailRow label="Alternative phone" value={order.altPhone} />
           ) : null}
-          <DetailRow label="Delivery address" value={order.address} />
-          <DetailRow label="City" value={order.city} />
-          <DetailRow label="Province" value={order.province} />
-          {order.landmark ? (
-            <DetailRow label="Nearby landmark" value={order.landmark} />
-          ) : null}
-          {order.postalCode ? (
-            <DetailRow label="Postal code" value={order.postalCode} />
-          ) : null}
+          <DetailRow label="Street address" value={streetLine} />
+          <DetailRow label="City, state and ZIP" value={cityLine} />
+          <DetailRow label="Country" value={order.country} />
           {order.notes ? <DetailRow label="Order notes" value={order.notes} /> : null}
         </dl>
 
-        <p className="mt-6 flex items-start gap-2.5 rounded-xl border border-brand/35 bg-brand/10 px-4 py-3 text-sm leading-relaxed text-mist">
-          <Icon name="clock" size={16} className="mt-0.5 shrink-0 text-brand-bright" />
+        <p className="mt-6 flex items-start gap-2.5 rounded-2xl border border-brand/25 bg-brand-tint px-4 py-3 text-sm leading-relaxed text-slate">
+          <Icon name="clock" size={16} className="mt-0.5 shrink-0 text-brand" />
           <span>
             Estimated delivery between{" "}
-            <strong className="font-semibold text-white">
+            <strong className="font-semibold text-ink">
               {deliveryWindow(order.placedAt)}
             </strong>
-            . You will receive a tracking reference by SMS as soon as your parcel
+            . You will receive tracking details by email as soon as your package
             leaves our warehouse.
           </span>
         </p>
       </section>
 
       {/* Order summary */}
-      <section
-        aria-labelledby="confirmation-summary-heading"
-        className="mt-6 rounded-2xl border border-line-soft bg-surface p-6 sm:p-8"
-      >
+      <section aria-labelledby="confirmation-summary-heading" className={`mt-6 ${CARD}`}>
         <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-surface-2 text-brand">
+          <span className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-mist text-brand">
             <Icon name="cart" size={20} />
           </span>
           <div>
             <h2
               id="confirmation-summary-heading"
-              className="font-display text-lg font-bold tracking-tight text-white sm:text-xl"
+              className="font-display text-lg font-bold tracking-tight text-ink sm:text-xl"
             >
               Order Summary
             </h2>
-            <p className="text-sm text-mist">
+            <p className="text-sm text-slate">
               {unitCount === 1 ? "1 item" : `${unitCount} items`}
             </p>
           </div>
         </div>
 
-        <ul className="mt-6 divide-y divide-line-soft border-y border-line-soft">
+        <ul className="mt-6 divide-y divide-line border-y border-line">
           {order.items.map((item) => (
             <li key={cartLineKey(item)} className="flex items-center gap-4 py-4">
-              <span className="relative h-20 w-16 shrink-0 overflow-hidden rounded-lg border border-line-soft bg-surface-2">
+              <span className="relative h-20 w-16 shrink-0 overflow-hidden rounded-xl border border-line bg-mist">
                 <Image
                   src={item.image}
                   alt={`${item.name} in ${item.color}, size ${item.size}`}
@@ -196,17 +194,17 @@ export function OrderConfirmationView() {
                 />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold leading-snug text-white">
+                <span className="block text-sm font-semibold leading-snug text-ink">
                   {item.name}
                 </span>
-                <span className="mt-1.5 block text-xs text-mist-dim">
+                <span className="mt-1.5 block text-xs text-muted">
                   Size {item.size}, {item.color}
                 </span>
-                <span className="mt-1 block text-xs text-mist">
+                <span className="mt-1 block text-xs text-slate">
                   {formatPrice(item.price)} each, quantity {item.quantity}
                 </span>
               </span>
-              <span className="shrink-0 font-semibold tabular-nums text-white">
+              <span className="shrink-0 font-semibold tabular-nums text-ink">
                 {formatPrice(item.price * item.quantity)}
               </span>
             </li>
@@ -215,68 +213,65 @@ export function OrderConfirmationView() {
 
         <dl className="mt-6 space-y-3 text-sm">
           <div className="flex items-center justify-between gap-4">
-            <dt className="text-mist">Subtotal</dt>
-            <dd className="font-semibold tabular-nums text-white">
+            <dt className="text-slate">Subtotal</dt>
+            <dd className="font-semibold tabular-nums text-ink">
               {formatPrice(order.subtotal)}
             </dd>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <dt className="text-mist">Delivery charges</dt>
+            <dt className="text-slate">Standard shipping</dt>
             <dd
               className={`font-semibold tabular-nums ${
-                order.delivery === 0 ? "text-emerald-400" : "text-white"
+                order.shipping === 0 ? "text-success" : "text-ink"
               }`}
             >
-              {order.delivery === 0 ? "Free" : formatPrice(order.delivery)}
+              {order.shipping === 0 ? "Free" : formatPrice(order.shipping)}
             </dd>
           </div>
         </dl>
 
-        <div className="mt-5 flex items-baseline justify-between gap-4 border-t border-line pt-5">
-          <span className="font-display text-base font-semibold text-white">
+        <div className="mt-5 flex items-baseline justify-between gap-4 border-t border-line-strong pt-5">
+          <span className="font-display text-base font-semibold text-ink">
             Total payable
           </span>
-          <span className="font-display text-2xl font-bold tabular-nums text-white">
+          <span className="font-display text-2xl font-bold tabular-nums text-ink">
             {formatPrice(order.total)}
           </span>
         </div>
       </section>
 
       {/* Payment status */}
-      <section
-        aria-labelledby="confirmation-payment-heading"
-        className="mt-6 rounded-2xl border border-line-soft bg-surface p-6 sm:p-8"
-      >
+      <section aria-labelledby="confirmation-payment-heading" className={`mt-6 ${CARD}`}>
         <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-surface-2 text-brand">
+          <span className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-mist text-brand">
             <Icon name="wallet" size={20} />
           </span>
           <h2
             id="confirmation-payment-heading"
-            className="font-display text-lg font-bold tracking-tight text-white sm:text-xl"
+            className="font-display text-lg font-bold tracking-tight text-ink sm:text-xl"
           >
             Payment
           </h2>
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-line bg-surface-2 px-5 py-4">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-mist px-5 py-4">
           <span>
-            <span className="block font-display text-base font-semibold text-white">
+            <span className="block font-display text-base font-semibold text-ink">
               {order.paymentMethod}
             </span>
-            <span className="mt-1 block text-sm text-mist">
-              Pay {formatPrice(order.total)} to the courier at your door.
+            <span className="mt-1 block text-sm text-slate">
+              Pay {formatPrice(order.total)} when your order is delivered.
             </span>
           </span>
-          <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-400/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wide text-amber-300">
+          <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wide text-amber-700">
             <Icon name="clock" size={14} />
             Payment pending
           </span>
         </div>
 
-        <p className="mt-4 text-xs leading-relaxed text-mist-dim">
-          Please keep the exact amount ready if you can. Our courier will hand
-          you a receipt once payment is collected.
+        <p className="mt-4 text-xs leading-relaxed text-muted">
+          Please keep the exact amount ready if you can. You will receive a
+          receipt once payment is collected.
         </p>
       </section>
 
@@ -291,9 +286,22 @@ export function OrderConfirmationView() {
         </Button>
       </div>
 
-      <p className="mt-6 text-center text-xs leading-relaxed text-mist-dim">
-        Need to change something on this order? Call {site.contact.phone} or
-        email {site.contact.email} and quote order number {order.orderNumber}.
+      <p className="mt-6 text-center text-xs leading-relaxed text-muted">
+        Need to change something on this order? Call{" "}
+        <a
+          href={site.contact.phoneHref}
+          className="font-semibold text-brand transition-colors hover:text-brand-deep"
+        >
+          {site.contact.phone}
+        </a>{" "}
+        or email{" "}
+        <a
+          href={site.contact.emailHref}
+          className="font-semibold text-brand transition-colors hover:text-brand-deep"
+        >
+          {site.contact.email}
+        </a>{" "}
+        and quote order number {order.orderNumber}.
       </p>
     </div>
   );

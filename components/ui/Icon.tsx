@@ -20,6 +20,11 @@ export type IconName =
   | "filter"
   | "grid"
   | "headset"
+  | "heart"
+  | "heartFilled"
+  | "eye"
+  | "ruler"
+  | "gift"
   | "instagram"
   | "list"
   | "lock"
@@ -57,6 +62,14 @@ const PATHS: Record<IconName, string> = {
   filter: "M3 5h18M6.5 12h11M10 19h4",
   grid: "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z",
   headset: "M4 14v-2a8 8 0 1 1 16 0v2M4 14a2 2 0 0 1 2-2h1v6H6a2 2 0 0 1-2-2v-2Zm16 0a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2v-2Zm-3 4v1a3 3 0 0 1-3 3h-2",
+  heart:
+    "M12 20.3 4.6 13a4.6 4.6 0 0 1 0-6.5 4.6 4.6 0 0 1 6.5 0l.9.9.9-.9a4.6 4.6 0 0 1 6.5 0 4.6 4.6 0 0 1 0 6.5Z",
+  heartFilled:
+    "M12 20.3 4.6 13a4.6 4.6 0 0 1 0-6.5 4.6 4.6 0 0 1 6.5 0l.9.9.9-.9a4.6 4.6 0 0 1 6.5 0 4.6 4.6 0 0 1 0 6.5Z",
+  eye: "M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Zm9.5 2.8a2.8 2.8 0 1 0 0-5.6 2.8 2.8 0 0 0 0 5.6Z",
+  ruler:
+    "M3.5 14.5 14.5 3.5a1.5 1.5 0 0 1 2.1 0l3.9 3.9a1.5 1.5 0 0 1 0 2.1L9.5 20.5a1.5 1.5 0 0 1-2.1 0l-3.9-3.9a1.5 1.5 0 0 1 0-2.1ZM8 10l2 2m2-6 2 2m-8 6 2 2",
+  gift: "M3 11h18v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9Zm-.5-4h19a.5.5 0 0 1 .5.5V11H2V7.5a.5.5 0 0 1 .5-.5ZM12 7v14M12 7S10.5 3 8.5 3a2 2 0 0 0 0 4H12Zm0 0s1.5-4 3.5-4a2 2 0 0 1 0 4H12Z",
   instagram:
     "M4 8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8Zm8 8a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm5.2-8.7h.01",
   list: "M4 6h16M4 12h16M4 18h16",
@@ -89,15 +102,24 @@ interface IconProps extends Omit<SVGProps<SVGSVGElement>, "name"> {
   size?: number;
   /** Supplying a title exposes the icon to screen readers. */
   title?: string;
+  /** Fills the glyph with the current color, used by the wishlist heart. */
+  filled?: boolean;
 }
 
-export function Icon({ name, size = 20, title, className, ...rest }: IconProps) {
+export function Icon({
+  name,
+  size = 20,
+  title,
+  className,
+  filled = false,
+  ...rest
+}: IconProps) {
   return (
     <svg
       viewBox="0 0 24 24"
       width={size}
       height={size}
-      fill="none"
+      fill={filled ? "currentColor" : "none"}
       stroke="currentColor"
       strokeWidth={1.7}
       strokeLinecap="round"

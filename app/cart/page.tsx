@@ -5,14 +5,14 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata = buildMetadata({
   title: "Shopping Cart",
   description:
-    "Review the items in your Xpectra Media shopping cart, update quantities, check your subtotal and delivery charges, then continue to checkout with Cash on Delivery across Pakistan.",
+    "Review the items in your Xpectra Media shopping cart, update quantities, check your subtotal and shipping, then continue to a secure checkout with free shipping on orders over $75.",
   path: "/cart",
   keywords: [
     "shopping cart",
     "Xpectra Media cart",
-    "online shopping in Pakistan",
-    "Cash on Delivery Pakistan",
-    "free delivery in Pakistan",
+    "online clothing store",
+    "free shipping",
+    "secure checkout",
   ],
 });
 
@@ -22,12 +22,14 @@ export default function CartPage() {
       <PageBanner
         eyebrow="Your Selection"
         title="Shopping Cart"
-        description="Check your items, adjust quantities and review your total before you place the order. Delivery is free on every order of PKR 5,000 and above."
+        description="Check your items, adjust quantities and review your total before you place the order. Standard shipping is free on every order of $75 and above."
         crumbs={[{ name: "Shopping Cart", href: "/cart" }]}
       />
 
-      <section className="shell py-12 md:py-16">
-        <CartView />
+      <section className="bg-mist py-12 md:py-16">
+        <div className="shell">
+          <CartView />
+        </div>
       </section>
     </>
   );

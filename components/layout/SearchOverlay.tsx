@@ -15,16 +15,10 @@ interface SearchOverlayProps {
   onClose: () => void;
 }
 
-const SUGGESTIONS = [
-  "Kurta Shalwar",
-  "Formal Shirt",
-  "Baby Clothes",
-  "Toys",
-  "Trousers",
-];
+const SUGGESTIONS = ["New Arrivals", "Hoodies", "Dresses", "Jeans", "Toys"];
 
 /**
- * Full screen search panel. Matching runs against the local catalogue as the
+ * Frosted light search panel. Matching runs against the local catalogue as the
  * customer types, and submitting hands the term to the products page.
  */
 export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
@@ -77,19 +71,19 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
       }`}
       aria-hidden={!open}
     >
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={close} />
+      <div className="absolute inset-0 bg-night/35 backdrop-blur-md" onClick={close} />
 
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Search products"
-        className={`relative mx-auto mt-20 w-[92%] max-w-2xl transition-all duration-300 ease-out ${
+        className={`relative mx-auto mt-20 w-[92%] max-w-2xl transition-all duration-300 ease-[var(--ease-out-soft)] ${
           open ? "translate-y-0" : "-translate-y-4"
         }`}
       >
         <form
           onSubmit={submit}
-          className="flex items-center gap-3 rounded-2xl border border-line bg-surface px-5 py-4 shadow-[0_40px_80px_-40px_rgba(0,0,0,1)]"
+          className="glass flex items-center gap-3 rounded-2xl border border-line px-5 py-4 shadow-[var(--shadow-lift)]"
           role="search"
         >
           <Icon name="search" size={20} className="shrink-0 text-brand" />
@@ -102,21 +96,21 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
             type="search"
             value={term}
             onChange={(event) => setTerm(event.target.value)}
-            placeholder="Search shirts, trousers, kurta shalwar, toys"
+            placeholder="Search hoodies, dresses, jeans, baby clothes, toys"
             autoComplete="off"
-            className="w-full bg-transparent text-base text-white placeholder:text-mist-dim focus:outline-none"
+            className="w-full bg-transparent text-base text-ink placeholder:text-muted focus:outline-none"
           />
           <button
             type="button"
             onClick={close}
             aria-label="Close search"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-mist transition-colors hover:bg-surface-2 hover:text-white"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slate transition-colors hover:bg-mist hover:text-ink"
           >
             <Icon name="close" size={18} />
           </button>
         </form>
 
-        <div className="mt-3 overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_40px_80px_-40px_rgba(0,0,0,1)]">
+        <div className="mt-3 overflow-hidden rounded-2xl border border-line bg-card shadow-[var(--shadow-lift)]">
           {results.length > 0 ? (
             <ul className="max-h-[52vh] overflow-y-auto p-2">
               {results.map((product) => (
@@ -124,9 +118,9 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                   <Link
                     href={`/products/${product.slug}`}
                     onClick={close}
-                    className="flex items-center gap-4 rounded-xl p-2.5 transition-colors hover:bg-surface-2"
+                    className="flex items-center gap-4 rounded-xl p-2.5 transition-colors hover:bg-mist"
                   >
-                    <span className="relative h-16 w-14 shrink-0 overflow-hidden rounded-lg bg-surface-2">
+                    <span className="relative h-16 w-14 shrink-0 overflow-hidden rounded-lg bg-mist-2">
                       <Image
                         src={product.images[0]}
                         alt={product.name}
@@ -136,10 +130,10 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                       />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold text-white">
+                      <span className="block truncate text-sm font-semibold text-ink">
                         {product.name}
                       </span>
-                      <span className="mt-0.5 block text-xs capitalize text-mist">
+                      <span className="mt-0.5 block text-xs capitalize text-slate">
                         {product.category} in {subcategoryLabel(product.subcategory)}
                       </span>
                     </span>
@@ -152,16 +146,16 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
             </ul>
           ) : term.trim().length >= 2 ? (
             <div className="px-5 py-8 text-center">
-              <p className="text-sm text-white">
+              <p className="text-sm font-semibold text-ink">
                 No products match {`"${term.trim()}"`}
               </p>
-              <p className="mt-2 text-xs text-mist">
-                Try a different word such as shirt, trousers or toys.
+              <p className="mt-2 text-xs text-slate">
+                Try a different word such as hoodie, dress, jeans or toys.
               </p>
             </div>
           ) : (
             <div className="px-5 py-5">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-mist-dim">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
                 Popular searches
               </p>
               <div className="flex flex-wrap gap-2">
@@ -170,7 +164,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                     key={suggestion}
                     type="button"
                     onClick={() => setTerm(suggestion)}
-                    className="rounded-full border border-line bg-surface-2 px-4 py-2 text-sm text-mist transition-all hover:border-brand hover:text-white"
+                    className="rounded-full border border-line bg-mist px-4 py-2 text-sm text-slate transition-all hover:border-brand hover:bg-brand-tint hover:text-brand-deep"
                   >
                     {suggestion}
                   </button>

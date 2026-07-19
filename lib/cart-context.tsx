@@ -8,7 +8,7 @@ import {
   useSyncExternalStore,
 } from "react";
 
-import { cartCount, cartLineKey, cartSubtotal, deliveryFee } from "@/lib/format";
+import { cartCount, cartLineKey, cartSubtotal, shippingFee } from "@/lib/format";
 import { STORAGE_KEYS } from "@/lib/site";
 import type { CartItem } from "@/lib/types";
 
@@ -166,7 +166,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<CartContextValue>(() => {
     const subtotal = cartSubtotal(items);
-    const delivery = deliveryFee(subtotal);
+    const delivery = shippingFee(subtotal);
     return {
       items,
       hydrated,

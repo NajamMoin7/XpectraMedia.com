@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 
-export type ButtonVariant = "primary" | "outline" | "ghost" | "subtle";
+export type ButtonVariant = "primary" | "outline" | "ghost" | "dark" | "soft";
 export type ButtonSize = "sm" | "md" | "lg";
 
 const BASE =
@@ -11,14 +11,14 @@ const BASE =
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    "bg-gradient-to-r from-brand-deep via-brand to-brand-bright text-white " +
-    "shadow-[0_10px_30px_-12px_rgba(30,144,255,0.9)] " +
-    "hover:shadow-[0_16px_44px_-12px_rgba(30,144,255,1)] hover:brightness-110",
+    "bg-gradient-to-r from-brand-deep via-brand to-brand text-white shadow-[0_8px_24px_-10px_rgba(13,127,242,0.7)] " +
+    "hover:shadow-[0_14px_32px_-10px_rgba(13,127,242,0.85)] hover:brightness-110 hover:-translate-y-0.5",
   outline:
-    "border border-line bg-surface/60 text-white hover:border-brand " +
-    "hover:bg-surface-2 hover:shadow-[0_0_0_1px_rgba(30,144,255,0.35)]",
-  ghost: "text-mist hover:text-white hover:bg-surface-2",
-  subtle: "bg-surface-2 text-white hover:bg-surface-3 border border-line-soft",
+    "border border-line-strong bg-canvas text-ink hover:border-brand hover:text-brand " +
+    "hover:shadow-[0_8px_22px_-12px_rgba(13,127,242,0.5)] hover:-translate-y-0.5",
+  ghost: "text-slate hover:text-ink hover:bg-mist",
+  dark: "bg-night text-white hover:bg-night-soft hover:-translate-y-0.5",
+  soft: "bg-brand-tint text-brand-deep hover:bg-brand hover:text-white",
 };
 
 const SIZES: Record<ButtonSize, string> = {
@@ -68,13 +68,7 @@ export function Button(props: LinkButtonProps | NativeButtonProps) {
 
     if (external) {
       return (
-        <a
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={style}
-          {...rest}
-        >
+        <a href={href} target="_blank" rel="noopener noreferrer" className={style} {...rest}>
           {children}
         </a>
       );

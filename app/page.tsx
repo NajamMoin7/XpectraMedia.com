@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 
 import { Hero } from "@/components/home/Hero";
+import { HomeRecentlyViewed } from "@/components/home/HomeRecentlyViewed";
 import { PromoBanner } from "@/components/home/PromoBanner";
+import { ShopByStyle } from "@/components/home/ShopByStyle";
 import { Testimonials } from "@/components/home/Testimonials";
 import { WhyShopWithUs } from "@/components/home/WhyShopWithUs";
 import { CategoryCard } from "@/components/product/CategoryCard";
@@ -11,114 +13,139 @@ import { Icon } from "@/components/ui/Icon";
 import { NewsletterForm } from "@/components/ui/NewsletterForm";
 import { SectionHeading } from "@/components/ui/PageBanner";
 import { Reveal } from "@/components/ui/Reveal";
-import { categories, subcategories } from "@/lib/categories";
+import { categories } from "@/lib/categories";
 import {
   countByCategory,
-  countBySubcategory,
+  getBestSellers,
   getFeaturedProducts,
   getNewArrivals,
+  getProductsByCategory,
 } from "@/lib/products";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Xpectra Media | Online Shopping in Pakistan for Men, Women and Kids",
+  title: "Xpectra Media | Modern Clothing, Baby Essentials and Toys Online",
   description:
-    "Shop quality fashion online in Pakistan at Xpectra Media. Men clothing, women clothing, kids clothes, baby clothes and toys with Cash on Delivery and fast nationwide delivery.",
+    "Shop modern everyday fashion at Xpectra Media. Clothing for men, women and kids, plus baby essentials and creative toys, with free shipping over $75, easy 30 day returns and secure checkout.",
   path: "/",
   keywords: [
-    "online shopping in Pakistan",
+    "online clothing store",
     "men clothing online",
     "women clothing online",
     "kids clothes online",
-    "baby clothes in Pakistan",
-    "toys online in Pakistan",
-    "affordable fashion in Pakistan",
+    "baby essentials online",
+    "creative toys online",
+    "free shipping fashion",
   ],
 });
 
 export default function HomePage() {
-  const featured = getFeaturedProducts(8);
+  const trending = getBestSellers(4);
+  const featured = getFeaturedProducts(4);
+  const bestSellers = getBestSellers(8);
   const newArrivals = getNewArrivals(4);
-
-  // The home page highlights the three departments plus two popular families.
-  const babyClothes = subcategories.find((sub) => sub.slug === "baby-clothes");
-  const toys = subcategories.find((sub) => sub.slug === "toys");
+  const kidsPicks = getProductsByCategory("kids").slice(0, 4);
+  const babyPicks = getProductsByCategory("baby").slice(0, 4);
+  const toyPicks = getProductsByCategory("toys").slice(0, 4);
 
   return (
     <>
       <Hero />
 
-      {/* Featured categories */}
-      <section className="shell py-16 md:py-20">
-        <SectionHeading
-          eyebrow="Shop by Category"
-          title="Find the right pieces faster"
-          description="Every department is organised around how families actually shop, from formal shirts and kurta shalwar sets to school trousers, baby essentials and toys."
-          action={
-            <Button href="/categories" variant="outline">
-              All Categories
-              <Icon name="arrowRight" size={16} />
-            </Button>
-          }
-        />
-
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {categories.map((category, index) => (
-            <Reveal key={category.slug} delay={index * 80} className="h-full">
-              <CategoryCard
-                title={category.name}
-                description={category.tagline}
-                image={category.image}
-                href={category.href}
-                count={countByCategory(category.slug)}
-                priority={index === 0}
-              />
-            </Reveal>
-          ))}
-
-          {babyClothes ? (
-            <Reveal delay={240} className="h-full sm:col-span-2">
-              <CategoryCard
-                title={babyClothes.name}
-                description="Gentle cotton rompers, newborn sets and warm sleep suits made for easy changing."
-                image={babyClothes.image}
-                href="/products?category=kids&type=baby-clothes"
-                count={countBySubcategory("baby-clothes")}
-                wide
-              />
-            </Reveal>
-          ) : null}
-
-          {toys ? (
-            <Reveal delay={320} className="h-full">
-              <CategoryCard
-                title={toys.name}
-                description="Educational wooden blocks, activity sorters and soft toys chosen for safety."
-                image={toys.image}
-                href="/products?category=kids&type=toys"
-                count={countBySubcategory("toys")}
-              />
-            </Reveal>
-          ) : null}
-        </div>
-      </section>
-
-      {/* Featured products */}
-      <section className="border-y border-line-soft bg-ink-soft py-16 md:py-20">
+      {/* Trending now */}
+      <section className="border-y border-line bg-mist py-16 md:py-20">
         <div className="shell">
           <SectionHeading
-            eyebrow="Featured Products"
-            title="Chosen by our customers this season"
-            description="The pieces that sell fastest across every department, selected for fabric quality, fit and value."
+            eyebrow="Trending Now"
+            title="What everyone is wearing this week"
+            description="The pieces moving fastest across the store right now, chosen by customers rather than by us."
             action={
-              <Button href="/products" variant="outline">
-                View All Products
+              <Button href="/products?sort=popularity" variant="outline">
+                View All Best Sellers
                 <Icon name="arrowRight" size={16} />
               </Button>
             }
           />
           <div className="mt-12">
-            <ProductGrid products={featured} />
+            <ProductGrid products={trending} />
+          </div>
+        </div>
+      </section>
+
+      {/* Shop by style */}
+      <section className="shell py-16 md:py-20">
+        <SectionHeading
+          centered
+          eyebrow="Shop by Style"
+          title="Four ways to build a wardrobe"
+          description="Edits grouped by how you actually dress, from the basics that carry a whole week to the layers you reach for on a cool morning."
+        />
+        <div className="mt-12">
+          <ShopByStyle />
+        </div>
+      </section>
+
+      {/* Featured collections */}
+      <section className="border-y border-line bg-mist py-16 md:py-20">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="Featured Collections"
+            title="Five departments, one checkout"
+            description="Everything is organized around how families really shop, so clothing, baby essentials and toys can travel in the same order."
+            action={
+              <Button href="/categories" variant="outline">
+                All Collections
+                <Icon name="arrowRight" size={16} />
+              </Button>
+            }
+          />
+
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {categories.map((category, index) => (
+              <Reveal key={category.slug} delay={index * 80} className="h-full">
+                <CategoryCard
+                  title={category.name}
+                  description={category.tagline}
+                  image={category.image}
+                  href={category.href}
+                  count={countByCategory(category.slug)}
+                  wide={index === 4}
+                />
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* New season essentials */}
+      <section className="shell py-16 md:py-20">
+        <SectionHeading
+          centered
+          eyebrow="New Season Essentials"
+          title="The pieces worth starting with"
+          description="Fabric first picks that anchor everything else in your closet, cut for comfort and finished to last."
+        />
+        <div className="mt-12">
+          <ProductGrid products={featured} />
+        </div>
+      </section>
+
+      {/* Best sellers */}
+      <section className="border-y border-line bg-mist py-16 md:py-20">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="Best Sellers"
+            title="Customer favorites across every department"
+            description="Eight pieces that keep selling out and coming back, rated highly by the people who wear them every day."
+            action={
+              <Button href="/products?sort=popularity" variant="outline">
+                Shop Best Sellers
+                <Icon name="arrowRight" size={16} />
+              </Button>
+            }
+          />
+          <div className="mt-12">
+            <ProductGrid products={bestSellers} />
           </div>
         </div>
       </section>
@@ -128,10 +155,10 @@ export default function HomePage() {
         <SectionHeading
           eyebrow="New Arrivals"
           title="Just added to the collection"
-          description="Fresh pieces added to the catalogue this month, from brushed cotton shirts to festive embroidery and new toys."
+          description="Fresh styles landing this month, from brushed cotton shirts to soft knits and new play sets."
           action={
             <Button href="/products?sort=latest" variant="outline">
-              Browse Latest
+              Shop New Arrivals
               <Icon name="arrowRight" size={16} />
             </Button>
           }
@@ -141,12 +168,72 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Why shop with us */}
-      <section className="border-y border-line-soft bg-ink-soft py-16 md:py-20">
+      {/* Kids favorites */}
+      <section className="border-y border-line bg-mist py-16 md:py-20">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="Kids Favorites"
+            title="Built for playgrounds and everything after"
+            description="Soft, durable pieces that survive real childhoods and wash back to looking neat."
+            action={
+              <Button href="/categories/kids" variant="outline">
+                Shop Kids
+                <Icon name="arrowRight" size={16} />
+              </Button>
+            }
+          />
+          <div className="mt-12">
+            <ProductGrid products={kidsPicks} />
+          </div>
+        </div>
+      </section>
+
+      {/* Baby essentials */}
+      <section className="shell py-16 md:py-20">
+        <SectionHeading
+          eyebrow="Baby Essentials"
+          title="Gentle cotton from the very first wear"
+          description="Rompers, everyday sets and sleepwear designed around easy changing and skin that deserves care."
+          action={
+            <Button href="/categories/baby" variant="outline">
+              Shop Baby
+              <Icon name="arrowRight" size={16} />
+            </Button>
+          }
+        />
+        <div className="mt-12">
+          <ProductGrid products={babyPicks} />
+        </div>
+      </section>
+
+      {/* Creative toys */}
+      <section className="border-y border-line bg-mist py-16 md:py-20">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="Creative Toys"
+            title="Play that rewards imagination"
+            description="Open ended wooden sets, soft companions and activity toys chosen for safety and genuine play value."
+            action={
+              <Button href="/categories/toys" variant="outline">
+                Shop Toys
+                <Icon name="arrowRight" size={16} />
+              </Button>
+            }
+          />
+          <div className="mt-12">
+            <ProductGrid products={toyPicks} />
+          </div>
+        </div>
+      </section>
+
+      <PromoBanner />
+
+      {/* Why customers choose us */}
+      <section className="border-y border-line bg-mist py-16 md:py-20">
         <div className="shell">
           <SectionHeading
             centered
-            eyebrow="Why Shop With Us"
+            eyebrow="Why Customers Choose Us"
             title="Built around trust, not guesswork"
             description="Every part of the Xpectra Media experience is designed to remove the doubt that usually comes with shopping online."
           />
@@ -156,46 +243,45 @@ export default function HomePage() {
         </div>
       </section>
 
-      <PromoBanner />
-
-      {/* Testimonials */}
-      <section className="border-y border-line-soft bg-ink-soft py-16 md:py-20">
-        <div className="shell">
-          <SectionHeading
-            centered
-            eyebrow="Customer Stories"
-            title="What families across Pakistan say"
-            description="Real feedback from customers in Lahore, Karachi, Islamabad and beyond."
-          />
-          <div className="mt-12">
-            <Testimonials />
-          </div>
+      {/* Customer reviews */}
+      <section className="shell py-16 md:py-20">
+        <SectionHeading
+          centered
+          eyebrow="Customer Reviews"
+          title="What our customers say"
+          description="Verified feedback from shoppers across the United States, alongside the piece they actually bought."
+        />
+        <div className="mt-12">
+          <Testimonials />
         </div>
       </section>
+
+      <HomeRecentlyViewed />
 
       {/* Newsletter */}
       <section className="shell py-16 md:py-20">
         <Reveal>
-          <div className="relative overflow-hidden rounded-3xl border border-line bg-surface px-6 py-14 text-center sm:px-12">
+          <div className="brand-wash relative overflow-hidden rounded-3xl border border-line bg-card px-6 py-14 text-center shadow-[var(--shadow-soft)] sm:px-12">
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(60% 100% at 50% 0%, rgba(30,144,255,0.20) 0%, rgba(14,19,27,0) 70%)",
-              }}
+              className="pointer-events-none absolute -left-20 -top-24 h-72 w-72 rounded-full bg-brand/10 blur-3xl"
             />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-brand-bright/10 blur-3xl"
+            />
+
             <div className="relative mx-auto max-w-2xl">
-              <span className="inline-flex items-center gap-2 rounded-full border border-line bg-ink/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand">
-                <Icon name="mail" size={14} />
+              <span className="inline-flex items-center gap-2 rounded-full border border-line bg-white/85 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-deep shadow-[var(--shadow-soft)] backdrop-blur">
+                <Icon name="mail" size={14} className="text-brand" />
                 Newsletter
               </span>
-              <h2 className="mt-6 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              <h2 className="mt-6 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
                 Be first to see every new arrival
               </h2>
-              <p className="mt-4 text-base leading-relaxed text-mist">
-                Subscribe for seasonal collections, kids clothing drops and
-                offers made for families shopping online in Pakistan.
+              <p className="mt-4 text-base leading-relaxed text-slate">
+                Subscribe for seasonal collections, early access to new drops
+                and offers made for the way you already shop.
               </p>
               <NewsletterForm className="mx-auto mt-8 max-w-lg text-left" />
             </div>

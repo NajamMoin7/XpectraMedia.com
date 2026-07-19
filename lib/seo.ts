@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { calcDiscount } from "@/lib/format";
-import { site } from "@/lib/site";
+import { FREE_SHIPPING_THRESHOLD, SHIPPING_RATE, site } from "@/lib/site";
 import type { Product } from "@/lib/types";
 
 interface PageSeo {
@@ -73,23 +73,25 @@ export function organizationJsonLd() {
     email: site.contact.email,
     telephone: site.contact.phone,
     currenciesAccepted: site.currency,
+    priceRange: "$$",
     paymentAccepted: "Cash on Delivery",
-    areaServed: { "@type": "Country", name: "Pakistan" },
+    areaServed: { "@type": "Country", name: "United States" },
     address: {
       "@type": "PostalAddress",
-      streetAddress: site.contact.addressLine,
+      streetAddress: `${site.contact.street}, ${site.contact.unit}`,
       addressLocality: site.contact.city,
-      addressRegion: site.contact.region,
+      addressRegion: "CA",
       postalCode: site.contact.postalCode,
-      addressCountry: "PK",
+      addressCountry: "US",
     },
     contactPoint: {
       "@type": "ContactPoint",
+      name: site.contact.name,
       telephone: site.contact.phone,
       contactType: "customer support",
       email: site.contact.email,
-      areaServed: "PK",
-      availableLanguage: ["English", "Urdu"],
+      areaServed: "US",
+      availableLanguage: ["English"],
     },
     sameAs: site.social.map((channel) => channel.href),
   };
@@ -100,7 +102,16 @@ export function websiteJsonLd() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: site.name,
+    alternateName: site.tagline,
     url: site.url,
+    description: site.description,
+    inLanguage: "en-US",
+    publisher: {
+      "@type": "Organization",
+      name: site.name,
+      url: site.url,
+      logo: absoluteUrl(site.logo),
+    },
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -136,7 +147,44 @@ export function productJsonLd(product: Product) {
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
-      seller: { "@type": "Organization", name: site.name },
+      seller: { "@type": "Organization", name: site.name, url: site.url },
+      eligibleRegion: { "@type": "Country", name: "United States" },
+      areaServed: { "@type": "Country", name: "United States" },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: product.price >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_RATE,
+          currency: "USD",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "US",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 1,
+            unitCode: "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 3,
+            maxValue: 7,
+            unitCode: "DAY",
+          },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "US",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 30,
+        returnMethod: "https://schema.org/ReturnByMail",
+        returnFees: "https://schema.org/FreeReturn",
+      },
       ...(discount > 0 && product.originalPrice
         ? {
             priceSpecification: {

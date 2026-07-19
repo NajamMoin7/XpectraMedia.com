@@ -1,88 +1,104 @@
 import type { Faq, Testimonial } from "@/lib/types";
 
-/** Sample customer feedback shown on the home page testimonial slider. */
+/** Sample customer feedback shown on the home page reviews section. */
 export const testimonials: Testimonial[] = [
   {
     id: "t1",
-    name: "Ayesha Siddiqui",
-    location: "Lahore",
+    name: "Emily Carter",
     rating: 5,
+    purchase: "Floral Midi Dress",
     quote:
-      "I ordered the chikankari kurta shalwar for Eid and the embroidery is far better than I expected at this price. It arrived in three days and the fit was exactly as described on the size guide.",
+      "The product quality was even better than I expected. The fit was accurate, the packaging was neat, and the whole shopping experience felt smooth from start to finish.",
   },
   {
     id: "t2",
-    name: "Bilal Ahmed",
-    location: "Karachi",
+    name: "Michael Reed",
     rating: 5,
+    purchase: "Premium Linen Blend Shirt",
     quote:
-      "Bought two formal shirts and a pair of tailored trousers for work. The fabric quality is genuinely good and the shirts still look sharp by the end of the day. Cash on Delivery made the whole thing simple.",
+      "I ordered two shirts and a pair of jeans and everything arrived within four days. The linen shirt is now the one I reach for constantly. Sizing matched the guide exactly.",
   },
   {
     id: "t3",
-    name: "Fatima Noor",
-    location: "Islamabad",
+    name: "Sophia Bennett",
     rating: 5,
+    purchase: "Chunky Knit Sweater",
     quote:
-      "The newborn set is so soft and the envelope shoulders make dressing my daughter much easier. I have already ordered a second one as a gift for my sister.",
+      "This sweater is genuinely soft, which is rare at this price. No itch at the neck at all. I ordered a second one in a different color a week later.",
   },
   {
     id: "t4",
-    name: "Usman Tariq",
-    location: "Rawalpindi",
+    name: "Daniel Brooks",
     rating: 4,
+    purchase: "Everyday Pullover Hoodie",
     quote:
-      "Ordered the wooden learning blocks for my son and he plays with them every single day. Solid wood, smooth edges and the storage box keeps everything together.",
+      "Heavyweight fleece that actually holds its shape, and the hood does not go flat after a few washes. Ordering was simple and the tracking updates were clear.",
   },
   {
     id: "t5",
-    name: "Hina Raza",
-    location: "Faisalabad",
+    name: "Olivia Morgan",
     rating: 5,
+    purchase: "Organic Cotton Baby Romper",
     quote:
-      "The lawn shirts are perfect for summer here. Light, comfortable and the colours have not faded after several washes. Customer support answered my sizing question within minutes on WhatsApp.",
+      "The organic cotton is so soft and the full length snaps make night changes much easier. I have already ordered three more and sent one as a gift.",
   },
   {
     id: "t6",
-    name: "Kamran Sheikh",
-    location: "Multan",
+    name: "James Parker",
     rating: 5,
+    purchase: "Wooden Rainbow Stacker",
     quote:
-      "Ordering was straightforward and I paid the rider at my door. The kurta shalwar quality is excellent and I will be buying the charcoal one next.",
+      "My daughter plays with this every single day and has found about ten different uses for it. Solid wood, smooth edges, and it looks good left out in the living room.",
+  },
+  {
+    id: "t7",
+    name: "Ava Mitchell",
+    rating: 5,
+    purchase: "Seamless Activewear Set",
+    quote:
+      "The set fits like a second skin and the waistband genuinely does not roll. Returns were easy when I needed a different size, and the replacement shipped right away.",
+  },
+  {
+    id: "t8",
+    name: "Nathan Cole",
+    rating: 5,
+    purchase: "Slim Fit Stretch Jeans",
+    quote:
+      "These jeans have real stretch without looking like athletic wear. Comfortable from the first day with no break in period. Easily the best pair I own right now.",
   },
 ];
 
 /** Questions answered on the contact page accordion. */
 export const faqs: Faq[] = [
   {
-    question: "How long does delivery take across Pakistan?",
+    question: "How long does shipping take?",
     answer:
-      "Orders are processed within one working day. Delivery usually takes two to three working days for major cities such as Lahore, Karachi, Islamabad, Rawalpindi, Faisalabad and Multan, and three to five working days for other locations across the country.",
+      "Orders are processed within one business day. Standard shipping arrives in three to seven business days depending on your address. Express delivery is available at checkout for faster arrival.",
   },
   {
-    question: "Which payment methods do you accept?",
+    question: "Do you offer free shipping?",
     answer:
-      "We currently offer Cash on Delivery only. You place your order on the website, we confirm it with you, and you pay the courier in cash when your parcel is handed over at your door. There is no advance payment required.",
+      "Yes. Standard shipping is free on every order over $75. Below that, standard shipping is a flat $6.95 anywhere in the United States.",
   },
   {
-    question: "What are the delivery charges?",
+    question: "Which payment method do you accept?",
     answer:
-      "A flat delivery charge of PKR 250 applies to orders below PKR 5,000. Once your order subtotal reaches PKR 5,000 or more, delivery is completely free anywhere in Pakistan.",
+      "We currently offer Cash on Delivery. You place your order on the website, we confirm it with you, and you pay the courier when your parcel is handed over at your door. No advance payment is required.",
   },
   {
-    question: "Can I exchange an item if the size does not fit?",
+    question: "What is your return policy?",
     answer:
-      "Yes. You can request an exchange within seven days of receiving your order, as long as the item is unused, unwashed and still has its original tags attached. Contact us on WhatsApp or by email with your order number and we will arrange the exchange.",
+      "You can return any item within 30 days of delivery as long as it is unworn, unwashed and still has the original tags attached. Return shipping is free on your first return per order.",
   },
   {
     question: "How do I choose the right size?",
     answer:
-      "Every product page lists the available sizes for that item. Adult clothing follows standard Small, Medium, Large and Extra Large sizing, kids clothing is listed by age range, and baby clothing is listed by months. If you are unsure, send us a message and our team will recommend a size.",
+      "Every product page lists the available sizes along with a size guide. Adult clothing follows standard XS through XXL sizing, kids clothing is listed by age, and baby clothing is listed by months. If you are between sizes, our team is happy to advise.",
   },
   {
-    question: "Can I cancel or change my order after placing it?",
+    question: "Can I change or cancel my order?",
     answer:
-      "You can cancel or change your order at any time before it is handed to the courier. Contact us with your order number as soon as possible and our team will update or cancel it for you at no cost.",
+      "You can change or cancel your order at any time before it ships. Contact us with your order number as soon as possible and our team will update or cancel it at no cost.",
   },
   {
     question: "Are your toys safe for young children?",
@@ -90,58 +106,58 @@ export const faqs: Faq[] = [
       "Yes. Our wooden toys use water based non toxic paint with hand rounded edges, our soft toys use embroidered features rather than plastic eyes so there are no small parts, and our plastic toys are made from food grade material that is free from BPA.",
   },
   {
-    question: "How can I track my order?",
+    question: "How do I track my order?",
     answer:
-      "Once your parcel is dispatched we send you a tracking reference by SMS on the phone number provided at checkout. You can also message us on WhatsApp with your order number and we will share the current status right away.",
+      "Once your parcel ships we send a tracking link to the email address provided at checkout. You can also contact our support team with your order number and we will share the current status right away.",
   },
 ];
 
 /** Reasons to shop, shown as feature cards on the home page. */
 export const shoppingBenefits = [
   {
-    title: "Quality Products",
+    title: "Free Shipping Over $75",
     description:
-      "Every item is checked against our fabric and stitching standards before it is listed, so what arrives matches what you saw on screen.",
+      "Standard shipping is free on every order over $75, with a flat $6.95 rate below that and express delivery available at checkout.",
+    icon: "truck",
+  },
+  {
+    title: "Easy 30 Day Returns",
+    description:
+      "Changed your mind or need a different size? Return any unworn item within 30 days, with free return shipping on your first return per order.",
+    icon: "refresh",
+  },
+  {
+    title: "Quality You Can Feel",
+    description:
+      "Every piece is checked against our fabric and construction standards before it is listed, so what arrives matches what you saw on screen.",
     icon: "shield",
   },
   {
-    title: "Affordable Prices",
+    title: "Secure Checkout",
     description:
-      "We keep our range direct and our margins honest, which means premium fabrics and finishing at prices that stay realistic for families.",
-    icon: "tag",
-  },
-  {
-    title: "Fast Order Processing",
-    description:
-      "Orders placed before the evening cut off are packed and dispatched within one working day, so your parcel is moving quickly.",
-    icon: "bolt",
+      "Checkout collects only the details needed to deliver your order, nothing more, and your information is never sold or shared for marketing.",
+    icon: "lock",
   },
   {
     title: "Cash on Delivery",
     description:
-      "Pay the courier in cash when your parcel reaches your door. No advance payment, no card details and no online transfer needed.",
+      "Pay when your order arrives at your door. No advance payment, no card details and no online transfer needed to place an order.",
     icon: "wallet",
   },
   {
     title: "Customer Support",
     description:
-      "Our team answers on WhatsApp, phone and email during working hours, ready to help with sizing, order status and exchanges.",
+      "Our team answers by phone and email during business hours, ready to help with sizing, order status, returns and exchanges.",
     icon: "headset",
-  },
-  {
-    title: "Secure Checkout Experience",
-    description:
-      "Checkout collects only the details needed to deliver your parcel, nothing more, and your information is never sold or shared for marketing.",
-    icon: "lock",
   },
 ] as const;
 
 /** Statistics displayed on the about page. */
 export const companyStats = [
-  { value: "25,000", suffix: "plus", label: "Happy Customers" },
-  { value: "6", suffix: "", label: "Product Categories" },
-  { value: "1,200", suffix: "plus", label: "Quality Products" },
-  { value: "7", suffix: "days", label: "Customer Support" },
+  { value: "40,000", suffix: "plus", label: "Happy Customers" },
+  { value: "5", suffix: "", label: "Product Categories" },
+  { value: "1,500", suffix: "plus", label: "Quality Products" },
+  { value: "4.8", suffix: "of 5", label: "Average Rating" },
 ] as const;
 
 /** Core values listed on the about page. */
@@ -149,12 +165,12 @@ export const coreValues = [
   {
     title: "Honesty in every listing",
     description:
-      "We describe fabric, fit and finishing exactly as they are. If a shirt runs slim, we say so, because a returned parcel helps nobody.",
+      "We describe fabric, fit and construction exactly as they are. If a shirt runs slim, we say so, because a returned parcel helps nobody.",
   },
   {
     title: "Comfort before trend",
     description:
-      "Trends pass quickly. We select fabrics that stay comfortable through Pakistani summers and winters, then build the styling around that.",
+      "Trends pass quickly. We select fabrics that stay comfortable through real weeks and build the styling around that, not the other way around.",
   },
   {
     title: "Fair pricing",
@@ -164,6 +180,34 @@ export const coreValues = [
   {
     title: "Respect for your time",
     description:
-      "Quick dispatch, clear updates and a support team that replies properly the first time instead of asking you to repeat yourself.",
+      "Quick dispatch, clear tracking and a support team that answers properly the first time instead of asking you to repeat yourself.",
+  },
+] as const;
+
+/** Editorial groupings used by the Shop by Style section. */
+export const styleEdits = [
+  {
+    title: "Everyday Basics",
+    description: "The tees, hoodies and denim that carry an entire week.",
+    href: "/products?type=t-shirts",
+    image: "/assets/images/categories/t-shirts.jpg",
+  },
+  {
+    title: "Workwear Ready",
+    description: "Shirts and tailored pants that hold up from morning to evening.",
+    href: "/products?type=shirts",
+    image: "/assets/images/categories/shirts.jpg",
+  },
+  {
+    title: "Weekend Layers",
+    description: "Jackets, sweaters and fleece for shoulder season.",
+    href: "/products?type=jackets",
+    image: "/assets/images/categories/jackets.jpg",
+  },
+  {
+    title: "Active and Easy",
+    description: "Seamless sets and soft knits built for moving.",
+    href: "/products?type=activewear",
+    image: "/assets/images/categories/activewear.jpg",
   },
 ] as const;

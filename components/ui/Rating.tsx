@@ -26,20 +26,20 @@ export function Rating({
           const fill = Math.max(0, Math.min(1, value - index));
           return (
             <span key={index} className="relative inline-block" style={{ width: size, height: size }}>
-              <Star size={size} className="text-line absolute inset-0" />
+              <Star size={size} className="absolute inset-0 text-line-strong" />
               <span
                 className="absolute inset-0 overflow-hidden"
                 style={{ width: `${fill * 100}%` }}
               >
-                <Star size={size} className="text-brand" filled />
+                <Star size={size} className="text-amber-400" filled />
               </span>
             </span>
           );
         })}
       </div>
       {!compact ? (
-        <span className="text-xs text-mist">
-          <span className="font-semibold text-white">{value.toFixed(1)}</span>
+        <span className="text-xs text-muted">
+          <span className="font-semibold text-ink">{value.toFixed(1)}</span>
           {typeof reviewCount === "number" ? (
             <span className="ml-1">
               {`(${reviewCount} ${reviewCount === 1 ? "review" : "reviews"})`}

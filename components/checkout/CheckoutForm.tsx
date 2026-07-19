@@ -9,28 +9,35 @@ import { EmptyState, LoadingSpinner, Skeleton } from "@/components/ui/Feedback";
 import { Icon } from "@/components/ui/Icon";
 import { useCart } from "@/lib/cart-context";
 import { generateOrderNumber } from "@/lib/format";
-import { PROVINCES, STORAGE_KEYS, site } from "@/lib/site";
+import { STATES, STORAGE_KEYS, site } from "@/lib/site";
 import type { OrderDetails } from "@/lib/types";
 
 /** Accepts the common address shapes without being needlessly strict. */
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
 
-/** Minimum number of digits accepted for a Pakistani mobile or landline. */
+/** Five digit ZIP, optionally followed by the four digit extension. */
+const ZIP_PATTERN = /^\d{5}(-\d{4})?$/;
+
+/** Minimum number of digits accepted for a United States phone number. */
 const MIN_PHONE_DIGITS = 10;
 
-/** Minimum characters required so a courier can actually find the address. */
-const MIN_ADDRESS_LENGTH = 10;
+/** Minimum characters required so a carrier can actually find the address. */
+const MIN_STREET_LENGTH = 5;
+
+/** The store only ships within the United States. */
+const LOCKED_COUNTRY = "United States";
 
 type FieldName =
   | "fullName"
   | "email"
   | "phone"
   | "altPhone"
-  | "province"
+  | "street"
+  | "apartment"
   | "city"
-  | "address"
-  | "landmark"
-  | "postalCode"
+  | "state"
+  | "zipCode"
+  | "country"
   | "notes";
 
 type FormValues = Record<FieldName, string>;
@@ -43,11 +50,12 @@ const FIELD_ORDER: FieldName[] = [
   "email",
   "phone",
   "altPhone",
-  "province",
+  "street",
+  "apartment",
   "city",
-  "address",
-  "landmark",
-  "postalCode",
+  "state",
+  "zipCode",
+  "country",
   "notes",
 ];
 
@@ -56,15 +64,16 @@ const EMPTY_VALUES: FormValues = {
   email: "",
   phone: "",
   altPhone: "",
-  province: "",
+  street: "",
+  apartment: "",
   city: "",
-  address: "",
-  landmark: "",
-  postalCode: "",
+  state: "",
+  zipCode: "",
+  country: LOCKED_COUNTRY,
   notes: "",
 };
 
-/** Counts only the digits so spaces and plus signs never break the check. */
+/** Counts only the digits so spaces, parentheses and plus signs are ignored. */
 function countDigits(value: string): number {
   return (value.match(/\d/g) ?? []).length;
 }
@@ -98,34 +107,46 @@ function validate(values: FormValues): FormErrors {
     errors.altPhone = `Please enter a complete phone number with at least ${MIN_PHONE_DIGITS} digits, or leave this field empty.`;
   }
 
-  if (!values.province) {
-    errors.province = "Please choose your province.";
+  const street = values.street.trim();
+  if (!street) {
+    errors.street = "Please enter your street address.";
+  } else if (street.length < MIN_STREET_LENGTH) {
+    errors.street = `Please include the house number and street name, at least ${MIN_STREET_LENGTH} characters.`;
   }
 
-  const city = values.city.trim();
-  if (!city) {
+  if (!values.city.trim()) {
     errors.city = "Please enter your city.";
   }
 
-  const address = values.address.trim();
-  if (!address) {
-    errors.address = "Please enter your complete delivery address.";
-  } else if (address.length < MIN_ADDRESS_LENGTH) {
-    errors.address = `Please add house number, street and area, at least ${MIN_ADDRESS_LENGTH} characters.`;
+  if (!values.state) {
+    errors.state = "Please choose your state.";
+  }
+
+  const zipCode = values.zipCode.trim();
+  if (!zipCode) {
+    errors.zipCode = "Please enter your ZIP code.";
+  } else if (!ZIP_PATTERN.test(zipCode)) {
+    errors.zipCode = "Please enter a valid 5 digit ZIP code, for example 94518.";
   }
 
   return errors;
 }
 
 const FIELD_BASE =
-  "w-full rounded-2xl border bg-surface px-4 py-3 text-sm text-white " +
-  "placeholder:text-mist-dim transition-colors focus:outline-none focus:ring-2 focus:ring-brand/50";
+  "w-full rounded-2xl border bg-canvas px-4 py-3 text-sm text-ink " +
+  "placeholder:text-muted transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35";
 
 function fieldClass(hasError: boolean): string {
   return `${FIELD_BASE} ${
-    hasError ? "border-red-500/70" : "border-line focus:border-brand"
+    hasError ? "border-sale" : "border-line focus:border-brand"
   }`;
 }
+
+const CARD =
+  "rounded-3xl border border-line bg-card p-6 shadow-[var(--shadow-soft)] sm:p-8";
+const LABEL = "mb-2 block text-sm font-medium text-ink";
+const HINT = "mt-2 text-xs text-muted";
+const ERROR = "animate-fade-up mt-2 text-xs font-medium text-sale";
 
 /**
  * Single page checkout. There is no backend, so the order is validated in the
@@ -181,15 +202,16 @@ export function CheckoutForm() {
       email: values.email.trim(),
       phone: values.phone.trim(),
       altPhone: values.altPhone.trim(),
-      province: values.province,
+      street: values.street.trim(),
+      apartment: values.apartment.trim(),
       city: values.city.trim(),
-      address: values.address.trim(),
-      landmark: values.landmark.trim(),
-      postalCode: values.postalCode.trim(),
+      state: values.state,
+      zipCode: values.zipCode.trim(),
+      country: LOCKED_COUNTRY,
       notes: values.notes.trim(),
       items,
       subtotal,
-      delivery,
+      shipping: delivery,
       total,
       paymentMethod: "Cash on Delivery",
     };
@@ -210,14 +232,14 @@ export function CheckoutForm() {
   if (!hydrated) {
     return (
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_24rem]">
-        <div className="space-y-4 rounded-2xl border border-line-soft bg-surface p-6 sm:p-8">
+        <div className={`space-y-4 ${CARD}`}>
           <Skeleton className="h-5 w-48" />
           <Skeleton className="h-12 w-full rounded-2xl" />
           <Skeleton className="h-12 w-full rounded-2xl" />
           <Skeleton className="h-12 w-full rounded-2xl" />
           <Skeleton className="h-28 w-full rounded-2xl" />
         </div>
-        <div className="space-y-4 rounded-2xl border border-line-soft bg-surface p-6">
+        <div className="space-y-4 rounded-3xl border border-line bg-card p-6 shadow-[var(--shadow-soft)]">
           <Skeleton className="h-5 w-40" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-full" />
@@ -234,39 +256,47 @@ export function CheckoutForm() {
       <EmptyState
         icon="cart"
         title="There is nothing to check out"
-        description="Your cart is empty, so there is no order to place yet. Browse the collections, add the pieces you like, then come back to complete your delivery details."
+        description="Your cart is empty, so there is no order to place yet. Browse the collections, add the pieces you like, then come back to complete your shipping details."
         action={{ label: "Browse Products", href: "/products" }}
         secondaryAction={{ label: "View Cart", href: "/cart" }}
       />
     );
   }
 
+  const hasErrors = FIELD_ORDER.some((field) => errors[field]);
+
+  const placeOrderContent = placing ? (
+    <>
+      <LoadingSpinner size={18} label="Placing your order" />
+      Placing Order
+    </>
+  ) : (
+    <>
+      Place Order
+      <Icon name="arrowRight" size={16} />
+    </>
+  );
+
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_24rem]">
       <form id="checkout-form" onSubmit={onSubmit} noValidate>
         {/* Contact details */}
-        <section
-          aria-labelledby="checkout-contact-heading"
-          className="rounded-2xl border border-line-soft bg-surface p-6 sm:p-8"
-        >
+        <section aria-labelledby="checkout-contact-heading" className={CARD}>
           <h2
             id="checkout-contact-heading"
-            className="font-display text-lg font-bold tracking-tight text-white sm:text-xl"
+            className="font-display text-lg font-bold tracking-tight text-ink sm:text-xl"
           >
             Contact Details
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-mist">
-            We use these details to confirm your order and to share the courier
-            tracking reference once your parcel is dispatched.
+          <p className="mt-2 text-sm leading-relaxed text-slate">
+            We use these details to confirm your order and to share tracking
+            updates once your package ships.
           </p>
 
           <div className="mt-7 grid gap-5 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label
-                htmlFor="checkout-fullName"
-                className="mb-2 block text-sm font-medium text-white"
-              >
-                Full name
+              <label htmlFor="checkout-fullName" className={LABEL}>
+                Full Name
               </label>
               <input
                 id="checkout-fullName"
@@ -276,28 +306,21 @@ export function CheckoutForm() {
                 value={values.fullName}
                 onChange={(event) => update("fullName", event.target.value)}
                 onBlur={() => onBlur("fullName")}
-                placeholder="Ayesha Khan"
+                placeholder="Jordan Ellis"
                 aria-invalid={errors.fullName ? true : undefined}
                 aria-describedby={errors.fullName ? "checkout-fullName-error" : undefined}
                 className={fieldClass(Boolean(errors.fullName))}
               />
               {errors.fullName ? (
-                <p
-                  id="checkout-fullName-error"
-                  role="alert"
-                  className="mt-2 text-xs text-red-400"
-                >
+                <p id="checkout-fullName-error" role="alert" className={ERROR}>
                   {errors.fullName}
                 </p>
               ) : null}
             </div>
 
             <div>
-              <label
-                htmlFor="checkout-email"
-                className="mb-2 block text-sm font-medium text-white"
-              >
-                Email address
+              <label htmlFor="checkout-email" className={LABEL}>
+                Email Address
               </label>
               <input
                 id="checkout-email"
@@ -315,26 +338,19 @@ export function CheckoutForm() {
                 className={fieldClass(Boolean(errors.email))}
               />
               {errors.email ? (
-                <p
-                  id="checkout-email-error"
-                  role="alert"
-                  className="mt-2 text-xs text-red-400"
-                >
+                <p id="checkout-email-error" role="alert" className={ERROR}>
                   {errors.email}
                 </p>
               ) : (
-                <p id="checkout-email-hint" className="mt-2 text-xs text-mist-dim">
+                <p id="checkout-email-hint" className={HINT}>
                   Your order confirmation is sent here.
                 </p>
               )}
             </div>
 
             <div>
-              <label
-                htmlFor="checkout-phone"
-                className="mb-2 block text-sm font-medium text-white"
-              >
-                Phone number
+              <label htmlFor="checkout-phone" className={LABEL}>
+                Phone Number
               </label>
               <input
                 id="checkout-phone"
@@ -345,7 +361,7 @@ export function CheckoutForm() {
                 value={values.phone}
                 onChange={(event) => update("phone", event.target.value)}
                 onBlur={() => onBlur("phone")}
-                placeholder="0300 1234567"
+                placeholder="(202) 350 1148"
                 aria-invalid={errors.phone ? true : undefined}
                 aria-describedby={
                   errors.phone ? "checkout-phone-error" : "checkout-phone-hint"
@@ -353,27 +369,20 @@ export function CheckoutForm() {
                 className={fieldClass(Boolean(errors.phone))}
               />
               {errors.phone ? (
-                <p
-                  id="checkout-phone-error"
-                  role="alert"
-                  className="mt-2 text-xs text-red-400"
-                >
+                <p id="checkout-phone-error" role="alert" className={ERROR}>
                   {errors.phone}
                 </p>
               ) : (
-                <p id="checkout-phone-hint" className="mt-2 text-xs text-mist-dim">
-                  The courier calls this number before delivery.
+                <p id="checkout-phone-hint" className={HINT}>
+                  The carrier calls this number if they need directions.
                 </p>
               )}
             </div>
 
             <div className="sm:col-span-2">
-              <label
-                htmlFor="checkout-altPhone"
-                className="mb-2 block text-sm font-medium text-white"
-              >
-                Alternative phone number{" "}
-                <span className="font-normal text-mist-dim">(optional)</span>
+              <label htmlFor="checkout-altPhone" className={LABEL}>
+                Alternative Phone Number{" "}
+                <span className="font-normal text-muted">(optional)</span>
               </label>
               <input
                 id="checkout-altPhone"
@@ -384,7 +393,7 @@ export function CheckoutForm() {
                 value={values.altPhone}
                 onChange={(event) => update("altPhone", event.target.value)}
                 onBlur={() => onBlur("altPhone")}
-                placeholder="0321 7654321"
+                placeholder="(415) 555 0132"
                 aria-invalid={errors.altPhone ? true : undefined}
                 aria-describedby={
                   errors.altPhone ? "checkout-altPhone-error" : "checkout-altPhone-hint"
@@ -392,15 +401,11 @@ export function CheckoutForm() {
                 className={fieldClass(Boolean(errors.altPhone))}
               />
               {errors.altPhone ? (
-                <p
-                  id="checkout-altPhone-error"
-                  role="alert"
-                  className="mt-2 text-xs text-red-400"
-                >
+                <p id="checkout-altPhone-error" role="alert" className={ERROR}>
                   {errors.altPhone}
                 </p>
               ) : (
-                <p id="checkout-altPhone-hint" className="mt-2 text-xs text-mist-dim">
+                <p id="checkout-altPhone-hint" className={HINT}>
                   A second number helps if your main phone is unreachable on the
                   delivery day.
                 </p>
@@ -409,63 +414,69 @@ export function CheckoutForm() {
           </div>
         </section>
 
-        {/* Delivery address */}
-        <section
-          aria-labelledby="checkout-address-heading"
-          className="mt-6 rounded-2xl border border-line-soft bg-surface p-6 sm:p-8"
-        >
+        {/* Shipping address */}
+        <section aria-labelledby="checkout-address-heading" className={`mt-6 ${CARD}`}>
           <h2
             id="checkout-address-heading"
-            className="font-display text-lg font-bold tracking-tight text-white sm:text-xl"
+            className="font-display text-lg font-bold tracking-tight text-ink sm:text-xl"
           >
-            Delivery Address
+            Shipping Address
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-mist">
-            Please give a complete address. Clear details help our courier reach
-            you on the first attempt.
+          <p className="mt-2 text-sm leading-relaxed text-slate">
+            Please give a complete address. Clear details help your package
+            arrive on the first attempt.
           </p>
 
           <div className="mt-7 grid gap-5 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor="checkout-province"
-                className="mb-2 block text-sm font-medium text-white"
-              >
-                Province
+            <div className="sm:col-span-2">
+              <label htmlFor="checkout-street" className={LABEL}>
+                Street Address
               </label>
-              <select
-                id="checkout-province"
-                name="province"
-                value={values.province}
-                onChange={(event) => update("province", event.target.value)}
-                onBlur={() => onBlur("province")}
-                aria-invalid={errors.province ? true : undefined}
-                aria-describedby={errors.province ? "checkout-province-error" : undefined}
-                className={`${fieldClass(Boolean(errors.province))} appearance-none`}
-              >
-                <option value="">Choose your province</option>
-                {PROVINCES.map((province) => (
-                  <option key={province} value={province}>
-                    {province}
-                  </option>
-                ))}
-              </select>
-              {errors.province ? (
-                <p
-                  id="checkout-province-error"
-                  role="alert"
-                  className="mt-2 text-xs text-red-400"
-                >
-                  {errors.province}
+              <input
+                id="checkout-street"
+                name="street"
+                type="text"
+                autoComplete="address-line1"
+                value={values.street}
+                onChange={(event) => update("street", event.target.value)}
+                onBlur={() => onBlur("street")}
+                placeholder="785 Oak Grove Rd"
+                aria-invalid={errors.street ? true : undefined}
+                aria-describedby={
+                  errors.street ? "checkout-street-error" : "checkout-street-hint"
+                }
+                className={fieldClass(Boolean(errors.street))}
+              />
+              {errors.street ? (
+                <p id="checkout-street-error" role="alert" className={ERROR}>
+                  {errors.street}
                 </p>
-              ) : null}
+              ) : (
+                <p id="checkout-street-hint" className={HINT}>
+                  Include the house or building number and the street name.
+                </p>
+              )}
+            </div>
+
+            <div className="sm:col-span-2">
+              <label htmlFor="checkout-apartment" className={LABEL}>
+                Apartment, Suite or Unit{" "}
+                <span className="font-normal text-muted">(optional)</span>
+              </label>
+              <input
+                id="checkout-apartment"
+                name="apartment"
+                type="text"
+                autoComplete="address-line2"
+                value={values.apartment}
+                onChange={(event) => update("apartment", event.target.value)}
+                placeholder="Ste E2 #1207"
+                className={fieldClass(false)}
+              />
             </div>
 
             <div>
-              <label
-                htmlFor="checkout-city"
-                className="mb-2 block text-sm font-medium text-white"
-              >
+              <label htmlFor="checkout-city" className={LABEL}>
                 City
               </label>
               <input
@@ -476,106 +487,94 @@ export function CheckoutForm() {
                 value={values.city}
                 onChange={(event) => update("city", event.target.value)}
                 onBlur={() => onBlur("city")}
-                placeholder="Lahore"
+                placeholder="Concord"
                 aria-invalid={errors.city ? true : undefined}
                 aria-describedby={errors.city ? "checkout-city-error" : undefined}
                 className={fieldClass(Boolean(errors.city))}
               />
               {errors.city ? (
-                <p
-                  id="checkout-city-error"
-                  role="alert"
-                  className="mt-2 text-xs text-red-400"
-                >
+                <p id="checkout-city-error" role="alert" className={ERROR}>
                   {errors.city}
                 </p>
               ) : null}
             </div>
 
-            <div className="sm:col-span-2">
-              <label
-                htmlFor="checkout-address"
-                className="mb-2 block text-sm font-medium text-white"
-              >
-                Complete delivery address
+            <div>
+              <label htmlFor="checkout-state" className={LABEL}>
+                State
               </label>
-              <textarea
-                id="checkout-address"
-                name="address"
-                rows={4}
-                autoComplete="street-address"
-                value={values.address}
-                onChange={(event) => update("address", event.target.value)}
-                onBlur={() => onBlur("address")}
-                placeholder="House 24, Street 7, Block C, Gulberg III"
-                aria-invalid={errors.address ? true : undefined}
-                aria-describedby={
-                  errors.address ? "checkout-address-error" : "checkout-address-hint"
-                }
-                className={`${fieldClass(Boolean(errors.address))} resize-y leading-relaxed`}
-              />
-              {errors.address ? (
-                <p
-                  id="checkout-address-error"
-                  role="alert"
-                  className="mt-2 text-xs text-red-400"
-                >
-                  {errors.address}
+              <select
+                id="checkout-state"
+                name="state"
+                autoComplete="address-level1"
+                value={values.state}
+                onChange={(event) => update("state", event.target.value)}
+                onBlur={() => onBlur("state")}
+                aria-invalid={errors.state ? true : undefined}
+                aria-describedby={errors.state ? "checkout-state-error" : undefined}
+                className={fieldClass(Boolean(errors.state))}
+              >
+                <option value="">Choose your state</option>
+                {STATES.map((state) => (
+                  <option key={state} value={state}>
+                    {state}
+                  </option>
+                ))}
+              </select>
+              {errors.state ? (
+                <p id="checkout-state-error" role="alert" className={ERROR}>
+                  {errors.state}
                 </p>
-              ) : (
-                <p id="checkout-address-hint" className="mt-2 text-xs text-mist-dim">
-                  Include house or flat number, street, block and area.
-                </p>
-              )}
+              ) : null}
             </div>
 
             <div>
-              <label
-                htmlFor="checkout-landmark"
-                className="mb-2 block text-sm font-medium text-white"
-              >
-                Nearby landmark{" "}
-                <span className="font-normal text-mist-dim">(optional)</span>
+              <label htmlFor="checkout-zipCode" className={LABEL}>
+                ZIP Code
               </label>
               <input
-                id="checkout-landmark"
-                name="landmark"
-                type="text"
-                value={values.landmark}
-                onChange={(event) => update("landmark", event.target.value)}
-                placeholder="Opposite Aziz Bhatti Park"
-                className={fieldClass(false)}
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="checkout-postalCode"
-                className="mb-2 block text-sm font-medium text-white"
-              >
-                Postal code{" "}
-                <span className="font-normal text-mist-dim">(optional)</span>
-              </label>
-              <input
-                id="checkout-postalCode"
-                name="postalCode"
+                id="checkout-zipCode"
+                name="zipCode"
                 type="text"
                 inputMode="numeric"
                 autoComplete="postal-code"
-                value={values.postalCode}
-                onChange={(event) => update("postalCode", event.target.value)}
-                placeholder="54000"
-                className={fieldClass(false)}
+                value={values.zipCode}
+                onChange={(event) => update("zipCode", event.target.value)}
+                onBlur={() => onBlur("zipCode")}
+                placeholder="94518"
+                aria-invalid={errors.zipCode ? true : undefined}
+                aria-describedby={errors.zipCode ? "checkout-zipCode-error" : undefined}
+                className={fieldClass(Boolean(errors.zipCode))}
               />
+              {errors.zipCode ? (
+                <p id="checkout-zipCode-error" role="alert" className={ERROR}>
+                  {errors.zipCode}
+                </p>
+              ) : null}
+            </div>
+
+            <div>
+              <label htmlFor="checkout-country" className={LABEL}>
+                Country
+              </label>
+              <input
+                id="checkout-country"
+                name="country"
+                type="text"
+                value={LOCKED_COUNTRY}
+                readOnly
+                aria-describedby="checkout-country-hint"
+                className={`${fieldClass(false)} cursor-not-allowed bg-mist text-slate`}
+              />
+              <p id="checkout-country-hint" className={HINT}>
+                We currently ship within the United States only.
+              </p>
             </div>
 
             <div className="sm:col-span-2">
-              <label
-                htmlFor="checkout-notes"
-                className="mb-2 block text-sm font-medium text-white"
-              >
-                Order notes{" "}
-                <span className="font-normal text-mist-dim">(optional)</span>
+              <label htmlFor="checkout-notes" className={LABEL}>
+                Order Notes{" "}
+                <span className="font-normal text-muted">(optional)</span>
               </label>
               <textarea
                 id="checkout-notes"
@@ -583,7 +582,7 @@ export function CheckoutForm() {
                 rows={4}
                 value={values.notes}
                 onChange={(event) => update("notes", event.target.value)}
-                placeholder="Anything our packing team should know, such as gift wrapping or a preferred delivery time."
+                placeholder="Anything our packing team should know, such as gift wrapping or a preferred delivery window."
                 className={`${fieldClass(false)} resize-y leading-relaxed`}
               />
             </div>
@@ -591,29 +590,28 @@ export function CheckoutForm() {
         </section>
 
         {/* Payment method */}
-        <section
-          aria-labelledby="checkout-payment-heading"
-          className="mt-6 rounded-2xl border border-line-soft bg-surface p-6 sm:p-8"
-        >
-          <h2
-            id="checkout-payment-heading"
-            className="font-display text-lg font-bold tracking-tight text-white sm:text-xl"
-          >
-            Payment Method
-          </h2>
-          <p className="mt-2 text-sm leading-relaxed text-mist">
+        <section aria-labelledby="checkout-payment-heading" className={`mt-6 ${CARD}`}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2
+              id="checkout-payment-heading"
+              className="font-display text-lg font-bold tracking-tight text-ink sm:text-xl"
+            >
+              Payment Method
+            </h2>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-3 py-1.5 text-xs font-semibold text-success">
+              <Icon name="lock" size={14} />
+              Secure Checkout
+            </span>
+          </div>
+          <p className="mt-2 text-sm leading-relaxed text-slate">
             Xpectra Media accepts one payment method, so there is nothing to set
             up and no card details to enter.
           </p>
 
-          <div
-            role="radiogroup"
-            aria-label="Payment method"
-            className="mt-6"
-          >
+          <div role="radiogroup" aria-label="Payment method" className="mt-6">
             <label
               htmlFor="checkout-payment-cod"
-              className="flex cursor-default items-start gap-4 rounded-2xl border border-brand/50 bg-brand/10 p-5 ring-2 ring-brand/30"
+              className="flex cursor-default items-start gap-4 rounded-2xl border border-brand/45 bg-brand-tint p-5 ring-2 ring-brand/20"
             >
               <input
                 id="checkout-payment-cod"
@@ -622,64 +620,94 @@ export function CheckoutForm() {
                 value="Cash on Delivery"
                 checked
                 readOnly
-                className="mt-1 h-4 w-4 shrink-0 accent-[#1e90ff]"
+                className="mt-1 h-4 w-4 shrink-0 accent-[#0d7ff2]"
               />
               <span>
                 <span className="flex flex-wrap items-center gap-2">
-                  <Icon name="wallet" size={18} className="text-brand-bright" />
-                  <span className="font-display text-base font-semibold text-white">
+                  <Icon name="wallet" size={18} className="text-brand-deep" />
+                  <span className="font-display text-base font-semibold text-ink">
                     Cash on Delivery
                   </span>
-                  <span className="rounded-full border border-brand/40 bg-brand/15 px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-brand-bright">
+                  <span className="rounded-full bg-brand px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-white">
                     Selected
                   </span>
                 </span>
-                <span className="mt-2 block text-sm leading-relaxed text-mist">
-                  You pay the courier in cash when your order is delivered to
-                  your door. Nothing is charged now, and you can check the parcel
-                  before you hand over the payment.
+                <span className="mt-2 block text-sm leading-relaxed text-slate">
+                  You pay when the order is delivered to your door. Nothing is
+                  charged now, and you can check the package before you hand
+                  over the payment.
                 </span>
               </span>
             </label>
           </div>
 
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-            <li className="flex items-start gap-2.5 text-xs leading-relaxed text-mist">
+            <li className="flex items-start gap-2.5 text-xs leading-relaxed text-slate">
               <Icon name="shield" size={15} className="mt-0.5 shrink-0 text-brand" />
               No advance transfer and no card details are ever requested.
             </li>
-            <li className="flex items-start gap-2.5 text-xs leading-relaxed text-mist">
-              <Icon name="headset" size={15} className="mt-0.5 shrink-0 text-brand" />
-              Questions before you order? Call {site.contact.phone}.
+            <li className="flex items-start gap-2.5 text-xs leading-relaxed text-slate">
+              <Icon name="refresh" size={15} className="mt-0.5 shrink-0 text-brand" />
+              Easy returns within 30 days of delivery.
             </li>
           </ul>
         </section>
 
-        {attempted && Object.keys(errors).some((field) => errors[field as FieldName]) ? (
+        {/* Customer support */}
+        <section
+          aria-labelledby="checkout-support-heading"
+          className="mt-6 rounded-3xl border border-line bg-mist p-6 sm:p-7"
+        >
+          <div className="flex items-start gap-3">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-line bg-card text-brand">
+              <Icon name="headset" size={20} />
+            </span>
+            <div>
+              <h2
+                id="checkout-support-heading"
+                className="font-display text-base font-semibold text-ink"
+              >
+                Need a hand before you order?
+              </h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate">
+                Our support team is happy to help with sizing, shipping or
+                anything else.
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+                <a
+                  href={site.contact.phoneHref}
+                  className="inline-flex items-center gap-2 font-semibold text-brand transition-colors hover:text-brand-deep"
+                >
+                  <Icon name="phone" size={15} />
+                  {site.contact.phone}
+                </a>
+                <a
+                  href={site.contact.emailHref}
+                  className="inline-flex items-center gap-2 font-semibold text-brand transition-colors hover:text-brand-deep"
+                >
+                  <Icon name="mail" size={15} />
+                  {site.contact.email}
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {attempted && hasErrors ? (
           <p
             role="alert"
-            className="mt-6 flex items-start gap-2.5 rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm leading-relaxed text-red-300"
+            className="animate-fade-up mt-6 flex items-start gap-2.5 rounded-2xl border border-sale/40 bg-sale/5 px-4 py-3 text-sm leading-relaxed text-sale"
           >
             <Icon name="close" size={16} className="mt-0.5 shrink-0" />
             Some details still need your attention. Please check the fields
-            marked in red above and try again.
+            marked above and try again.
           </p>
         ) : null}
 
         {/* Mobile action, the summary carries the desktop action */}
         <div className="mt-6 lg:hidden">
           <Button type="submit" size="lg" fullWidth disabled={placing}>
-            {placing ? (
-              <>
-                <LoadingSpinner size={18} label="Placing your order" />
-                Placing Order
-              </>
-            ) : (
-              <>
-                Place Order
-                <Icon name="arrowRight" size={16} />
-              </>
-            )}
+            {placeOrderContent}
           </Button>
         </div>
       </form>
@@ -688,7 +716,7 @@ export function CheckoutForm() {
         <OrderSummary
           items={items}
           subtotal={subtotal}
-          delivery={delivery}
+          shipping={delivery}
           total={total}
           showItems
         >
@@ -700,22 +728,12 @@ export function CheckoutForm() {
               fullWidth
               disabled={placing}
             >
-              {placing ? (
-                <>
-                  <LoadingSpinner size={18} label="Placing your order" />
-                  Placing Order
-                </>
-              ) : (
-                <>
-                  Place Order
-                  <Icon name="arrowRight" size={16} />
-                </>
-              )}
+              {placeOrderContent}
             </Button>
           </div>
-          <p className="mt-4 text-center text-xs leading-relaxed text-mist-dim lg:mt-0 lg:pt-4">
+          <p className="mt-4 text-center text-xs leading-relaxed text-muted lg:mt-0 lg:pt-4">
             By placing this order you agree to our terms and conditions. You pay
-            only when the parcel reaches you.
+            only when the package reaches you.
           </p>
         </OrderSummary>
       </div>

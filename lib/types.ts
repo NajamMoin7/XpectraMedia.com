@@ -4,16 +4,42 @@
  */
 
 /** Top level shopping department. */
-export type CategorySlug = "men" | "women" | "kids";
+export type CategorySlug = "men" | "women" | "kids" | "baby" | "toys";
 
 /** Product family used for filtering and category landing pages. */
 export type SubcategorySlug =
+  | "t-shirts"
   | "shirts"
+  | "jeans"
   | "pants"
-  | "trousers"
-  | "kurta-shalwar"
-  | "baby-clothes"
-  | "toys";
+  | "cargo-pants"
+  | "hoodies"
+  | "jackets"
+  | "sweatshirts"
+  | "tops"
+  | "dresses"
+  | "wide-leg-pants"
+  | "sweaters"
+  | "activewear"
+  | "jogger-sets"
+  | "denim-sets"
+  | "casual-wear"
+  | "outerwear"
+  | "rompers"
+  | "cotton-sets"
+  | "sleepwear"
+  | "accessories"
+  | "educational-toys"
+  | "wooden-toys"
+  | "soft-toys"
+  | "activity-toys"
+  | "creative-toys";
+
+export interface ProductColor {
+  name: string;
+  /** Hex swatch rendered in the color picker. */
+  hex: string;
+}
 
 export interface Product {
   id: string;
@@ -22,13 +48,13 @@ export interface Product {
   slug: string;
   category: CategorySlug;
   subcategory: SubcategorySlug;
-  /** One line summary shown on cards and in meta descriptions. */
+  /** Short line shown under the product name on cards. */
+  subtitle: string;
   shortDescription: string;
-  /** Full copy shown on the product details page. */
   detailedDescription: string;
-  /** Selling price in PKR. */
+  /** Selling price in USD. */
   price: number;
-  /** Recommended retail price in PKR, when the item is discounted. */
+  /** Regular price in USD, when the item is on sale. */
   originalPrice?: number;
   /** Whole number percentage saved against the original price. */
   discount?: number;
@@ -38,18 +64,17 @@ export interface Product {
   stock: number;
   sizes: string[];
   colors: ProductColor[];
+  /** At least three gallery images, all stored locally. */
   images: string[];
-  features: string[];
   material: string;
+  features: string[];
   careInstructions: string[];
+  shippingInfo: string;
+  returnInfo: string;
   featured: boolean;
   newArrival: boolean;
-}
-
-export interface ProductColor {
-  name: string;
-  /** Hex swatch rendered in the colour picker. */
-  hex: string;
+  bestSeller: boolean;
+  limitedStock: boolean;
 }
 
 export interface Category {
@@ -70,7 +95,7 @@ export interface Subcategory {
   categories: CategorySlug[];
 }
 
-/** A single line in the shopping cart. Size and colour make the line unique. */
+/** A single line in the shopping cart. Size and color make the line unique. */
 export interface CartItem {
   productId: string;
   slug: string;
@@ -85,9 +110,10 @@ export interface CartItem {
 export interface Testimonial {
   id: string;
   name: string;
-  location: string;
   rating: number;
   quote: string;
+  /** What the customer bought, shown instead of a location. */
+  purchase: string;
 }
 
 export interface Faq {
@@ -103,23 +129,29 @@ export interface OrderDetails {
   email: string;
   phone: string;
   altPhone: string;
-  province: string;
+  street: string;
+  apartment: string;
   city: string;
-  address: string;
-  landmark: string;
-  postalCode: string;
+  state: string;
+  zipCode: string;
+  country: string;
   notes: string;
   items: CartItem[];
   subtotal: number;
-  delivery: number;
+  shipping: number;
   total: number;
   paymentMethod: "Cash on Delivery";
 }
 
 export type SortOption =
+  | "featured"
   | "latest"
   | "price-low"
   | "price-high"
+  | "rating"
   | "popularity";
 
 export type ViewMode = "grid" | "list";
+
+/** Badge shown on a product card, in priority order. */
+export type ProductBadge = "sale" | "new" | "bestseller" | "limited";

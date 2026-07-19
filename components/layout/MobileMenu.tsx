@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import { Logo } from "@/components/layout/Logo";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { categoryNav, contactNav, primaryNav } from "@/lib/navigation";
@@ -15,7 +16,7 @@ interface MobileMenuProps {
 }
 
 /**
- * Slide in navigation drawer for phones and tablets.
+ * Light slide in navigation drawer for phones and tablets.
  * Locks background scrolling, closes on Escape and moves focus to the panel
  * so keyboard users land inside the menu rather than behind it.
  */
@@ -48,6 +49,13 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
+  const rowClass = (active: boolean) =>
+    `flex items-center justify-between rounded-xl px-4 py-3 text-base font-medium transition-colors ${
+      active
+        ? "bg-brand-tint text-brand-deep"
+        : "text-slate hover:bg-mist hover:text-ink"
+    }`;
+
   return (
     <div
       className={`fixed inset-0 z-[60] lg:hidden ${open ? "" : "pointer-events-none"}`}
@@ -56,7 +64,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className={`absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`absolute inset-0 bg-night/45 backdrop-blur-sm transition-opacity duration-300 ${
           open ? "opacity-100" : "opacity-0"
         }`}
       />
@@ -68,19 +76,17 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
         aria-modal="true"
         aria-label="Site navigation"
         tabIndex={-1}
-        className={`absolute right-0 top-0 flex h-full w-[86%] max-w-sm flex-col border-l border-line bg-ink-soft shadow-[-30px_0_60px_-30px_rgba(0,0,0,1)] transition-transform duration-[400ms] ease-out ${
+        className={`absolute right-0 top-0 flex h-full w-[86%] max-w-sm flex-col border-l border-line bg-canvas shadow-[var(--shadow-lift)] transition-transform duration-[400ms] ease-[var(--ease-out-soft)] ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-line-soft px-5 py-4">
-          <span className="font-display text-sm font-semibold uppercase tracking-[0.24em] text-brand">
-            Menu
-          </span>
+        <div className="flex items-center justify-between border-b border-line px-5 py-4">
+          <Logo height={28} label="Xpectra Media home from the menu" />
           <button
             type="button"
             onClick={onClose}
             aria-label="Close navigation menu"
-            className="grid h-10 w-10 place-items-center rounded-full text-mist transition-colors hover:bg-surface-2 hover:text-white"
+            className="grid h-10 w-10 place-items-center rounded-full text-slate transition-colors hover:bg-mist hover:text-ink"
           >
             <Icon name="close" size={20} />
           </button>
@@ -94,14 +100,10 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                   href={link.href}
                   onClick={onClose}
                   aria-current={isActive(link.href) ? "page" : undefined}
-                  className={`flex items-center justify-between rounded-xl px-4 py-3 text-base font-medium transition-colors ${
-                    isActive(link.href)
-                      ? "bg-surface-2 text-white"
-                      : "text-mist hover:bg-surface hover:text-white"
-                  }`}
+                  className={rowClass(isActive(link.href))}
                 >
                   {link.label}
-                  <Icon name="chevronRight" size={16} className="text-mist-dim" />
+                  <Icon name="chevronRight" size={16} className="text-muted" />
                 </Link>
               </li>
             ))}
@@ -112,7 +114,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                 type="button"
                 onClick={() => setCategoriesOpen((value) => !value)}
                 aria-expanded={categoriesOpen}
-                className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-base font-medium text-mist transition-colors hover:bg-surface hover:text-white"
+                className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-base font-medium text-slate transition-colors hover:bg-mist hover:text-ink"
               >
                 Categories
                 <Icon
@@ -124,7 +126,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                 />
               </button>
               <div
-                className={`grid transition-all duration-300 ease-out ${
+                className={`grid transition-all duration-300 ease-[var(--ease-out-soft)] ${
                   categoriesOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                 }`}
               >
@@ -134,7 +136,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                       <Link
                         href={category.href}
                         onClick={onClose}
-                        className="block rounded-xl border-l border-line px-4 py-2.5 text-sm text-mist transition-colors hover:border-brand hover:text-white"
+                        className="block rounded-r-xl border-l-2 border-line px-4 py-2.5 text-sm text-slate transition-colors hover:border-brand hover:bg-mist hover:text-ink"
                       >
                         {category.label}
                       </Link>
@@ -144,7 +146,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                     <Link
                       href="/categories"
                       onClick={onClose}
-                      className="block rounded-xl border-l border-line px-4 py-2.5 text-sm font-semibold text-brand transition-colors hover:border-brand"
+                      className="block rounded-r-xl border-l-2 border-line px-4 py-2.5 text-sm font-semibold text-brand transition-colors hover:border-brand hover:bg-mist"
                     >
                       All categories
                     </Link>
@@ -158,14 +160,10 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                 href={contactNav.href}
                 onClick={onClose}
                 aria-current={isActive(contactNav.href) ? "page" : undefined}
-                className={`flex items-center justify-between rounded-xl px-4 py-3 text-base font-medium transition-colors ${
-                  isActive(contactNav.href)
-                    ? "bg-surface-2 text-white"
-                    : "text-mist hover:bg-surface hover:text-white"
-                }`}
+                className={rowClass(isActive(contactNav.href))}
               >
                 {contactNav.label}
-                <Icon name="chevronRight" size={16} className="text-mist-dim" />
+                <Icon name="chevronRight" size={16} className="text-muted" />
               </Link>
             </li>
           </ul>
@@ -182,17 +180,17 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
           </div>
         </nav>
 
-        <div className="border-t border-line-soft px-5 py-5 text-sm">
+        <div className="border-t border-line bg-mist px-5 py-5 text-sm">
           <a
             href={site.contact.phoneHref}
-            className="flex items-center gap-3 text-mist transition-colors hover:text-white"
+            className="flex items-center gap-3 text-slate transition-colors hover:text-brand"
           >
             <Icon name="phone" size={16} className="text-brand" />
             {site.contact.phone}
           </a>
           <a
             href={site.contact.emailHref}
-            className="mt-3 flex items-center gap-3 text-mist transition-colors hover:text-white"
+            className="mt-3 flex items-center gap-3 break-all text-slate transition-colors hover:text-brand"
           >
             <Icon name="mail" size={16} className="text-brand" />
             {site.contact.email}

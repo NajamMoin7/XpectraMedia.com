@@ -31,10 +31,10 @@ export function FaqAccordion({ items, className = "" }: FaqAccordionProps) {
         return (
           <div
             key={item.question}
-            className={`overflow-hidden rounded-2xl border bg-surface transition-all duration-300 ${
+            className={`overflow-hidden rounded-2xl border bg-card transition-all duration-300 ${
               open
-                ? "border-brand/60 shadow-[0_18px_50px_-28px_rgba(30,144,255,0.85)]"
-                : "border-line-soft hover:border-brand/60"
+                ? "border-brand/45 shadow-[var(--shadow-lift)]"
+                : "border-line shadow-[var(--shadow-soft)] hover:border-brand/40"
             }`}
           >
             <h3 className="font-display">
@@ -48,7 +48,7 @@ export function FaqAccordion({ items, className = "" }: FaqAccordionProps) {
               >
                 <span
                   className={`text-base font-semibold leading-snug tracking-tight transition-colors sm:text-lg ${
-                    open ? "text-white" : "text-mist"
+                    open ? "text-brand" : "text-ink"
                   }`}
                 >
                   {item.question}
@@ -57,8 +57,8 @@ export function FaqAccordion({ items, className = "" }: FaqAccordionProps) {
                   aria-hidden="true"
                   className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border transition-all duration-300 ${
                     open
-                      ? "border-brand/60 bg-brand/15 text-brand-bright"
-                      : "border-line bg-surface-2 text-mist"
+                      ? "border-brand/30 bg-brand-tint text-brand"
+                      : "border-line bg-mist text-slate"
                   }`}
                 >
                   <Icon
@@ -86,7 +86,7 @@ export function FaqAccordion({ items, className = "" }: FaqAccordionProps) {
                   open ? "visible" : "invisible"
                 }`}
               >
-                <p className="border-t border-line-soft px-5 pb-5 pt-4 text-sm leading-relaxed text-mist sm:px-6 sm:text-base">
+                <p className="border-t border-line px-5 pb-5 pt-4 text-sm leading-relaxed text-slate sm:px-6 sm:text-base">
                   {item.answer}
                 </p>
               </div>

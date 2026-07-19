@@ -21,25 +21,25 @@ export function Breadcrumbs({ items, className = "" }: BreadcrumbsProps) {
     <>
       <JsonLd data={breadcrumbJsonLd(trail)} />
       <nav aria-label="Breadcrumb" className={className}>
-        <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-mist">
+        <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
           {trail.map((crumb, index) => {
             const isLast = index === trail.length - 1;
             return (
               <li key={crumb.href} className="flex items-center gap-2">
                 {isLast ? (
-                  <span aria-current="page" className="font-medium text-white">
+                  <span aria-current="page" className="font-semibold text-ink">
                     {crumb.name}
                   </span>
                 ) : (
                   <Link
                     href={crumb.href}
-                    className="transition-colors hover:text-brand-bright"
+                    className="transition-colors hover:text-brand"
                   >
                     {crumb.name}
                   </Link>
                 )}
                 {!isLast ? (
-                  <Icon name="chevronRight" size={14} className="text-mist-dim" />
+                  <Icon name="chevronRight" size={14} className="text-line-strong" />
                 ) : null}
               </li>
             );

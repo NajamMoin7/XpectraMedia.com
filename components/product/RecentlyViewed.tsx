@@ -50,14 +50,16 @@ export function RecentlyViewed({ currentId }: { currentId: string }) {
   if (items.length === 0) return null;
 
   return (
-    <section className="shell py-14 md:py-16">
-      <SectionHeading
-        eyebrow="Recently Viewed"
-        title="Pick up where you left off"
-        description="Products you looked at earlier in this browser."
-      />
-      <div className="mt-10">
-        <ProductGrid products={items} columns={4} />
+    <section className="bg-canvas py-14 md:py-20">
+      <div className="shell">
+        <SectionHeading
+          eyebrow="Recently Viewed"
+          title="Pick up where you left off"
+          description="Products you looked at earlier in this browser, kept on this device only."
+        />
+        <div className="mt-10">
+          <ProductGrid products={items} columns={4} />
+        </div>
       </div>
     </section>
   );

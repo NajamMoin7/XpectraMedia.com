@@ -9,11 +9,11 @@ interface ProductGridProps {
   view?: ViewMode;
   /** Number of columns at the largest breakpoint. */
   columns?: 3 | 4;
-  /** Disables the scroll reveal, used where content is already animated. */
+  /** Disables the stagger reveal where content is already animated. */
   plain?: boolean;
 }
 
-/** Responsive product listing shared by every page that shows products. */
+/** Responsive product listing with a staggered reveal as cards scroll in. */
 export function ProductGrid({
   products,
   view = "grid",
@@ -24,8 +24,8 @@ export function ProductGrid({
     view === "list"
       ? "grid-cols-1"
       : columns === 3
-        ? "grid-cols-2 lg:grid-cols-3"
-        : "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+        ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+        : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
 
   return (
     <div className={`grid gap-5 sm:gap-6 ${layout}`}>
@@ -38,7 +38,7 @@ export function ProductGrid({
             priority={index < 4}
           />
         ) : (
-          <Reveal key={product.id} delay={Math.min(index, 7) * 60} className="h-full">
+          <Reveal key={product.id} delay={Math.min(index, 7) * 70} className="h-full">
             <ProductCard product={product} view={view} priority={index < 4} />
           </Reveal>
         ),

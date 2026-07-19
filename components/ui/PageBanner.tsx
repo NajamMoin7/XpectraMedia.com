@@ -14,7 +14,7 @@ interface PageBannerProps {
 
 /**
  * Consistent page header used by every inner page. It carries the eyebrow,
- * heading, intro copy and breadcrumb trail over a soft brand glow.
+ * heading, intro copy and breadcrumb trail over a soft brand wash.
  */
 export function PageBanner({
   eyebrow,
@@ -24,16 +24,9 @@ export function PageBanner({
   children,
 }: PageBannerProps) {
   return (
-    <header className="relative overflow-hidden border-b border-line-soft bg-ink-soft">
-      {/* Decorative brand glow behind the heading */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-full opacity-70"
-        style={{
-          background:
-            "radial-gradient(60% 120% at 50% 0%, rgba(30,144,255,0.18) 0%, rgba(30,144,255,0) 70%)",
-        }}
-      />
+    <header className="relative overflow-hidden border-b border-line bg-mist">
+      {/* Soft blue wash behind the heading */}
+      <div aria-hidden="true" className="brand-wash pointer-events-none absolute inset-0" />
       <div className="shell relative py-12 md:py-16">
         {crumbs ? <Breadcrumbs items={crumbs} className="mb-6" /> : null}
         {eyebrow ? (
@@ -41,11 +34,11 @@ export function PageBanner({
             {eyebrow}
           </p>
         ) : null}
-        <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+        <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-ink sm:text-4xl lg:text-5xl">
           {title}
         </h1>
         {description ? (
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-mist">
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate">
             {description}
           </p>
         ) : null}
@@ -86,11 +79,11 @@ export function SectionHeading({
             {eyebrow}
           </p>
         ) : null}
-        <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-[2.5rem] lg:leading-[1.15]">
+        <h2 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl lg:text-[2.5rem] lg:leading-[1.15]">
           {title}
         </h2>
         {description ? (
-          <p className="mt-4 text-base leading-relaxed text-mist">{description}</p>
+          <p className="mt-4 text-base leading-relaxed text-slate">{description}</p>
         ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}

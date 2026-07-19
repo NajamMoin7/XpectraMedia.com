@@ -12,17 +12,28 @@ interface NewsletterFormProps {
   /** Compact layout is used inside the footer column. */
   compact?: boolean;
   className?: string;
+  /**
+   * Light is the default and suits white sections. Dark lifts the helper and
+   * confirmation copy so the form stays readable inside the black footer.
+   */
+  tone?: "light" | "dark";
 }
 
 /**
  * Static newsletter signup. Validation runs entirely in the browser and the
  * confirmation is shown locally, since the storefront has no backend.
  */
-export function NewsletterForm({ compact = false, className = "" }: NewsletterFormProps) {
+export function NewsletterForm({
+  compact = false,
+  className = "",
+  tone = "light",
+}: NewsletterFormProps) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  const dark = tone === "dark";
 
   function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -51,12 +62,26 @@ export function NewsletterForm({ compact = false, className = "" }: NewsletterFo
     return (
       <div
         role="status"
-        className={`flex items-start gap-3 rounded-2xl border border-brand/40 bg-brand/10 px-5 py-4 ${className}`}
+        className={`flex items-start gap-3 rounded-2xl px-5 py-4 ${
+          dark
+            ? "border border-white/15 bg-white/10"
+            : "border border-brand/25 bg-brand-tint shadow-[var(--shadow-soft)]"
+        } ${className}`}
       >
-        <Icon name="checkCircle" size={20} className="mt-0.5 shrink-0 text-brand" />
+        <Icon
+          name="checkCircle"
+          size={20}
+          className={`mt-0.5 shrink-0 ${dark ? "text-brand-bright" : "text-brand"}`}
+        />
         <div>
-          <p className="text-sm font-semibold text-white">You are on the list</p>
-          <p className="mt-1 text-xs leading-relaxed text-mist">
+          <p className={`text-sm font-semibold ${dark ? "text-white" : "text-ink"}`}>
+            You are on the list
+          </p>
+          <p
+            className={`mt-1 text-xs leading-relaxed ${
+              dark ? "text-white/70" : "text-slate"
+            }`}
+          >
             Thank you for subscribing. Look out for new arrivals and seasonal
             offers from Xpectra Media.
           </p>
@@ -69,7 +94,10 @@ export function NewsletterForm({ compact = false, className = "" }: NewsletterFo
     <form onSubmit={onSubmit} noValidate className={className}>
       <div className="flex flex-col gap-2 sm:flex-row">
         <div className="flex-1">
-          <label htmlFor="newsletter-email" className="sr-only">
+          <label
+            htmlFor="newsletter-email"
+            className={`sr-only ${dark ? "text-white/80" : "text-slate"}`}
+          >
             Email address for the newsletter
           </label>
           <input
@@ -84,8 +112,10 @@ export function NewsletterForm({ compact = false, className = "" }: NewsletterFo
             placeholder="Enter your email address"
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? "newsletter-error" : undefined}
-            className={`h-12 w-full rounded-full border bg-surface px-5 text-sm text-white placeholder:text-mist-dim transition-colors focus:outline-none focus:ring-2 focus:ring-brand/50 ${
-              error ? "border-red-500/70" : "border-line focus:border-brand"
+            className={`h-12 w-full rounded-full border bg-canvas px-5 text-sm text-ink placeholder:text-muted transition-all duration-200 focus:outline-none focus:ring-2 ${
+              error
+                ? "border-red-500 focus:border-red-500 focus:ring-red-500/25"
+                : "border-line focus:border-brand focus:ring-brand/30"
             }`}
           />
         </div>
@@ -95,11 +125,11 @@ export function NewsletterForm({ compact = false, className = "" }: NewsletterFo
         </Button>
       </div>
       {error ? (
-        <p id="newsletter-error" role="alert" className="mt-2 pl-5 text-xs text-red-400">
+        <p id="newsletter-error" role="alert" className="mt-2 pl-5 text-xs font-medium text-red-500">
           {error}
         </p>
       ) : (
-        <p className="mt-2 pl-5 text-xs text-mist-dim">
+        <p className={`mt-2 pl-5 text-xs ${dark ? "text-white/60" : "text-muted"}`}>
           We send occasional updates only. You can unsubscribe at any time.
         </p>
       )}

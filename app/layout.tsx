@@ -10,7 +10,7 @@ import { CartProvider } from "@/lib/cart-context";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { site } from "@/lib/site";
 
-/** Body typeface: clean, geometric and highly readable on dark surfaces. */
+/** Body typeface: clean, geometric and highly readable at small sizes. */
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
@@ -24,23 +24,25 @@ const spaceGrotesk = Space_Grotesk({
   display: "swap",
 });
 
+const TITLE = "Xpectra Media | Modern Online Clothing Store for Men, Women and Kids";
+
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: "Xpectra Media | Online Shopping in Pakistan for Men, Women and Kids",
+    default: TITLE,
     template: "%s | Xpectra Media",
   },
   description: site.description,
   applicationName: site.name,
   keywords: [
-    "online shopping in Pakistan",
+    "online clothing store",
     "men clothing online",
     "women clothing online",
     "kids clothes online",
-    "baby clothes in Pakistan",
-    "toys online in Pakistan",
-    "kurta shalwar online",
-    "affordable fashion in Pakistan",
+    "baby clothes online",
+    "toys online",
+    "everyday fashion",
+    "affordable clothing online USA",
   ],
   authors: [{ name: site.name, url: site.url }],
   creator: site.name,
@@ -51,20 +53,20 @@ export const metadata: Metadata = {
     siteName: site.name,
     locale: site.locale,
     url: "/",
-    title: "Xpectra Media | Online Shopping in Pakistan for Men, Women and Kids",
+    title: TITLE,
     description: site.description,
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Xpectra Media online shopping in Pakistan",
+        alt: "Xpectra Media online clothing store for men, women, kids, baby and toys",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Xpectra Media | Online Shopping in Pakistan",
+    title: "Xpectra Media | Modern Online Clothing Store",
     description: site.description,
     images: ["/opengraph-image"],
   },
@@ -77,8 +79,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#04070c",
-  colorScheme: "dark",
+  themeColor: "#ffffff",
+  colorScheme: "light",
   width: "device-width",
   initialScale: 1,
 };
@@ -93,7 +95,7 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${outfit.variable} ${spaceGrotesk.variable} h-full`}
     >
-      <body className="flex min-h-full flex-col bg-ink text-white antialiased">
+      <body className="flex min-h-full flex-col bg-canvas text-slate antialiased">
         {/* Site wide structured data */}
         <JsonLd data={organizationJsonLd()} />
         <JsonLd data={websiteJsonLd()} />

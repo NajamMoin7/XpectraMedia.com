@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { CustomerReviews } from "@/components/product/CustomerReviews";
+import { FrequentlyBoughtTogether } from "@/components/product/FrequentlyBoughtTogether";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductPurchasePanel } from "@/components/product/ProductPurchasePanel";
@@ -9,13 +11,17 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { SectionHeading } from "@/components/ui/PageBanner";
-import { Rating } from "@/components/ui/Rating";
 import { Reveal } from "@/components/ui/Reveal";
 import { getCategory, subcategoryLabel } from "@/lib/categories";
-import { calcDiscount, formatPrice } from "@/lib/format";
-import { getProductBySlug, getRelatedProducts, products } from "@/lib/products";
+import { calcDiscount, deliveryWindow } from "@/lib/format";
+import {
+  getFrequentlyBoughtTogether,
+  getProductBySlug,
+  getRelatedProducts,
+  productBadge,
+  products,
+} from "@/lib/products";
 import { buildMetadata, productJsonLd } from "@/lib/seo";
-import { DELIVERY_CHARGE, FREE_DELIVERY_THRESHOLD } from "@/lib/site";
 
 /** Every product page is generated statically at build time. */
 export function generateStaticParams() {
@@ -31,6 +37,8 @@ export async function generateMetadata({
   const product = getProductBySlug(slug);
   if (!product) return {};
 
+  const family = subcategoryLabel(product.subcategory).toLowerCase();
+
   return buildMetadata({
     title: product.name,
     description: product.shortDescription,
@@ -38,32 +46,13 @@ export async function generateMetadata({
     image: product.images[0],
     keywords: [
       product.name.toLowerCase(),
-      `${product.category} ${subcategoryLabel(product.subcategory).toLowerCase()}`,
-      "online shopping in Pakistan",
+      `${product.category} ${family}`,
+      `buy ${family} online`,
+      "online clothing store in the United States",
+      "free shipping and easy returns",
     ],
   });
 }
-
-/** Delivery and returns information shown beneath the purchase panel. */
-const SERVICE_POINTS: { icon: IconName; title: string; body: string }[] = [
-  {
-    icon: "truck",
-    title: "Delivery Information",
-    body: `Dispatched within one working day. Delivery takes two to three working days in major cities and three to five working days elsewhere in Pakistan. Delivery costs ${formatPrice(
-      DELIVERY_CHARGE,
-    )} and becomes free once your order reaches ${formatPrice(FREE_DELIVERY_THRESHOLD)}.`,
-  },
-  {
-    icon: "refresh",
-    title: "Returns and Exchanges",
-    body: "Request an exchange within seven days of delivery, provided the item is unused, unwashed and still carries its original tags. Message us with your order number and our team will arrange collection.",
-  },
-  {
-    icon: "headset",
-    title: "Help With Sizing",
-    body: "Not sure which size to choose? Send us a message on WhatsApp with your usual measurements and our team will recommend the right fit before you order.",
-  },
-];
 
 export default async function ProductDetailsPage({
   params,
@@ -78,101 +67,91 @@ export default async function ProductDetailsPage({
   const familyName = subcategoryLabel(product.subcategory);
   const discount = product.discount ?? calcDiscount(product.price, product.originalPrice);
   const related = getRelatedProducts(product, 4);
-  const saving = product.originalPrice ? product.originalPrice - product.price : 0;
+  const complements = getFrequentlyBoughtTogether(product, 2);
+  const deliveryEstimate = deliveryWindow(new Date().toISOString());
+
+  /** Service promises assembled from the product's own copy. */
+  const servicePoints: { icon: IconName; title: string; body: string }[] = [
+    { icon: "truck", title: "Shipping", body: product.shippingInfo },
+    { icon: "refresh", title: "Returns and Exchanges", body: product.returnInfo },
+    {
+      icon: "headset",
+      title: "Help With Sizing",
+      body: "Not sure which size to pick? Open the size guide for full measurements, or email our team with the fit you usually wear and we will recommend a size before you order.",
+    },
+  ];
 
   return (
     <>
       <JsonLd data={productJsonLd(product)} />
 
-      <div className="shell pt-8">
-        <Breadcrumbs
-          items={[
-            { name: "Products", href: "/products" },
-            {
-              name: category?.name ?? product.category,
-              href: `/categories/${product.category}`,
-            },
-            { name: product.name, href: `/products/${product.slug}` },
-          ]}
-        />
+      <div className="border-b border-line bg-mist">
+        <div className="shell py-5">
+          <Breadcrumbs
+            items={[
+              { name: "Products", href: "/products" },
+              {
+                name: category?.name ?? product.category,
+                href: `/categories/${product.category}`,
+              },
+              { name: product.name, href: `/products/${product.slug}` },
+            ]}
+          />
+        </div>
       </div>
 
       {/* Gallery and purchase panel */}
-      <section className="shell grid gap-10 py-10 lg:grid-cols-2 lg:gap-14 lg:py-14">
+      <section className="shell grid gap-10 py-10 lg:grid-cols-2 lg:gap-16 lg:py-16">
         <ProductGallery
           images={product.images}
           productName={product.name}
+          subtitle={product.subtitle}
           discount={discount}
-          newArrival={product.newArrival}
+          badge={productBadge(product)}
         />
 
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
-            {familyName}
-            <span className="ml-2 capitalize text-mist-dim">{product.category}</span>
-          </p>
-
-          <h1 className="mt-3 font-display text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl">
-            {product.name}
-          </h1>
-
-          <div className="mt-4 flex flex-wrap items-center gap-4">
-            <Rating value={product.rating} reviewCount={product.reviewCount} size={16} />
-            <span
-              className={`inline-flex items-center gap-1.5 text-sm font-medium ${
-                product.stock > 0 ? "text-emerald-400" : "text-red-400"
-              }`}
-            >
-              <Icon name={product.stock > 0 ? "checkCircle" : "close"} size={15} />
-              {product.stock > 0 ? "In Stock" : "Out of Stock"}
-            </span>
-          </div>
-
-          {/* Pricing */}
-          <div className="mt-6 flex flex-wrap items-baseline gap-3">
-            <span className="font-display text-3xl font-bold text-white">
-              {formatPrice(product.price)}
-            </span>
-            {product.originalPrice ? (
-              <>
-                <span className="text-lg text-mist-dim line-through">
-                  {formatPrice(product.originalPrice)}
-                </span>
-                <span className="rounded-full bg-brand/15 px-3 py-1 text-xs font-semibold text-brand-bright">
-                  You save {formatPrice(saving)}
-                </span>
-              </>
-            ) : null}
-          </div>
-
-          <p className="mt-5 text-base leading-relaxed text-mist">
-            {product.shortDescription}
-          </p>
-
-          <hr className="my-8 border-line-soft" />
-
-          <ProductPurchasePanel product={product} />
-        </div>
+        <ProductPurchasePanel product={product} deliveryEstimate={deliveryEstimate} />
       </section>
 
-      {/* Description, features and care */}
-      <section className="border-y border-line-soft bg-ink-soft py-14 md:py-16">
+      {/* Bundle */}
+      {complements.length > 0 ? (
+        <section className="shell pb-14 md:pb-16">
+          <Reveal>
+            <SectionHeading
+              eyebrow="Complete the Look"
+              title="Frequently bought together"
+              description="Pieces our customers most often add alongside this one."
+            />
+            <div className="mt-8">
+              <FrequentlyBoughtTogether product={product} complements={complements} />
+            </div>
+          </Reveal>
+        </section>
+      ) : null}
+
+      {/* Description, highlights, material and care */}
+      <section className="border-y border-line bg-mist py-14 md:py-20">
         <div className="shell grid gap-10 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:gap-14">
           <Reveal>
-            <h2 className="font-display text-2xl font-bold tracking-tight text-white">
-              Product Details
+            <h2 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+              About this piece
             </h2>
-            <p className="mt-5 text-base leading-relaxed text-mist">
+            <p className="mt-5 text-base leading-relaxed text-slate">
               {product.detailedDescription}
             </p>
 
-            <h3 className="mt-10 font-display text-lg font-semibold text-white">
-              Product Features
+            <h3 className="mt-10 font-display text-lg font-semibold text-ink">
+              Product highlights
             </h3>
-            <ul className="mt-4 space-y-3">
+            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
               {product.features.map((feature) => (
-                <li key={feature} className="flex items-start gap-3 text-sm text-mist">
-                  <Icon name="check" size={16} className="mt-0.5 shrink-0 text-brand" />
+                <li
+                  key={feature}
+                  className="flex items-start gap-3 rounded-2xl border border-line bg-card p-4 text-sm leading-relaxed text-slate shadow-[var(--shadow-soft)]"
+                >
+                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-tint text-brand-deep">
+                    <Icon name="check" size={12} />
+                  </span>
                   {feature}
                 </li>
               ))}
@@ -180,29 +159,30 @@ export default async function ProductDetailsPage({
           </Reveal>
 
           <Reveal delay={120} className="space-y-5">
-            <div className="rounded-2xl border border-line-soft bg-surface p-6">
-              <h3 className="font-display text-base font-semibold text-white">
+            <div className="rounded-3xl border border-line bg-card p-6 shadow-[var(--shadow-soft)]">
+              <h3 className="flex items-center gap-2 font-display text-base font-semibold text-ink">
+                <Icon name="tag" size={17} className="text-brand" />
                 Material
               </h3>
-              <p className="mt-3 text-sm leading-relaxed text-mist">
+              <p className="mt-3 text-sm leading-relaxed text-slate">
                 {product.material}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-line-soft bg-surface p-6">
-              <h3 className="font-display text-base font-semibold text-white">
-                Care Instructions
+            <div className="rounded-3xl border border-line bg-card p-6 shadow-[var(--shadow-soft)]">
+              <h3 className="flex items-center gap-2 font-display text-base font-semibold text-ink">
+                <Icon name="sparkle" size={17} className="text-brand" />
+                Care instructions
               </h3>
               <ul className="mt-4 space-y-2.5">
                 {product.careInstructions.map((instruction) => (
                   <li
                     key={instruction}
-                    className="flex items-start gap-3 text-sm text-mist"
+                    className="flex items-start gap-3 text-sm leading-relaxed text-slate"
                   >
-                    <Icon
-                      name="sparkle"
-                      size={14}
-                      className="mt-1 shrink-0 text-brand"
+                    <span
+                      aria-hidden="true"
+                      className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand"
                     />
                     {instruction}
                   </li>
@@ -210,74 +190,85 @@ export default async function ProductDetailsPage({
               </ul>
             </div>
 
-            <div className="rounded-2xl border border-line-soft bg-surface p-6">
-              <h3 className="font-display text-base font-semibold text-white">
-                At a Glance
+            <div className="rounded-3xl border border-line bg-card p-6 shadow-[var(--shadow-soft)]">
+              <h3 className="flex items-center gap-2 font-display text-base font-semibold text-ink">
+                <Icon name="list" size={17} className="text-brand" />
+                At a glance
               </h3>
               <dl className="mt-4 space-y-3 text-sm">
-                <SpecRow label="Category" value={category?.name ?? product.category} />
-                <SpecRow label="Product Type" value={familyName} />
-                <SpecRow label="Available Sizes" value={product.sizes.join(", ")} />
+                <SpecRow label="Department" value={category?.name ?? product.category} />
+                <SpecRow label="Product type" value={familyName} />
+                <SpecRow label="Available sizes" value={product.sizes.join(", ")} />
                 <SpecRow
-                  label="Available Colours"
-                  value={product.colors.map((colour) => colour.name).join(", ")}
+                  label="Available colors"
+                  value={product.colors.map((color) => color.name).join(", ")}
                 />
-                <SpecRow
-                  label="Product Code"
-                  // Displayed with a space so visible copy stays free of dashes.
-                  value={product.id.toUpperCase().replace(/-/g, " ")}
-                />
+                <SpecRow label="Product code" value={product.id.toUpperCase()} />
               </dl>
             </div>
           </Reveal>
         </div>
       </section>
 
-      {/* Delivery, returns and support */}
-      <section className="shell py-14 md:py-16">
+      {/* Shipping, returns and support */}
+      <section className="shell py-14 md:py-20">
         <div className="grid gap-5 md:grid-cols-3">
-          {SERVICE_POINTS.map((point, index) => (
+          {servicePoints.map((point, index) => (
             <Reveal key={point.title} delay={index * 80} className="h-full">
-              <article className="h-full rounded-2xl border border-line-soft bg-surface p-7">
-                <span className="mb-5 grid h-11 w-11 place-items-center rounded-xl border border-line bg-surface-2 text-brand">
+              <article className="h-full rounded-3xl border border-line bg-card p-7 shadow-[var(--shadow-soft)] transition-shadow duration-300 hover:shadow-[var(--shadow-lift)]">
+                <span className="mb-5 grid h-11 w-11 place-items-center rounded-2xl bg-brand-tint text-brand-deep">
                   <Icon name={point.icon} size={20} />
                 </span>
-                <h3 className="font-display text-base font-semibold text-white">
+                <h3 className="font-display text-base font-semibold text-ink">
                   {point.title}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-mist">{point.body}</p>
+                <p className="mt-3 text-sm leading-relaxed text-slate">{point.body}</p>
               </article>
             </Reveal>
           ))}
         </div>
       </section>
 
+      {/* Reviews */}
+      <section className="border-y border-line bg-mist py-14 md:py-20">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="Customer Reviews"
+            title="What buyers are saying"
+            description={`Real feedback from people who own the ${product.name.toLowerCase()}.`}
+          />
+          <div className="mt-10">
+            <CustomerReviews product={product} />
+          </div>
+        </div>
+      </section>
+
       {/* Related products */}
       {related.length > 0 ? (
-        <section className="border-y border-line-soft bg-ink-soft py-14 md:py-16">
-          <div className="shell">
-            <SectionHeading
-              eyebrow="You May Also Like"
-              title="Related products"
-              description={`More pieces from our ${familyName.toLowerCase()} and ${product.category} range.`}
-            />
-            <div className="mt-10">
-              <ProductGrid products={related} columns={4} />
-            </div>
+        <section className="shell py-14 md:py-20">
+          <SectionHeading
+            eyebrow="You May Also Like"
+            title="Related products"
+            description={`More from our ${familyName.toLowerCase()} and ${product.category} range.`}
+          />
+          <div className="mt-10">
+            <ProductGrid products={related} columns={4} />
           </div>
         </section>
       ) : null}
 
-      <RecentlyViewed currentId={product.id} />
+      <div className="border-t border-line">
+        <RecentlyViewed currentId={product.id} />
+      </div>
     </>
   );
 }
 
 function SpecRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex gap-4 border-b border-line-soft pb-3 last:border-0 last:pb-0">
-      <dt className="w-32 shrink-0 text-mist-dim">{label}</dt>
-      <dd className="text-white">{value}</dd>
+    <div className="flex gap-4 border-b border-line pb-3 last:border-0 last:pb-0">
+      <dt className="w-32 shrink-0 text-muted">{label}</dt>
+      <dd className="font-medium text-ink">{value}</dd>
     </div>
   );
 }

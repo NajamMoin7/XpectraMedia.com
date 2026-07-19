@@ -5,7 +5,7 @@ import { products } from "@/lib/products";
 import { site } from "@/lib/site";
 
 /** Fixed publication date for the static marketing and policy pages. */
-const LAST_MODIFIED = new Date("2026-07-19");
+const LAST_MODIFIED = new Date("2026-07-20");
 
 /**
  * Generates sitemap.xml covering every static page, category landing page and
