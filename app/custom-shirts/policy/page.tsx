@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavLink } from "@/components/ui/NavLink";
 
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -285,12 +285,12 @@ export default function CustomShirtPolicyPage() {
 
               <p className="mt-5 text-sm leading-relaxed text-slate">
                 For the full store wide terms, see our{" "}
-                <Link
+                <NavLink
                   href="/terms-and-conditions"
                   className="font-semibold text-brand hover:text-brand-deep"
                 >
                   terms and conditions
-                </Link>
+                </NavLink>
                 .
               </p>
             </div>

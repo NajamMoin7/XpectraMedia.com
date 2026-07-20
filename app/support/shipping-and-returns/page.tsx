@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavLink } from "@/components/ui/NavLink";
 
 import {
   SupportCard,
@@ -435,7 +435,7 @@ export default function ShippingAndReturnsPage() {
               body: "How your information is handled, how validation works, Cash on Delivery and your order confirmation.",
             },
           ].map((guide) => (
-            <Link
+            <NavLink
               key={guide.href}
               href={guide.href}
               className="group flex h-full flex-col rounded-3xl border border-line bg-card p-6 shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-[var(--shadow-lift)]"
@@ -457,7 +457,7 @@ export default function ShippingAndReturnsPage() {
                   className="transition-transform duration-300 group-hover:translate-x-1"
                 />
               </span>
-            </Link>
+            </NavLink>
           ))}
         </div>
 

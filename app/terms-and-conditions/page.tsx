@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavLink } from "@/components/ui/NavLink";
 
 import { Icon } from "@/components/ui/Icon";
 import { PageBanner } from "@/components/ui/PageBanner";
@@ -101,7 +101,7 @@ export default function TermsAndConditionsPage() {
                 <ol className="mt-5 space-y-3 text-sm">
                   {sections.map((section, index) => (
                     <li key={section.id}>
-                      <Link
+                      <NavLink
                         href={`#${section.id}`}
                         className="flex gap-3 leading-relaxed text-slate transition-colors hover:text-brand"
                       >
@@ -109,7 +109,7 @@ export default function TermsAndConditionsPage() {
                           {String(index + 1).padStart(2, "0")}
                         </span>
                         <span>{section.label}</span>
-                      </Link>
+                      </NavLink>
                     </li>
                   ))}
                 </ol>
@@ -171,9 +171,9 @@ export default function TermsAndConditionsPage() {
                       </p>
                       <p>
                         Our{" "}
-                        <Link href="/privacy-policy" className={LINK}>
+                        <NavLink href="/privacy-policy" className={LINK}>
                           privacy policy
-                        </Link>{" "}
+                        </NavLink>{" "}
                         forms part of these terms. Where the two documents
                         overlap, for example on how uploaded images are handled,
                         they are written to say the same thing.
@@ -379,13 +379,13 @@ export default function TermsAndConditionsPage() {
                       <p>
                         You can read more about how the cart and checkout behave
                         on our{" "}
-                        <Link href="/support/shopping-cart" className={LINK}>
+                        <NavLink href="/support/shopping-cart" className={LINK}>
                           shopping cart
-                        </Link>{" "}
+                        </NavLink>{" "}
                         and{" "}
-                        <Link href="/support/secure-checkout" className={LINK}>
+                        <NavLink href="/support/secure-checkout" className={LINK}>
                           secure checkout
-                        </Link>{" "}
+                        </NavLink>{" "}
                         support pages.
                       </p>
                     </div>
@@ -533,13 +533,13 @@ export default function TermsAndConditionsPage() {
                       </p>
                       <p>
                         Full details, including how tracking works, are on our{" "}
-                        <Link href="/support/shipping-information" className={LINK}>
+                        <NavLink href="/support/shipping-information" className={LINK}>
                           shipping information
-                        </Link>{" "}
+                        </NavLink>{" "}
                         and{" "}
-                        <Link href="/support/shipping-and-returns" className={LINK}>
+                        <NavLink href="/support/shipping-and-returns" className={LINK}>
                           shipping and returns
-                        </Link>{" "}
+                        </NavLink>{" "}
                         pages.
                       </p>
                     </div>
@@ -604,9 +604,9 @@ export default function TermsAndConditionsPage() {
                       own rules, set out in the next section. If something
                       arrives damaged or incorrect, contact us within 48 hours
                       with a photograph and we will resolve it at our cost. Our{" "}
-                      <Link href="/support/easy-returns" className={LINK}>
+                      <NavLink href="/support/easy-returns" className={LINK}>
                         easy returns
-                      </Link>{" "}
+                      </NavLink>{" "}
                       page walks through the whole process step by step.
                     </p>
                   </section>
@@ -694,9 +694,9 @@ export default function TermsAndConditionsPage() {
                         stored on a server, and a downscaled preview is held only
                         in browser storage on your own device so that your cart
                         can show what you designed. Our{" "}
-                        <Link href="/privacy-policy" className={LINK}>
+                        <NavLink href="/privacy-policy" className={LINK}>
                           privacy policy
-                        </Link>{" "}
+                        </NavLink>{" "}
                         describes this in full.
                       </p>
                     </div>
@@ -874,9 +874,9 @@ export default function TermsAndConditionsPage() {
                         payment card information is collected on this website
                         because Cash on Delivery is the only active payment
                         method. Our{" "}
-                        <Link href="/privacy-policy" className={LINK}>
+                        <NavLink href="/privacy-policy" className={LINK}>
                           privacy policy
-                        </Link>{" "}
+                        </NavLink>{" "}
                         explains the full picture and forms part of these terms.
                       </p>
                       <p>
@@ -974,36 +974,36 @@ export default function TermsAndConditionsPage() {
                       </ul>
                       <p className={`mt-6 ${BODY}`}>
                         For everyday questions, our support pages cover the{" "}
-                        <Link href="/support/shopping-cart" className={LINK}>
+                        <NavLink href="/support/shopping-cart" className={LINK}>
                           shopping cart
-                        </Link>
+                        </NavLink>
                         ,{" "}
-                        <Link href="/support/secure-checkout" className={LINK}>
+                        <NavLink href="/support/secure-checkout" className={LINK}>
                           secure checkout
-                        </Link>
+                        </NavLink>
                         ,{" "}
-                        <Link href="/support/shipping-information" className={LINK}>
+                        <NavLink href="/support/shipping-information" className={LINK}>
                           shipping information
-                        </Link>
+                        </NavLink>
                         ,{" "}
-                        <Link href="/support/easy-returns" className={LINK}>
+                        <NavLink href="/support/easy-returns" className={LINK}>
                           easy returns
-                        </Link>{" "}
+                        </NavLink>{" "}
                         and{" "}
-                        <Link href="/support/shipping-and-returns" className={LINK}>
+                        <NavLink href="/support/shipping-and-returns" className={LINK}>
                           shipping and returns
-                        </Link>
+                        </NavLink>
                         .
                       </p>
                       <p className={`mt-4 ${BODY}`}>
                         You may also want to read our{" "}
-                        <Link href="/privacy-policy" className={LINK}>
+                        <NavLink href="/privacy-policy" className={LINK}>
                           privacy policy
-                        </Link>{" "}
+                        </NavLink>{" "}
                         or visit the{" "}
-                        <Link href="/contact" className={LINK}>
+                        <NavLink href="/contact" className={LINK}>
                           contact page
-                        </Link>{" "}
+                        </NavLink>{" "}
                         for frequently asked questions.
                       </p>
                     </div>

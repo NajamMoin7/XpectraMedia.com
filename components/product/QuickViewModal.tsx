@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { Icon } from "@/components/ui/Icon";
+import { NavLink } from "@/components/ui/NavLink";
 import { QuantitySelector } from "@/components/ui/QuantitySelector";
 import { subcategoryLabel } from "@/lib/categories";
 import { useCart } from "@/lib/cart-context";
@@ -196,13 +196,13 @@ export function QuickViewModal({
             </button>
           </div>
 
-          <Link
+          <NavLink
             href={`/products/${product.slug}`}
             className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand transition-all hover:gap-3"
           >
             View full details
             <Icon name="arrowRight" size={15} />
-          </Link>
+          </NavLink>
         </div>
       </div>
     </div>

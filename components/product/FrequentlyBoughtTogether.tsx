@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { NavLink } from "@/components/ui/NavLink";
 import { useState } from "react";
 
 import { Icon } from "@/components/ui/Icon";
@@ -70,7 +70,7 @@ export function FrequentlyBoughtTogether({
               ) : null}
 
               <article className="w-40 sm:w-44">
-                <Link
+                <NavLink
                   href={`/products/${item.slug}`}
                   className="group block overflow-hidden rounded-2xl border border-line bg-mist transition-all duration-300 hover:border-brand/45"
                 >
@@ -88,18 +88,18 @@ export function FrequentlyBoughtTogether({
                       </span>
                     ) : null}
                   </span>
-                </Link>
+                </NavLink>
 
                 <p className="mt-3 text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-brand">
                   {subcategoryLabel(item.subcategory)}
                 </p>
                 <h3 className="mt-1 line-clamp-2 text-sm font-semibold leading-snug text-ink">
-                  <Link
+                  <NavLink
                     href={`/products/${item.slug}`}
                     className="transition-colors hover:text-brand"
                   >
                     {item.name}
-                  </Link>
+                  </NavLink>
                 </h3>
                 <p className="mt-1.5 flex flex-wrap items-baseline gap-2">
                   <span className="text-sm font-bold text-ink">

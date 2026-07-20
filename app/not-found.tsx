@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { NavLink } from "@/components/ui/NavLink";
 
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -50,23 +50,23 @@ export default function NotFound() {
             <ul className="mt-5 flex flex-wrap items-center justify-center gap-3">
               {categories.map((category) => (
                 <li key={category.slug}>
-                  <Link
+                  <NavLink
                     href={category.href}
                     className="inline-flex items-center gap-2 rounded-full border border-line bg-card px-5 py-2.5 text-sm font-medium text-slate shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-0.5 hover:border-brand hover:text-brand"
                   >
                     {category.name}
                     <Icon name="arrowRight" size={14} />
-                  </Link>
+                  </NavLink>
                 </li>
               ))}
               <li>
-                <Link
+                <NavLink
                   href="/contact"
                   className="inline-flex items-center gap-2 rounded-full border border-line bg-card px-5 py-2.5 text-sm font-medium text-slate shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-0.5 hover:border-brand hover:text-brand"
                 >
                   Contact Us
                   <Icon name="arrowRight" size={14} />
-                </Link>
+                </NavLink>
               </li>
             </ul>
           </div>

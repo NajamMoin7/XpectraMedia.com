@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
@@ -8,6 +7,7 @@ import { Logo } from "@/components/layout/Logo";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { SearchOverlay } from "@/components/layout/SearchOverlay";
 import { Icon } from "@/components/ui/Icon";
+import { NavLink } from "@/components/ui/NavLink";
 import { useCart } from "@/lib/cart-context";
 import { useWishlist } from "@/lib/wishlist-context";
 import { categoryNav, contactNav, primaryNav } from "@/lib/navigation";
@@ -155,7 +155,7 @@ export function Header() {
           <ul className="hidden items-center gap-1 lg:flex">
             {primaryNav.map((link) => (
               <li key={link.href}>
-                <Link
+                <NavLink
                   href={link.href}
                   aria-current={isActive(link.href) ? "page" : undefined}
                   className={`${navLinkClass(isActive(link.href))} ${
@@ -174,7 +174,7 @@ export function Header() {
                     }`}
                     aria-hidden="true"
                   />
-                </Link>
+                </NavLink>
               </li>
             ))}
 
@@ -221,7 +221,7 @@ export function Header() {
                   <ul className="grid gap-1 p-2 sm:grid-cols-2">
                     {categoryNav.map((category) => (
                       <li key={category.href}>
-                        <Link
+                        <NavLink
                           href={category.href}
                           onClick={() => setDropdownOpen(false)}
                           className="group flex items-start gap-3 rounded-xl px-3 py-3 transition-colors duration-200 hover:bg-mist"
@@ -243,11 +243,11 @@ export function Header() {
                               {category.description}
                             </span>
                           </span>
-                        </Link>
+                        </NavLink>
                       </li>
                     ))}
                   </ul>
-                  <Link
+                  <NavLink
                     href="/categories"
                     onClick={() => setDropdownOpen(false)}
                     tabIndex={dropdownOpen ? undefined : -1}
@@ -255,13 +255,13 @@ export function Header() {
                   >
                     View all categories
                     <Icon name="arrowRight" size={15} />
-                  </Link>
+                  </NavLink>
                 </div>
               </div>
             </li>
 
             <li>
-              <Link
+              <NavLink
                 href={contactNav.href}
                 aria-current={isActive(contactNav.href) ? "page" : undefined}
                 className={navLinkClass(isActive(contactNav.href))}
@@ -273,7 +273,7 @@ export function Header() {
                   }`}
                   aria-hidden="true"
                 />
-              </Link>
+              </NavLink>
             </li>
           </ul>
 
@@ -288,7 +288,7 @@ export function Header() {
               <Icon name="search" size={19} />
             </button>
 
-            <Link
+            <NavLink
               href="/products?filter=wishlist"
               aria-label={
                 hydrated && wishlistCount > 0
@@ -306,9 +306,9 @@ export function Header() {
                   {wishlistCount > 99 ? "99" : wishlistCount}
                 </span>
               ) : null}
-            </Link>
+            </NavLink>
 
-            <Link
+            <NavLink
               href="/cart"
               aria-label={
                 hydrated && count > 0
@@ -327,7 +327,7 @@ export function Header() {
                   {count > 99 ? "99" : count}
                 </span>
               ) : null}
-            </Link>
+            </NavLink>
 
             <button
               type="button"

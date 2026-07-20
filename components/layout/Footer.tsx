@@ -1,14 +1,13 @@
-import Link from "next/link";
-
 import { Logo } from "@/components/layout/Logo";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { NavLink } from "@/components/ui/NavLink";
 import { NewsletterForm } from "@/components/ui/NewsletterForm";
 import {
   footerCategoryLinks,
   footerCustomLinks,
   footerQuickLinks,
   footerSupportLinks,
-  type NavLink,
+  type NavLink as NavLinkItem,
 } from "@/lib/navigation";
 import { FREE_SHIPPING_THRESHOLD, RETURN_WINDOW_DAYS, site } from "@/lib/site";
 
@@ -157,20 +156,20 @@ export function Footer() {
           </p>
           <ul className="flex items-center gap-6 text-xs">
             <li>
-              <Link
+              <NavLink
                 href="/privacy-policy"
                 className="text-white/70 transition-colors hover:text-brand-bright"
               >
                 Privacy Policy
-              </Link>
+              </NavLink>
             </li>
             <li>
-              <Link
+              <NavLink
                 href="/terms-and-conditions"
                 className="text-white/70 transition-colors hover:text-brand-bright"
               >
                 Terms and Conditions
-              </Link>
+              </NavLink>
             </li>
           </ul>
         </div>
@@ -185,7 +184,7 @@ function FooterColumn({
   className = "",
 }: {
   title: string;
-  links: NavLink[];
+  links: NavLinkItem[];
   className?: string;
 }) {
   return (
@@ -196,12 +195,12 @@ function FooterColumn({
       <ul className="space-y-3 text-sm">
         {links.map((link) => (
           <li key={`${title}-${link.href}-${link.label}`}>
-            <Link
+            <NavLink
               href={link.href}
               className="inline-block text-white/70 transition-all duration-200 hover:translate-x-0.5 hover:text-brand-bright"
             >
               {link.label}
-            </Link>
+            </NavLink>
           </li>
         ))}
       </ul>

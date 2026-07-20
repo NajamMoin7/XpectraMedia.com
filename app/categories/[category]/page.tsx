@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { NavLink } from "@/components/ui/NavLink";
 import { notFound } from "next/navigation";
 
 import { ProductGrid } from "@/components/product/ProductGrid";
@@ -217,7 +217,7 @@ export default async function CategoryPage({
               <ul className="mt-6 space-y-2">
                 {stocked.map((family) => (
                   <li key={family.slug}>
-                    <Link
+                    <NavLink
                       href={`#${family.slug}`}
                       className="group flex items-center justify-between rounded-2xl border border-line bg-mist px-4 py-3 text-sm font-medium text-slate transition-all hover:border-brand hover:bg-brand-tint hover:text-brand-deep"
                     >
@@ -227,7 +227,7 @@ export default async function CategoryPage({
                         size={15}
                         className="text-muted transition-all group-hover:translate-x-0.5 group-hover:text-brand"
                       />
-                    </Link>
+                    </NavLink>
                   </li>
                 ))}
               </ul>

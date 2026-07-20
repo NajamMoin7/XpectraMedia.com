@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
@@ -14,6 +13,7 @@ import {
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { EmptyState } from "@/components/ui/Feedback";
 import { Icon } from "@/components/ui/Icon";
+import { NavLink } from "@/components/ui/NavLink";
 import { categories, subcategories } from "@/lib/categories";
 import { products, searchProducts, sortProducts } from "@/lib/products";
 import { useWishlist } from "@/lib/wishlist-context";
@@ -280,12 +280,12 @@ function BrowserPanel({
                   <Icon name="refresh" size={16} />
                   Clear Filters
                 </button>
-                <Link
+                <NavLink
                   href="/categories"
                   className="inline-flex h-11 items-center justify-center rounded-full border border-line-strong bg-canvas px-6 text-sm font-semibold text-ink transition-all hover:border-brand hover:text-brand"
                 >
                   Browse Categories
-                </Link>
+                </NavLink>
               </div>
             </EmptyState>
           )}

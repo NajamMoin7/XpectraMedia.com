@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { NavLink } from "@/components/ui/NavLink";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 
@@ -337,12 +337,12 @@ export function ShirtCustomizer() {
         <section className={panel}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className={legend}>Step 1. Upload your design</h2>
-            <Link
+            <NavLink
               href="/custom-shirts/upload-guidelines"
               className="text-xs font-semibold text-brand transition-colors hover:text-brand-deep"
             >
               Upload guidelines
-            </Link>
+            </NavLink>
           </div>
 
           <p className="mt-2 text-sm leading-relaxed text-slate">
@@ -841,12 +841,12 @@ export function ShirtCustomizer() {
             </ul>
             <p className="mt-3 text-xs text-muted">
               Ordering for a large team?{" "}
-              <Link
+              <NavLink
                 href="/custom-shirts/bulk-orders"
                 className="font-semibold text-brand hover:text-brand-deep"
               >
                 See bulk order details
-              </Link>
+              </NavLink>
               .
             </p>
           </div>

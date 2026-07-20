@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { Logo } from "@/components/layout/Logo";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { NavLink } from "@/components/ui/NavLink";
 import {
   categoryNav,
   contactNav,
@@ -105,7 +105,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
           <ul className="space-y-1">
             {primaryNav.map((link) => (
               <li key={link.href}>
-                <Link
+                <NavLink
                   href={link.href}
                   onClick={onClose}
                   aria-current={isActive(link.href) ? "page" : undefined}
@@ -120,7 +120,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                     ) : null}
                   </span>
                   <Icon name="chevronRight" size={16} className="text-muted" />
-                </Link>
+                </NavLink>
               </li>
             ))}
 
@@ -149,23 +149,23 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                 <ul className="overflow-hidden pl-3">
                   {categoryNav.map((category) => (
                     <li key={category.href}>
-                      <Link
+                      <NavLink
                         href={category.href}
                         onClick={onClose}
                         className="block rounded-r-xl border-l-2 border-line px-4 py-2.5 text-sm text-slate transition-colors hover:border-brand hover:bg-mist hover:text-ink"
                       >
                         {category.label}
-                      </Link>
+                      </NavLink>
                     </li>
                   ))}
                   <li>
-                    <Link
+                    <NavLink
                       href="/categories"
                       onClick={onClose}
                       className="block rounded-r-xl border-l-2 border-line px-4 py-2.5 text-sm font-semibold text-brand transition-colors hover:border-brand hover:bg-mist"
                     >
                       All categories
-                    </Link>
+                    </NavLink>
                   </li>
                 </ul>
               </div>
@@ -196,30 +196,30 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                 <ul className="overflow-hidden pl-3">
                   {footerCustomLinks.map((link) => (
                     <li key={link.href}>
-                      <Link
+                      <NavLink
                         href={link.href}
                         onClick={onClose}
                         className="block rounded-r-xl border-l-2 border-line px-4 py-2.5 text-sm text-slate transition-colors hover:border-brand hover:bg-mist hover:text-ink"
                       >
                         {link.label}
-                      </Link>
+                      </NavLink>
                     </li>
                   ))}
                   <li>
-                    <Link
+                    <NavLink
                       href={FLAGSHIP_HREF}
                       onClick={onClose}
                       className="block rounded-r-xl border-l-2 border-line px-4 py-2.5 text-sm font-semibold text-brand transition-colors hover:border-brand hover:bg-mist"
                     >
                       All custom shirts
-                    </Link>
+                    </NavLink>
                   </li>
                 </ul>
               </div>
             </li>
 
             <li>
-              <Link
+              <NavLink
                 href={contactNav.href}
                 onClick={onClose}
                 aria-current={isActive(contactNav.href) ? "page" : undefined}
@@ -227,7 +227,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
               >
                 {contactNav.label}
                 <Icon name="chevronRight" size={16} className="text-muted" />
-              </Link>
+              </NavLink>
             </li>
           </ul>
 

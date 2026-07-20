@@ -6,6 +6,9 @@ import "./globals.css";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { JsonLd } from "@/components/ui/JsonLd";
+import { LoadingOverlay } from "@/components/loading/LoadingOverlay";
+import { NavigationProgress } from "@/components/loading/NavigationProgress";
+import { RouteLoadingProvider } from "@/components/loading/RouteLoadingProvider";
 import { CartProvider } from "@/lib/cart-context";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -107,13 +110,19 @@ export default function RootLayout({
           Skip to main content
         </a>
 
-        <CartProvider>
-          <Header />
-          <main id="main-content" className="flex-1">
-            {children}
-          </main>
-          <Footer />
-        </CartProvider>
+        <RouteLoadingProvider>
+          {/* One loader for the whole site, so two can never overlap */}
+          <NavigationProgress />
+          <LoadingOverlay />
+
+          <CartProvider>
+            <Header />
+            <main id="main-content" className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </CartProvider>
+        </RouteLoadingProvider>
       </body>
     </html>
   );

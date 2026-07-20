@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { ShirtMockup } from "@/components/custom/ShirtMockup";
 import { Icon } from "@/components/ui/Icon";
+import { NavLink } from "@/components/ui/NavLink";
 import { formatPrice } from "@/lib/format";
 import type { Product } from "@/lib/types";
 
@@ -42,7 +42,8 @@ export function CustomShirtCard({ product, priority = false }: CustomShirtCardPr
       <article className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-card shadow-[var(--shadow-soft)] transition-all duration-500 ease-out hover:-translate-y-1.5 hover:border-brand/45 hover:shadow-[var(--shadow-lift)]">
         {/* Image */}
         <div className="relative aspect-[3/4] overflow-hidden bg-mist">
-          <Link
+          {/* Stretched link: an empty overlay anchor covering the image. */}
+          <NavLink
             href={designHref}
             aria-label={`Customize the ${product.name}`}
             className="absolute inset-0 z-10"
@@ -91,9 +92,9 @@ export function CustomShirtCard({ product, priority = false }: CustomShirtCardPr
           </p>
 
           <h3 className="mt-2 font-display text-[1.05rem] font-semibold leading-snug text-ink">
-            <Link href={designHref} className="transition-colors hover:text-brand">
+            <NavLink href={designHref} className="transition-colors hover:text-brand">
               {product.name}
-            </Link>
+            </NavLink>
           </h3>
 
           <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">
@@ -140,22 +141,22 @@ export function CustomShirtCard({ product, priority = false }: CustomShirtCardPr
 
           {/* Actions */}
           <div className="mt-auto flex flex-col gap-2 pt-5">
-            <Link
+            <NavLink
               href={designHref}
               className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-deep via-brand to-brand text-sm font-semibold text-white shadow-[0_8px_24px_-10px_rgba(13,127,242,0.7)] transition-all duration-300 hover:brightness-110 active:scale-[0.98]"
             >
               <Icon name="plus" size={16} />
               Upload Design
-            </Link>
+            </NavLink>
 
             <div className="flex gap-2">
-              <Link
+              <NavLink
                 href={designHref}
                 className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-line-strong bg-canvas text-xs font-semibold text-ink transition-all duration-300 hover:border-brand hover:text-brand active:scale-[0.98]"
               >
                 <Icon name="sparkle" size={14} />
                 Customize Now
-              </Link>
+              </NavLink>
               <button
                 type="button"
                 onClick={() => setPreview(true)}
@@ -276,13 +277,13 @@ function QuickPreviewModal({
               {formatPrice(product.price)}
             </p>
           </div>
-          <Link
+          <NavLink
             href={designHref}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-deep via-brand to-brand px-6 text-sm font-semibold text-white shadow-[0_8px_24px_-10px_rgba(13,127,242,0.7)] transition-all duration-300 hover:brightness-110 active:scale-[0.98]"
           >
             Customize This Shirt
             <Icon name="arrowRight" size={16} />
-          </Link>
+          </NavLink>
         </div>
       </div>
     </div>

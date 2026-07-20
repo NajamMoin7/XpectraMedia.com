@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { NavLink } from "@/components/ui/NavLink";
 
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
@@ -14,7 +14,7 @@ export function ShopByStyle() {
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
       {styleEdits.map((edit, index) => (
         <Reveal key={edit.title} delay={index * 80} className="h-full">
-          <Link
+          <NavLink
             href={edit.href}
             className="group relative flex h-full min-h-[22rem] flex-col justify-end overflow-hidden rounded-3xl border border-line bg-card shadow-[var(--shadow-soft)] transition-all duration-500 hover:-translate-y-1.5 hover:border-brand/45 hover:shadow-[var(--shadow-lift)]"
           >
@@ -43,7 +43,7 @@ export function ShopByStyle() {
                 <Icon name="arrowRight" size={15} />
               </span>
             </div>
-          </Link>
+          </NavLink>
         </Reveal>
       ))}
     </div>

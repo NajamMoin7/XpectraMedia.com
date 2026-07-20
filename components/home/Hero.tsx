@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { NavLink } from "@/components/ui/NavLink";
 
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -178,7 +178,7 @@ export function Hero() {
 
             {/* Floating cards drifting over the photography */}
             {FLOATING.map((card) => (
-              <Link
+              <NavLink
                 key={card.label}
                 href={card.href}
                 style={{ animationDelay: card.delay }}
@@ -200,7 +200,7 @@ export function Hero() {
                   </span>
                   <span className="block text-xs text-muted">{card.caption}</span>
                 </span>
-              </Link>
+              </NavLink>
             ))}
           </div>
         </Reveal>

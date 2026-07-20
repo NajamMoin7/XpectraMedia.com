@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useState } from "react";
 
 import { QuickViewModal } from "@/components/product/QuickViewModal";
 import { Icon } from "@/components/ui/Icon";
+import { NavLink } from "@/components/ui/NavLink";
 import { subcategoryLabel } from "@/lib/categories";
 import { useCart } from "@/lib/cart-context";
 import { calcDiscount, formatPrice } from "@/lib/format";
@@ -75,7 +75,8 @@ export function ProductCard({ product, view = "grid", priority = false }: Produc
             isList ? "aspect-[4/3] sm:aspect-auto sm:w-64 sm:shrink-0" : "aspect-[3/4]"
           }`}
         >
-          <Link
+          {/* Stretched link: an empty overlay anchor covering the image. */}
+          <NavLink
             href={`/products/${product.slug}`}
             aria-label={`View ${product.name}`}
             className="absolute inset-0 z-10"
@@ -167,12 +168,12 @@ export function ProductCard({ product, view = "grid", priority = false }: Produc
           </p>
 
           <h3 className="mt-2 font-display text-[1.05rem] font-semibold leading-snug text-ink">
-            <Link
+            <NavLink
               href={`/products/${product.slug}`}
               className="transition-colors hover:text-brand"
             >
               {product.name}
-            </Link>
+            </NavLink>
           </h3>
 
           <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">

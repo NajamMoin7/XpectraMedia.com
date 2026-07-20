@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Icon } from "@/components/ui/Icon";
+import { NavLink } from "@/components/ui/NavLink";
 import { formatPrice } from "@/lib/format";
 import { products, searchProducts } from "@/lib/products";
 import { categoryLabel, subcategoryLabel } from "@/lib/categories";
@@ -127,7 +127,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
             <ul className="max-h-[52vh] overflow-y-auto p-2">
               {results.map((product) => (
                 <li key={product.id}>
-                  <Link
+                  <NavLink
                     href={`/products/${product.slug}`}
                     onClick={close}
                     className="flex items-center gap-4 rounded-xl p-2.5 transition-colors hover:bg-mist"
@@ -152,7 +152,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                     <span className="shrink-0 text-sm font-semibold text-brand">
                       {formatPrice(product.price)}
                     </span>
-                  </Link>
+                  </NavLink>
                 </li>
               ))}
             </ul>

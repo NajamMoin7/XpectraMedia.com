@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 
 import { Icon } from "@/components/ui/Icon";
+import { NavLink } from "@/components/ui/NavLink";
 import { QuantitySelector } from "@/components/ui/QuantitySelector";
 import { useCart } from "@/lib/cart-context";
 import { cartLineKey, formatPrice } from "@/lib/format";
@@ -49,7 +49,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
     <li className="border-b border-line last:border-b-0">
       <div className="flex flex-col gap-5 p-5 transition-colors duration-300 hover:bg-mist/60 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
         {/* Image */}
-        <Link
+        <NavLink
           href={href}
           className="group relative block h-28 w-24 shrink-0 overflow-hidden rounded-2xl border border-line bg-mist sm:h-32 sm:w-28"
         >
@@ -60,7 +60,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
             sizes="(max-width: 640px) 96px, 112px"
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           />
-        </Link>
+        </NavLink>
 
         {/* Name, variant and unit price */}
         <div className="min-w-0 flex-1">
@@ -72,9 +72,9 @@ export function CartItemRow({ item }: CartItemRowProps) {
           ) : null}
 
           <h3 className="font-display text-base font-semibold leading-snug text-ink">
-            <Link href={href} className="transition-colors hover:text-brand">
+            <NavLink href={href} className="transition-colors hover:text-brand">
               {item.name}
-            </Link>
+            </NavLink>
           </h3>
 
           <dl className="mt-3 flex flex-wrap items-center gap-2">

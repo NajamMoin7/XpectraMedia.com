@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavLink } from "@/components/ui/NavLink";
 
 import { Icon } from "@/components/ui/Icon";
 import { PageBanner } from "@/components/ui/PageBanner";
@@ -99,7 +99,7 @@ export default function PrivacyPolicyPage() {
                 <ol className="mt-5 space-y-3 text-sm">
                   {sections.map((section, index) => (
                     <li key={section.id}>
-                      <Link
+                      <NavLink
                         href={`#${section.id}`}
                         className="flex gap-3 leading-relaxed text-slate transition-colors hover:text-brand"
                       >
@@ -107,7 +107,7 @@ export default function PrivacyPolicyPage() {
                           {String(index + 1).padStart(2, "0")}
                         </span>
                         <span>{section.label}</span>
-                      </Link>
+                      </NavLink>
                     </li>
                   ))}
                 </ol>
@@ -766,32 +766,32 @@ export default function PrivacyPolicyPage() {
                         {formatPrice(FREE_SHIPPING_THRESHOLD)}, express shipping
                         is {formatPrice(EXPRESS_SHIPPING_RATE)}, and returns run
                         for {RETURN_WINDOW_DAYS} days. Full details live on our{" "}
-                        <Link href="/support/shipping-information" className={LINK}>
+                        <NavLink href="/support/shipping-information" className={LINK}>
                           shipping information
-                        </Link>{" "}
+                        </NavLink>{" "}
                         and{" "}
-                        <Link href="/support/easy-returns" className={LINK}>
+                        <NavLink href="/support/easy-returns" className={LINK}>
                           easy returns
-                        </Link>{" "}
+                        </NavLink>{" "}
                         pages.
                       </p>
                       <p className={`mt-4 ${BODY}`}>
                         You may also want to read our{" "}
-                        <Link href="/terms-and-conditions" className={LINK}>
+                        <NavLink href="/terms-and-conditions" className={LINK}>
                           terms and conditions
-                        </Link>
+                        </NavLink>
                         , learn how the{" "}
-                        <Link href="/support/shopping-cart" className={LINK}>
+                        <NavLink href="/support/shopping-cart" className={LINK}>
                           shopping cart
-                        </Link>{" "}
+                        </NavLink>{" "}
                         and{" "}
-                        <Link href="/support/secure-checkout" className={LINK}>
+                        <NavLink href="/support/secure-checkout" className={LINK}>
                           secure checkout
-                        </Link>{" "}
+                        </NavLink>{" "}
                         work, or visit the{" "}
-                        <Link href="/contact" className={LINK}>
+                        <NavLink href="/contact" className={LINK}>
                           contact page
-                        </Link>{" "}
+                        </NavLink>{" "}
                         for frequently asked questions.
                       </p>
                     </div>

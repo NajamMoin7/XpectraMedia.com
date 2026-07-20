@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavLink } from "@/components/ui/NavLink";
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 
 export type ButtonVariant = "primary" | "outline" | "ghost" | "dark" | "soft";
@@ -74,9 +74,9 @@ export function Button(props: LinkButtonProps | NativeButtonProps) {
       );
     }
     return (
-      <Link href={href} className={style} {...rest}>
+      <NavLink href={href} className={style} {...rest}>
         {children}
-      </Link>
+      </NavLink>
     );
   }
 

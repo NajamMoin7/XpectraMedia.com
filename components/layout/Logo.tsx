@@ -1,6 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
 
+import { NavLink } from "@/components/ui/NavLink";
 import { site } from "@/lib/site";
 
 interface LogoProps {
@@ -31,7 +31,7 @@ export function Logo({
   const width = Math.round(height * 3.8);
 
   return (
-    <Link
+    <NavLink
       href="/"
       aria-label={label}
       className={`group inline-flex shrink-0 items-center transition-transform duration-300 ease-out ${className}`}
@@ -57,6 +57,6 @@ export function Logo({
           />
         </span>
       </span>
-    </Link>
+    </NavLink>
   );
 }

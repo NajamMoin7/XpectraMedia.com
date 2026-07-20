@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { NavLink } from "@/components/ui/NavLink";
 
 import { CustomShirtCard } from "@/components/custom/CustomShirtCard";
 import { Button } from "@/components/ui/Button";
@@ -409,13 +409,13 @@ export default function CustomShirtsPage() {
                     </li>
                   ))}
               </ul>
-              <Link
+              <NavLink
                 href="/custom-shirts/bulk-orders"
                 className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand transition-colors hover:text-brand-deep"
               >
                 Bulk custom shirts and reorders
                 <Icon name="arrowRight" size={15} />
-              </Link>
+              </NavLink>
             </div>
           </div>
         </div>
@@ -442,13 +442,13 @@ export default function CustomShirtsPage() {
                 size before the shirt can be added to your cart. Take a moment on that
                 step, because it is the version that gets printed.
               </p>
-              <Link
+              <NavLink
                 href="/custom-shirts/policy"
                 className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand transition-colors hover:text-brand-deep"
               >
                 Read the full custom product policy
                 <Icon name="arrowRight" size={15} />
-              </Link>
+              </NavLink>
             </div>
           </div>
         </div>

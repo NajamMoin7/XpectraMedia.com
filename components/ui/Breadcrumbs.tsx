@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { Icon } from "@/components/ui/Icon";
+import { NavLink } from "@/components/ui/NavLink";
 import { breadcrumbJsonLd, type Crumb } from "@/lib/seo";
 import { JsonLd } from "@/components/ui/JsonLd";
 
@@ -31,12 +30,12 @@ export function Breadcrumbs({ items, className = "" }: BreadcrumbsProps) {
                     {crumb.name}
                   </span>
                 ) : (
-                  <Link
+                  <NavLink
                     href={crumb.href}
                     className="transition-colors hover:text-brand"
                   >
                     {crumb.name}
-                  </Link>
+                  </NavLink>
                 )}
                 {!isLast ? (
                   <Icon name="chevronRight" size={14} className="text-line-strong" />

@@ -1,7 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
 
 import { Icon } from "@/components/ui/Icon";
+import { NavLink } from "@/components/ui/NavLink";
 
 interface CategoryCardProps {
   title: string;
@@ -32,7 +32,7 @@ export function CategoryCard({
   priority = false,
 }: CategoryCardProps) {
   return (
-    <Link
+    <NavLink
       href={href}
       className={`group relative flex min-h-[19rem] flex-col justify-end overflow-hidden rounded-3xl border border-line bg-card shadow-[var(--shadow-soft)] transition-all duration-500 hover:-translate-y-1.5 hover:border-brand/45 hover:shadow-[var(--shadow-lift)] ${
         wide ? "sm:col-span-2" : ""
@@ -70,6 +70,6 @@ export function CategoryCard({
           <Icon name="arrowRight" size={15} />
         </span>
       </div>
-    </Link>
+    </NavLink>
   );
 }
