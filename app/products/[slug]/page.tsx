@@ -12,7 +12,7 @@ import { Icon, type IconName } from "@/components/ui/Icon";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { SectionHeading } from "@/components/ui/PageBanner";
 import { Reveal } from "@/components/ui/Reveal";
-import { getCategory, subcategoryLabel } from "@/lib/categories";
+import { categoryLabel, getCategory, subcategoryLabel } from "@/lib/categories";
 import { calcDiscount, deliveryWindow } from "@/lib/format";
 import {
   getFrequentlyBoughtTogether,
@@ -46,7 +46,7 @@ export async function generateMetadata({
     image: product.images[0],
     keywords: [
       product.name.toLowerCase(),
-      `${product.category} ${family}`,
+      `${categoryLabel(product.category).toLowerCase()} ${family}`,
       `buy ${family} online`,
       "online clothing store in the United States",
       "free shipping and easy returns",
@@ -92,7 +92,7 @@ export default async function ProductDetailsPage({
               { name: "Products", href: "/products" },
               {
                 name: category?.name ?? product.category,
-                href: `/categories/${product.category}`,
+                href: category?.href ?? `/categories/${product.category}`,
               },
               { name: product.name, href: `/products/${product.slug}` },
             ]}
@@ -196,7 +196,7 @@ export default async function ProductDetailsPage({
                 At a glance
               </h3>
               <dl className="mt-4 space-y-3 text-sm">
-                <SpecRow label="Department" value={category?.name ?? product.category} />
+                <SpecRow label="Department" value={category?.name ?? categoryLabel(product.category)} />
                 <SpecRow label="Product type" value={familyName} />
                 <SpecRow label="Available sizes" value={product.sizes.join(", ")} />
                 <SpecRow
@@ -249,7 +249,7 @@ export default async function ProductDetailsPage({
           <SectionHeading
             eyebrow="You May Also Like"
             title="Related products"
-            description={`More from our ${familyName.toLowerCase()} and ${product.category} range.`}
+            description={`More from our ${familyName.toLowerCase()} and ${categoryLabel(product.category).toLowerCase()} range.`}
           />
           <div className="mt-10">
             <ProductGrid products={related} columns={4} />

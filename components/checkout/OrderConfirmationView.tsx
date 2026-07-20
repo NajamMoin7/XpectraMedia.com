@@ -8,7 +8,7 @@ import { EmptyState, PageLoader } from "@/components/ui/Feedback";
 import { Icon } from "@/components/ui/Icon";
 import { cartLineKey, deliveryWindow, formatDate, formatPrice } from "@/lib/format";
 import { STORAGE_KEYS, site } from "@/lib/site";
-import type { OrderDetails } from "@/lib/types";
+import type { CartItem, OrderDetails } from "@/lib/types";
 
 /** Reads the stored order, discarding anything that is not a usable record. */
 function readStoredOrder(): OrderDetails | null {
@@ -39,6 +39,91 @@ function DetailRow({ label, value }: { label: string; value: string }) {
         {label}
       </dt>
       <dd className="text-sm leading-relaxed text-ink">{value}</dd>
+    </div>
+  );
+}
+
+/** One label and value pair inside the customization record. */
+function CustomDetail({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 border-b border-line/70 py-1.5 last:border-b-0">
+      <dt className="shrink-0 text-muted">{label}</dt>
+      <dd className="text-right font-medium text-ink">{value}</dd>
+    </div>
+  );
+}
+
+/** Formats a signed percentage offset, for example 0 becomes "Centered". */
+function offsetLabel(x: number, y: number): string {
+  if (x === 0 && y === 0) return "Centered";
+  const horizontal = x === 0 ? "centered" : `${x > 0 ? "right" : "left"} ${Math.abs(x)}%`;
+  const vertical = y === 0 ? "centered" : `${y > 0 ? "down" : "up"} ${Math.abs(y)}%`;
+  return `${horizontal}, ${vertical}`;
+}
+
+/** Full customization record for one ordered custom line. */
+function CustomOrderDetails({ item }: { item: CartItem }) {
+  const custom = item.custom;
+  if (!custom) return null;
+
+  return (
+    <div className="mt-3 rounded-2xl border border-line bg-mist/70 p-4">
+      <div className="flex items-center gap-3">
+        <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xl border border-line bg-canvas">
+          {/* Data URL artwork, so a plain img is used instead of next/image */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={custom.artwork}
+            alt=""
+            role="img"
+            aria-label={`Uploaded artwork ${custom.artworkName}`}
+            className="h-full w-full object-contain"
+          />
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-semibold text-ink">
+            {custom.styleName}, {custom.printLabel}
+          </span>
+          <span className="mt-0.5 block truncate text-xs text-muted">
+            {custom.artworkName}
+          </span>
+        </span>
+      </div>
+
+      <dl className="mt-3 border-t border-line pt-3 text-xs">
+        <CustomDetail label="Shirt style" value={custom.styleName} />
+        <CustomDetail label="Shirt color" value={custom.colorName} />
+        <CustomDetail label="Size" value={item.size} />
+        <CustomDetail label="Quantity" value={String(item.quantity)} />
+        <CustomDetail label="Print option" value={custom.printLabel} />
+        <CustomDetail label="Unit price" value={formatPrice(custom.unitPrice)} />
+        <CustomDetail
+          label="Customization charge"
+          value={
+            custom.printCharge === 0
+              ? "Included"
+              : `${formatPrice(custom.printCharge)} per shirt`
+          }
+        />
+        <CustomDetail
+          label="Design position"
+          value={offsetLabel(custom.transform.x, custom.transform.y)}
+        />
+        <CustomDetail
+          label="Design size"
+          value={`${Math.round(custom.transform.scale * 100)}% scale`}
+        />
+        <CustomDetail
+          label="Design rotation"
+          value={`${Math.round(custom.transform.rotation)} degrees`}
+        />
+      </dl>
+
+      <p className="mt-3 flex items-start gap-2 rounded-xl border border-line bg-canvas px-3 py-2 text-xs leading-relaxed text-slate">
+        <Icon name="shield" size={14} className="mt-0.5 shrink-0 text-brand" />
+        Custom printed shirts are non returnable unless they arrive damaged,
+        defective or different from the approved order.
+      </p>
     </div>
   );
 }
@@ -183,30 +268,40 @@ export function OrderConfirmationView() {
 
         <ul className="mt-6 divide-y divide-line border-y border-line">
           {order.items.map((item) => (
-            <li key={cartLineKey(item)} className="flex items-center gap-4 py-4">
-              <span className="relative h-20 w-16 shrink-0 overflow-hidden rounded-xl border border-line bg-mist">
-                <Image
-                  src={item.image}
-                  alt={`${item.name} in ${item.color}, size ${item.size}`}
-                  fill
-                  sizes="64px"
-                  className="object-cover"
-                />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold leading-snug text-ink">
-                  {item.name}
+            <li key={cartLineKey(item)} className="py-4">
+              <div className="flex items-center gap-4">
+                <span className="relative h-20 w-16 shrink-0 overflow-hidden rounded-xl border border-line bg-mist">
+                  <Image
+                    src={item.image}
+                    alt={`${item.name} in ${item.color}, size ${item.size}`}
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
                 </span>
-                <span className="mt-1.5 block text-xs text-muted">
-                  Size {item.size}, {item.color}
+                <span className="min-w-0 flex-1">
+                  {item.custom ? (
+                    <span className="mb-1.5 inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand-tint px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-brand-deep">
+                      <Icon name="sparkle" size={13} />
+                      Custom Product
+                    </span>
+                  ) : null}
+                  <span className="block text-sm font-semibold leading-snug text-ink">
+                    {item.name}
+                  </span>
+                  <span className="mt-1.5 block text-xs text-muted">
+                    Size {item.size}, {item.color}
+                  </span>
+                  <span className="mt-1 block text-xs text-slate">
+                    {formatPrice(item.price)} each, quantity {item.quantity}
+                  </span>
                 </span>
-                <span className="mt-1 block text-xs text-slate">
-                  {formatPrice(item.price)} each, quantity {item.quantity}
+                <span className="shrink-0 font-semibold tabular-nums text-ink">
+                  {formatPrice(item.price * item.quantity)}
                 </span>
-              </span>
-              <span className="shrink-0 font-semibold tabular-nums text-ink">
-                {formatPrice(item.price * item.quantity)}
-              </span>
+              </div>
+
+              <CustomOrderDetails item={item} />
             </li>
           ))}
         </ul>

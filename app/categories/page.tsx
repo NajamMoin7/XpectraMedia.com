@@ -13,7 +13,7 @@ import type { CategorySlug, SubcategorySlug } from "@/lib/types";
 export const metadata: Metadata = buildMetadata({
   title: "Product Categories",
   description:
-    "Explore every Xpectra Media department. Shop men's clothing, women's clothing, kids clothing, baby clothing and toys across tees, shirts, denim, dresses, hoodies, jackets, rompers, sleepwear and wooden toys.",
+    "Explore every Xpectra Media department. Shop men's clothing, women's clothing, kids clothing, baby clothing, toys and custom shirts online across tees, shirts, denim, dresses, hoodies, jackets, rompers, sleepwear, wooden toys and custom logo shirts.",
   path: "/categories",
   keywords: [
     "product categories",
@@ -22,6 +22,9 @@ export const metadata: Metadata = buildMetadata({
     "kids clothing online",
     "baby clothing online",
     "toys online",
+    "custom shirts online",
+    "custom logo shirts",
+    "bulk custom shirts",
   ],
 });
 
@@ -32,6 +35,7 @@ const DEPARTMENT_NAMES: Record<CategorySlug, string> = {
   kids: "Kids",
   baby: "Baby",
   toys: "Toys",
+  "custom-shirts": "Custom Shirts",
 };
 
 /**
@@ -91,6 +95,19 @@ const FAMILY_GROUPS: {
       "creative-toys",
     ],
   },
+  {
+    title: "Custom Shirts",
+    description:
+      "Personalized shirts printed with your own logo or artwork. Company logo shirts, team uniforms and bulk custom shirts, from a single piece to a full run.",
+    slugs: [
+      "custom-tees",
+      "custom-polos",
+      "custom-long-sleeve",
+      "custom-sweatshirts",
+      "custom-uniforms",
+      "bulk-custom",
+    ],
+  },
 ];
 
 export default function CategoriesPage() {
@@ -99,7 +116,7 @@ export default function CategoriesPage() {
       <PageBanner
         eyebrow="Browse the Store"
         title="Product Categories"
-        description="Five departments and twenty six product families, organized so you can move from a general idea to the exact piece in a couple of steps."
+        description="Six departments and thirty two product families, organized so you can move from a general idea to the exact piece in a couple of steps."
         crumbs={[{ name: "Categories", href: "/categories" }]}
       />
 
@@ -108,7 +125,7 @@ export default function CategoriesPage() {
         <SectionHeading
           eyebrow="Main Departments"
           title="Shop by who you are buying for"
-          description="Start with the person, then narrow down by the type of piece you need."
+          description="Start with the person, then narrow down by the type of piece you need. Custom Shirts works a little differently, since you bring the design and we print it."
         />
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -122,7 +139,6 @@ export default function CategoriesPage() {
                 count={countByCategory(category.slug)}
                 buttonLabel={`Explore ${category.name}`}
                 priority={index === 0}
-                wide={index === 3}
               />
             </Reveal>
           ))}

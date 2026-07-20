@@ -6,7 +6,7 @@ import { Reveal } from "@/components/ui/Reveal";
 
 const HIGHLIGHTS = [
   "Free shipping on every order over $75",
-  "Easy 30 day returns with free return shipping on your first return",
+  "Easy 7 day returns with free return shipping on your first return",
   "Clothing, baby essentials and toys in a single order",
 ];
 

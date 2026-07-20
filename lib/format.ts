@@ -70,19 +70,50 @@ export function formatDate(iso: string): string {
   }).format(new Date(iso));
 }
 
-/** Estimated delivery window shown on product and confirmation pages. */
+/**
+ * Estimated delivery window shown on product and confirmation pages.
+ * Covers 1 to 2 business days of order processing plus the 5 to 7 business
+ * day standard shipping estimate, so it matches the shipping support page.
+ */
 export function deliveryWindow(iso: string): string {
   const start = new Date(iso);
   const end = new Date(iso);
-  start.setDate(start.getDate() + 3);
-  end.setDate(end.getDate() + 7);
+  start.setDate(start.getDate() + 6);
+  end.setDate(end.getDate() + 9);
   const fmt = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
   return `${fmt.format(start)} to ${fmt.format(end)}`;
 }
 
-/** Stable identity for a cart line, since size and color vary per line. */
+/** Short stable digest, used to keep two different designs on separate lines. */
+function digest(value: string): string {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+/**
+ * Stable identity for a cart line. Size and colour make an ordinary line
+ * unique. Custom shirts also fold in the design and its placement, so two
+ * different artworks never merge into a single line.
+ */
 export function cartLineKey(
-  item: Pick<CartItem, "productId" | "size" | "color">,
+  item: Pick<CartItem, "productId" | "size" | "color" | "custom">,
 ): string {
-  return `${item.productId}__${item.size}__${item.color}`;
+  const base = `${item.productId}__${item.size}__${item.color}`;
+  if (!item.custom) return base;
+
+  const { styleId, printOption, artwork, transform } = item.custom;
+  const signature = [
+    styleId,
+    printOption,
+    transform.x,
+    transform.y,
+    transform.scale,
+    transform.rotation,
+    artwork,
+  ].join("|");
+  return `${base}__${digest(signature)}`;
 }

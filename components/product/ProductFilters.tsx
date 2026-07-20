@@ -54,6 +54,7 @@ const CATEGORY_LABELS: Record<CategorySlug, string> = {
   kids: "Kids",
   baby: "Baby",
   toys: "Toys",
+  "custom-shirts": "Custom Shirts",
 };
 
 /** True when anything differs from the untouched panel. */

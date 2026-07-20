@@ -7,8 +7,16 @@ import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/layout/Logo";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
-import { categoryNav, contactNav, primaryNav } from "@/lib/navigation";
+import {
+  categoryNav,
+  contactNav,
+  footerCustomLinks,
+  primaryNav,
+} from "@/lib/navigation";
 import { site } from "@/lib/site";
+
+/** The new flagship department, highlighted with a small pill in the drawer. */
+const FLAGSHIP_HREF = "/custom-shirts";
 
 interface MobileMenuProps {
   open: boolean;
@@ -24,6 +32,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
   const pathname = usePathname();
   const panelRef = useRef<HTMLDivElement>(null);
   const [categoriesOpen, setCategoriesOpen] = useState(true);
+  const [customOpen, setCustomOpen] = useState(true);
 
   useEffect(() => {
     if (!open) return;
@@ -102,7 +111,14 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                   aria-current={isActive(link.href) ? "page" : undefined}
                   className={rowClass(isActive(link.href))}
                 >
-                  {link.label}
+                  <span className="flex items-center gap-2">
+                    {link.label}
+                    {link.href === FLAGSHIP_HREF ? (
+                      <span className="rounded-full bg-brand px-1.5 py-0.5 text-[0.6rem] font-bold uppercase leading-none tracking-wider text-white">
+                        New
+                      </span>
+                    ) : null}
+                  </span>
                   <Icon name="chevronRight" size={16} className="text-muted" />
                 </Link>
               </li>
@@ -149,6 +165,53 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                       className="block rounded-r-xl border-l-2 border-line px-4 py-2.5 text-sm font-semibold text-brand transition-colors hover:border-brand hover:bg-mist"
                     >
                       All categories
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </li>
+
+            {/* Custom Shirts accordion */}
+            <li>
+              <button
+                type="button"
+                onClick={() => setCustomOpen((value) => !value)}
+                aria-expanded={customOpen}
+                className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-base font-medium text-slate transition-colors hover:bg-mist hover:text-ink"
+              >
+                Custom Shirts
+                <Icon
+                  name="chevronDown"
+                  size={16}
+                  className={`transition-transform duration-300 ${
+                    customOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              <div
+                className={`grid transition-all duration-300 ease-[var(--ease-out-soft)] ${
+                  customOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                }`}
+              >
+                <ul className="overflow-hidden pl-3">
+                  {footerCustomLinks.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        onClick={onClose}
+                        className="block rounded-r-xl border-l-2 border-line px-4 py-2.5 text-sm text-slate transition-colors hover:border-brand hover:bg-mist hover:text-ink"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                  <li>
+                    <Link
+                      href={FLAGSHIP_HREF}
+                      onClick={onClose}
+                      className="block rounded-r-xl border-l-2 border-line px-4 py-2.5 text-sm font-semibold text-brand transition-colors hover:border-brand hover:bg-mist"
+                    >
+                      All custom shirts
                     </Link>
                   </li>
                 </ul>

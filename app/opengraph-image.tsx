@@ -97,7 +97,7 @@ export default async function OpengraphImage() {
         <div style={{ display: "flex", gap: 16, marginTop: 50 }}>
           {[
             "Free Shipping Over $75",
-            "30 Day Returns",
+            "7 Day Returns",
             site.url.replace("https://", ""),
           ].map((label) => (
             <div

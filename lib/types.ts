@@ -4,7 +4,13 @@
  */
 
 /** Top level shopping department. */
-export type CategorySlug = "men" | "women" | "kids" | "baby" | "toys";
+export type CategorySlug =
+  | "men"
+  | "women"
+  | "kids"
+  | "baby"
+  | "toys"
+  | "custom-shirts";
 
 /** Product family used for filtering and category landing pages. */
 export type SubcategorySlug =
@@ -33,7 +39,13 @@ export type SubcategorySlug =
   | "wooden-toys"
   | "soft-toys"
   | "activity-toys"
-  | "creative-toys";
+  | "creative-toys"
+  | "custom-tees"
+  | "custom-polos"
+  | "custom-long-sleeve"
+  | "custom-sweatshirts"
+  | "custom-uniforms"
+  | "bulk-custom";
 
 export interface ProductColor {
   name: string;
@@ -105,6 +117,46 @@ export interface CartItem {
   size: string;
   color: string;
   quantity: number;
+  /** Present only on shirts configured in the customization tool. */
+  custom?: CustomShirtConfig;
+}
+
+/** Placement of the uploaded artwork on the shirt. */
+export type PrintOption = "front" | "back" | "both";
+
+/** Where the uploaded design sits inside the safe print area. */
+export interface DesignTransform {
+  /** Horizontal offset in percent of the print area, 0 is centered. */
+  x: number;
+  /** Vertical offset in percent of the print area, 0 is centered. */
+  y: number;
+  /** Scale multiplier applied to the artwork. */
+  scale: number;
+  /** Rotation in degrees. */
+  rotation: number;
+}
+
+/**
+ * Everything needed to reproduce a customized shirt in the cart and on the
+ * order confirmation. The artwork is a browser data URL, never uploaded.
+ */
+export interface CustomShirtConfig {
+  styleId: string;
+  styleName: string;
+  colorName: string;
+  colorHex: string;
+  printOption: PrintOption;
+  printLabel: string;
+  /** Data URL preview of the uploaded artwork. */
+  artwork: string;
+  artworkName: string;
+  transform: DesignTransform;
+  /** Base shirt price before printing charges. */
+  unitPrice: number;
+  /** Additional charge for the chosen print placement. */
+  printCharge: number;
+  /** Whole number percentage removed for the chosen quantity. */
+  discountPercent: number;
 }
 
 export interface Testimonial {

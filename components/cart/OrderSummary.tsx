@@ -4,6 +4,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 
 import { Icon } from "@/components/ui/Icon";
+import { CUSTOM_PRODUCT_POLICY } from "@/lib/custom-shirt";
 import { amountToFreeShipping, cartLineKey, formatPrice } from "@/lib/format";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/site";
 import type { CartItem } from "@/lib/types";
@@ -39,6 +40,7 @@ export function OrderSummary({
   const remaining = amountToFreeShipping(subtotal);
   const qualifies = subtotal > 0 && remaining === 0;
   const unitCount = items.reduce((count, item) => count + item.quantity, 0);
+  const hasCustom = items.some((item) => Boolean(item.custom));
   const progress = Math.min(
     100,
     Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100),
@@ -79,6 +81,12 @@ export function OrderSummary({
                 <span className="mt-1 block text-xs text-muted">
                   Size {item.size}, {item.color}
                 </span>
+                {item.custom ? (
+                  <span className="mt-1.5 inline-flex items-center gap-1 rounded-full border border-brand/30 bg-brand-tint px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wide text-brand-deep">
+                    <Icon name="sparkle" size={11} />
+                    Custom Product
+                  </span>
+                ) : null}
               </span>
               <span className="shrink-0 text-sm font-semibold tabular-nums text-ink">
                 {formatPrice(item.price * item.quantity)}
@@ -152,6 +160,18 @@ export function OrderSummary({
               style={{ width: `${Math.max(progress, 4)}%` }}
             />
           </div>
+        </div>
+      ) : null}
+
+      {hasCustom ? (
+        <div className="mt-6 rounded-2xl border border-brand/25 bg-brand-tint p-4">
+          <p className="flex items-center gap-2 font-display text-sm font-semibold text-ink">
+            <Icon name="sparkle" size={15} className="shrink-0 text-brand" />
+            Custom Product Policy
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-slate">
+            {CUSTOM_PRODUCT_POLICY}
+          </p>
         </div>
       ) : null}
 

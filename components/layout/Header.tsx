@@ -11,7 +11,14 @@ import { Icon } from "@/components/ui/Icon";
 import { useCart } from "@/lib/cart-context";
 import { useWishlist } from "@/lib/wishlist-context";
 import { categoryNav, contactNav, primaryNav } from "@/lib/navigation";
-import { site } from "@/lib/site";
+import { FREE_SHIPPING_THRESHOLD, RETURN_WINDOW_DAYS, site } from "@/lib/site";
+
+/** The new flagship department, highlighted with a small pill in the nav. */
+const FLAGSHIP_HREF = "/custom-shirts";
+
+function isFlagship(href: string): boolean {
+  return href === FLAGSHIP_HREF;
+}
 
 /** Subscribes to window scrolling for the condensed header state. */
 function subscribeToScroll(onChange: () => void): () => void {
@@ -97,11 +104,15 @@ export function Header() {
         <div className="shell flex h-9 items-center justify-center gap-6 text-[0.72rem] font-medium tracking-wide text-white/90 sm:text-xs">
           <span className="flex items-center gap-2">
             <Icon name="truck" size={14} className="text-brand-bright" />
-            Free shipping on orders over $75
+            Free shipping on orders over ${FREE_SHIPPING_THRESHOLD}
           </span>
           <span className="hidden items-center gap-2 sm:flex">
             <Icon name="refresh" size={14} className="text-brand-bright" />
-            Easy 30 day returns
+            Easy {RETURN_WINDOW_DAYS} day returns
+          </span>
+          <span className="hidden items-center gap-2 md:flex">
+            <Icon name="sparkle" size={14} className="text-brand-bright" />
+            Custom shirts printed with your logo
           </span>
         </div>
       </div>
@@ -147,9 +158,16 @@ export function Header() {
                 <Link
                   href={link.href}
                   aria-current={isActive(link.href) ? "page" : undefined}
-                  className={navLinkClass(isActive(link.href))}
+                  className={`${navLinkClass(isActive(link.href))} ${
+                    isFlagship(link.href) ? "inline-flex items-center gap-1.5" : ""
+                  }`}
                 >
                   {link.label}
+                  {isFlagship(link.href) ? (
+                    <span className="rounded-full bg-brand px-1.5 py-0.5 text-[0.6rem] font-bold uppercase leading-none tracking-wider text-white">
+                      New
+                    </span>
+                  ) : null}
                   <span
                     className={`absolute inset-x-4 bottom-0 h-0.5 origin-left rounded-full bg-brand transition-transform duration-300 ${
                       isActive(link.href) ? "scale-x-100" : "scale-x-0"
@@ -192,14 +210,15 @@ export function Header() {
               </button>
 
               <div
-                className={`absolute left-1/2 top-full w-80 -translate-x-1/2 pt-3 transition-all duration-300 ease-out ${
+                className={`absolute left-1/2 top-full w-[min(42rem,calc(100vw-2rem))] -translate-x-1/2 pt-3 transition-all duration-300 ease-out ${
                   dropdownOpen
                     ? "visible translate-y-0 opacity-100"
                     : "invisible -translate-y-2 opacity-0"
                 }`}
               >
                 <div className="overflow-hidden rounded-2xl border border-line bg-card shadow-[var(--shadow-lift)]">
-                  <ul className="p-2">
+                  {/* Two columns so all six departments stay on screen */}
+                  <ul className="grid gap-1 p-2 sm:grid-cols-2">
                     {categoryNav.map((category) => (
                       <li key={category.href}>
                         <Link
@@ -212,8 +231,13 @@ export function Header() {
                             <Icon name="chevronRight" size={14} />
                           </span>
                           <span>
-                            <span className="block text-sm font-semibold text-ink">
+                            <span className="flex items-center gap-1.5 text-sm font-semibold text-ink">
                               {category.label}
+                              {isFlagship(category.href) ? (
+                                <span className="rounded-full bg-brand px-1.5 py-0.5 text-[0.6rem] font-bold uppercase leading-none tracking-wider text-white">
+                                  New
+                                </span>
+                              ) : null}
                             </span>
                             <span className="mt-0.5 block text-xs leading-relaxed text-slate">
                               {category.description}

@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 
 import { calcDiscount } from "@/lib/format";
-import { FREE_SHIPPING_THRESHOLD, SHIPPING_RATE, site } from "@/lib/site";
+import {
+  FREE_SHIPPING_THRESHOLD,
+  RETURN_WINDOW_DAYS,
+  SHIPPING_RATE,
+  site,
+} from "@/lib/site";
 import type { Product } from "@/lib/types";
 
 interface PageSeo {
@@ -93,6 +98,47 @@ export function organizationJsonLd() {
       areaServed: "US",
       availableLanguage: ["English"],
     },
+    shippingDetails: {
+      "@type": "OfferShippingDetails",
+      shippingRate: {
+        "@type": "MonetaryAmount",
+        value: SHIPPING_RATE,
+        currency: site.currency,
+      },
+      shippingDestination: {
+        "@type": "DefinedRegion",
+        addressCountry: "US",
+      },
+      freeShippingThreshold: {
+        "@type": "MonetaryAmount",
+        value: FREE_SHIPPING_THRESHOLD,
+        currency: site.currency,
+      },
+      deliveryTime: {
+        "@type": "ShippingDeliveryTime",
+        handlingTime: {
+          "@type": "QuantitativeValue",
+          minValue: 1,
+          maxValue: 2,
+          unitCode: "DAY",
+        },
+        transitTime: {
+          "@type": "QuantitativeValue",
+          minValue: 3,
+          maxValue: 7,
+          unitCode: "DAY",
+        },
+      },
+    },
+    hasMerchantReturnPolicy: {
+      "@type": "MerchantReturnPolicy",
+      applicableCountry: "US",
+      returnPolicyCategory:
+        "https://schema.org/MerchantReturnFiniteReturnWindow",
+      merchantReturnDays: RETURN_WINDOW_DAYS,
+      returnMethod: "https://schema.org/ReturnByMail",
+      returnFees: "https://schema.org/FreeReturn",
+    },
     sameAs: site.social.map((channel) => channel.href),
   };
 }
@@ -161,12 +207,17 @@ export function productJsonLd(product: Product) {
           "@type": "DefinedRegion",
           addressCountry: "US",
         },
+        freeShippingThreshold: {
+          "@type": "MonetaryAmount",
+          value: FREE_SHIPPING_THRESHOLD,
+          currency: "USD",
+        },
         deliveryTime: {
           "@type": "ShippingDeliveryTime",
           handlingTime: {
             "@type": "QuantitativeValue",
-            minValue: 0,
-            maxValue: 1,
+            minValue: 1,
+            maxValue: 2,
             unitCode: "DAY",
           },
           transitTime: {
@@ -181,7 +232,7 @@ export function productJsonLd(product: Product) {
         "@type": "MerchantReturnPolicy",
         applicableCountry: "US",
         returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-        merchantReturnDays: 30,
+        merchantReturnDays: RETURN_WINDOW_DAYS,
         returnMethod: "https://schema.org/ReturnByMail",
         returnFees: "https://schema.org/FreeReturn",
       },

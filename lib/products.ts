@@ -76,14 +76,35 @@ const PLUSH_CARE = [
   "Brush the fur gently to keep it soft",
 ];
 
+const CUSTOM_SIZES = [
+  "Small",
+  "Medium",
+  "Large",
+  "Extra Large",
+  "Double Extra Large",
+];
+
+const CUSTOM_CARE = [
+  "Machine wash cold inside out",
+  "Do not bleach",
+  "Tumble dry low",
+  "Do not iron directly on the print",
+];
+
+const CUSTOM_SHIPPING =
+  "Custom shirts are printed to order and ship in 3 to 5 business days. Standard shipping is $6.99 and free on orders of $75 or more. Express shipping is $14.99.";
+
+const CUSTOM_RETURN =
+  "Custom printed shirts are made specifically for your order and cannot be returned or exchanged unless the product arrives damaged, defective, or different from the approved order details.";
+
 const SHIP_STANDARD =
-  "Free standard shipping on orders over $75. Standard shipping is $6.95 and arrives in three to seven business days. Express delivery is available at checkout.";
+  "Free standard shipping on orders over $75. Standard shipping is $6.99 and arrives in five to seven business days. Express delivery is available at checkout.";
 const SHIP_LIGHT =
-  "Ships free on orders over $75. Standard shipping is $6.95 and typically arrives in three to five business days.";
+  "Ships free on orders over $75. Standard shipping is $6.99 and typically arrives in five to seven business days.";
 const RETURN_STANDARD =
-  "Easy returns within 30 days of delivery. Items must be unworn, unwashed and have the original tags attached. Return shipping is free on your first return per order.";
+  "Easy returns within 7 days of delivery. Items must be unworn, unwashed and have the original tags attached. Return shipping is free on your first return per order.";
 const RETURN_TOYS =
-  "Easy returns within 30 days of delivery. Toys must be unused and returned in the original packaging. Return shipping is free on your first return per order.";
+  "Easy returns within 7 days of delivery. Toys must be unused and returned in the original packaging. Return shipping is free on your first return per order.";
 
 /**
  * The full Xpectra Media catalogue.
@@ -1539,6 +1560,272 @@ export const products: Product[] = [
     bestSeller: true,
     limitedStock: true,
   },
+
+  /* ---------------------------------------------------- CUSTOM SHIRTS */
+  {
+    id: "xm601",
+    name: "Classic Custom T Shirt",
+    slug: "classic-custom-t-shirt",
+    category: "custom-shirts",
+    subcategory: "custom-tees",
+    subtitle: "Heavyweight cotton tee printed with your design",
+    shortDescription: "A heavyweight cotton tee printed with your own logo or artwork, ready from a single shirt upward.",
+    detailedDescription:
+      "This is the shirt most custom orders start with, because the blank itself is worth printing on. The body is heavyweight combed cotton with a smooth face that holds fine detail cleanly, so a logo with small type stays legible rather than filling in. Upload your artwork, position it inside the safe print area, and the preview shows exactly how it will sit before you commit. Front printing is included in the price, and back or double sided printing can be added inside the customization tool.",
+    price: 24.99,
+    rating: 4.8,
+    reviewCount: 246,
+    stock: 500,
+    sizes: CUSTOM_SIZES,
+    colors: [C.white, C.black, C.navy, C.heather, C.midWash, C.coral],
+    images: img("classic-custom-t-shirt"),
+    material: "100 percent combed cotton jersey, 240 GSM",
+    features: [
+      "Heavyweight cotton that holds fine print detail",
+      "Front print included in the shirt price",
+      "Six shirt colors and five sizes",
+      "Instant preview before you order",
+      "Volume pricing from ten shirts",
+    ],
+    careInstructions: CUSTOM_CARE,
+    shippingInfo: CUSTOM_SHIPPING,
+    returnInfo: CUSTOM_RETURN,
+    featured: true,
+    newArrival: false,
+    bestSeller: true,
+    limitedStock: false,
+  },
+  {
+    id: "xm602",
+    name: "Premium Custom Polo Shirt",
+    slug: "premium-custom-polo-shirt",
+    category: "custom-shirts",
+    subcategory: "custom-polos",
+    subtitle: "Structured pique polo for client facing teams",
+    shortDescription: "A structured pique polo printed with your logo, cut for uniforms and client facing teams.",
+    detailedDescription:
+      "A polo reads more formal than a tee without asking anyone to wear a jacket, which is why it is the default for storefronts, service teams and trade shows. The pique knit has enough structure to keep its shape through a long shift and a hot wash, the two button placket sits flat, and the collar holds up rather than curling by lunchtime. A left chest logo is the usual placement, and the preview lets you position it precisely.",
+    price: 32.99,
+    rating: 4.8,
+    reviewCount: 184,
+    stock: 500,
+    sizes: CUSTOM_SIZES,
+    colors: [C.white, C.black, C.navy, C.heather, C.midWash, C.coral],
+    images: img("premium-custom-polo-shirt"),
+    material: "100 percent cotton pique knit, 220 GSM",
+    features: [
+      "Structured pique that keeps its shape",
+      "Collar stays flat through repeated washing",
+      "Ideal for a left chest logo",
+      "Consistent color across a full team order",
+      "Volume pricing from ten shirts",
+    ],
+    careInstructions: CUSTOM_CARE,
+    shippingInfo: CUSTOM_SHIPPING,
+    returnInfo: CUSTOM_RETURN,
+    featured: true,
+    newArrival: false,
+    bestSeller: true,
+    limitedStock: false,
+  },
+  {
+    id: "xm603",
+    name: "Custom Long Sleeve Shirt",
+    slug: "custom-long-sleeve-shirt",
+    category: "custom-shirts",
+    subcategory: "custom-long-sleeve",
+    subtitle: "Full sleeve cotton with room for a large back print",
+    shortDescription: "A full sleeve cotton shirt with space for a chest logo and a larger design across the back.",
+    detailedDescription:
+      "Long sleeves give a design more room to work with, which matters when the artwork is detailed or the back is the main event. The cotton is the same weight as our classic tee so the print behaves identically, and ribbed cuffs keep the sleeves in place through a working day. It is a common pick for crews, outdoor events and anywhere a short sleeve shirt would leave people cold.",
+    price: 29.99,
+    rating: 4.7,
+    reviewCount: 132,
+    stock: 500,
+    sizes: CUSTOM_SIZES,
+    colors: [C.white, C.black, C.navy, C.heather, C.midWash, C.coral],
+    images: img("custom-long-sleeve-shirt"),
+    material: "100 percent cotton jersey with ribbed cuffs, 240 GSM",
+    features: [
+      "Generous back print area",
+      "Ribbed cuffs that stay in place",
+      "Same print surface as the classic tee",
+      "Works for outdoor events and crews",
+      "Volume pricing from ten shirts",
+    ],
+    careInstructions: CUSTOM_CARE,
+    shippingInfo: CUSTOM_SHIPPING,
+    returnInfo: CUSTOM_RETURN,
+    featured: false,
+    newArrival: true,
+    bestSeller: false,
+    limitedStock: false,
+  },
+  {
+    id: "xm604",
+    name: "Custom Company Uniform Shirt",
+    slug: "custom-company-uniform-shirt",
+    category: "custom-shirts",
+    subcategory: "custom-uniforms",
+    subtitle: "Consistent branded shirts across a whole team",
+    shortDescription: "A branded uniform shirt built for consistency across a whole team and for repeat reorders.",
+    detailedDescription:
+      "Uniforms live or die on consistency, so this shirt is held to a tighter color standard than the rest of the range. Order more next quarter and the shade will match what your team is already wearing, which is the part most custom printing gets wrong. The fabric is chosen to survive daily wear and frequent washing without the print cracking, and sizing runs true across the full range so a mixed team order fits properly.",
+    price: 34.99,
+    rating: 4.9,
+    reviewCount: 167,
+    stock: 500,
+    sizes: CUSTOM_SIZES,
+    colors: [C.white, C.black, C.navy, C.heather, C.midWash, C.coral],
+    images: img("custom-company-uniform-shirt"),
+    material: "Cotton rich blend with a color matched finish, 200 GSM",
+    features: [
+      "Held to a tight color standard for reorders",
+      "Built for daily wear and frequent washing",
+      "Print resists cracking over time",
+      "True sizing across the full range",
+      "Volume pricing from ten shirts",
+    ],
+    careInstructions: CUSTOM_CARE,
+    shippingInfo: CUSTOM_SHIPPING,
+    returnInfo: CUSTOM_RETURN,
+    featured: true,
+    newArrival: false,
+    bestSeller: false,
+    limitedStock: false,
+  },
+  {
+    id: "xm605",
+    name: "Custom Event Shirt",
+    slug: "custom-event-shirt",
+    category: "custom-shirts",
+    subcategory: "custom-tees",
+    subtitle: "Soft everyday tee for conferences and fundraisers",
+    shortDescription: "A soft everyday tee for conferences, fundraisers and launches that people keep wearing afterward.",
+    detailedDescription:
+      "The measure of a good event shirt is whether anyone wears it a month later, so this one is cut and finished like a shirt someone would buy on its own. The cotton is softer than a typical giveaway blank, the fit is modern rather than boxy, and the print sits flat instead of forming a stiff panel across the chest. Order in volume and the per shirt price drops automatically at ten, twenty five and fifty.",
+    price: 26.99,
+    rating: 4.7,
+    reviewCount: 143,
+    stock: 500,
+    sizes: CUSTOM_SIZES,
+    colors: [C.white, C.black, C.navy, C.heather, C.midWash, C.coral],
+    images: img("custom-event-shirt"),
+    material: "Ring spun cotton, 200 GSM",
+    features: [
+      "Softer than a standard giveaway blank",
+      "Modern fit rather than boxy",
+      "Print stays flat and flexible",
+      "Automatic volume pricing",
+      "Ready in 3 to 5 business days",
+    ],
+    careInstructions: CUSTOM_CARE,
+    shippingInfo: CUSTOM_SHIPPING,
+    returnInfo: CUSTOM_RETURN,
+    featured: false,
+    newArrival: true,
+    bestSeller: false,
+    limitedStock: false,
+  },
+  {
+    id: "xm606",
+    name: "Custom Team Shirt",
+    slug: "custom-team-shirt",
+    category: "custom-shirts",
+    subcategory: "custom-tees",
+    subtitle: "Durable tee for squads, clubs and school teams",
+    shortDescription: "A durable tee for squads, clubs and school teams, with room for a crest and a back number.",
+    detailedDescription:
+      "Team shirts take more abuse than most custom printing, so this blank is built around durability. The cotton is tightly knitted to resist snagging, the shoulder seams are taped so they hold through repeated pulling, and the back print area is sized to carry a name and number alongside a front crest. Front and back printing is the usual choice here and can be selected in the customization tool.",
+    price: 27.99,
+    rating: 4.8,
+    reviewCount: 198,
+    stock: 500,
+    sizes: CUSTOM_SIZES,
+    colors: [C.white, C.black, C.navy, C.heather, C.midWash, C.coral],
+    images: img("custom-team-shirt"),
+    material: "Tightly knitted cotton with taped shoulders, 220 GSM",
+    features: [
+      "Taped shoulder seams for durability",
+      "Back area sized for a name and number",
+      "Resists snagging through heavy use",
+      "Front and back printing available",
+      "Volume pricing from ten shirts",
+    ],
+    careInstructions: CUSTOM_CARE,
+    shippingInfo: CUSTOM_SHIPPING,
+    returnInfo: CUSTOM_RETURN,
+    featured: false,
+    newArrival: false,
+    bestSeller: true,
+    limitedStock: false,
+  },
+  {
+    id: "xm607",
+    name: "Custom Sweatshirt",
+    slug: "custom-sweatshirt",
+    category: "custom-shirts",
+    subcategory: "custom-sweatshirts",
+    subtitle: "Brushed fleece crewneck that carries a large print",
+    shortDescription: "A brushed fleece crewneck that carries a large print beautifully and wears well all season.",
+    detailedDescription:
+      "Fleece gives a print real presence. The surface is broad and flat, so large artwork lands with impact instead of curving away at the edges the way it can on a fitted tee. Inside, the fleece is brushed soft and heavy enough to wear on its own through cooler months, and the ribbed neck, cuffs and hem have the recovery to stay snug rather than stretching out. It is the piece staff and teams tend to keep longest.",
+    price: 39.99,
+    rating: 4.9,
+    reviewCount: 176,
+    stock: 500,
+    sizes: CUSTOM_SIZES,
+    colors: [C.white, C.black, C.navy, C.heather, C.midWash, C.coral],
+    images: img("custom-sweatshirt"),
+    material: "Cotton rich brushed fleece, 340 GSM",
+    features: [
+      "Broad flat surface for large artwork",
+      "Brushed soft fleece inner face",
+      "High recovery ribbed neck, cuffs and hem",
+      "Warm enough to wear on its own",
+      "Volume pricing from ten shirts",
+    ],
+    careInstructions: CUSTOM_CARE,
+    shippingInfo: CUSTOM_SHIPPING,
+    returnInfo: CUSTOM_RETURN,
+    featured: true,
+    newArrival: true,
+    bestSeller: false,
+    limitedStock: false,
+  },
+  {
+    id: "xm608",
+    name: "Bulk Custom Shirt Package",
+    slug: "bulk-custom-shirt-package",
+    category: "custom-shirts",
+    subcategory: "bulk-custom",
+    subtitle: "Best per shirt pricing for large orders",
+    shortDescription: "The best per shirt pricing for large orders, with discounts applied automatically as quantity grows.",
+    detailedDescription:
+      "When an order runs to dozens of shirts the per shirt price should reflect that, and here it does so without a quote or a phone call. Discounts apply automatically inside the customization tool: five percent from ten shirts, ten percent from twenty five, and fifteen percent from fifty. Mixed sizes are welcome within a single order at the same price, and the running total updates live as you change the quantity so there are no surprises at checkout.",
+    price: 22.99,
+    rating: 4.8,
+    reviewCount: 211,
+    stock: 500,
+    sizes: CUSTOM_SIZES,
+    colors: [C.white, C.black, C.navy, C.heather, C.midWash, C.coral],
+    images: img("bulk-custom-shirt-package"),
+    material: "Cotton jersey, 200 GSM",
+    features: [
+      "Five percent off from ten shirts",
+      "Ten percent off from twenty five shirts",
+      "Fifteen percent off from fifty shirts",
+      "Mixed sizes at the same price",
+      "Live total as quantity changes",
+    ],
+    careInstructions: CUSTOM_CARE,
+    shippingInfo: CUSTOM_SHIPPING,
+    returnInfo: CUSTOM_RETURN,
+    featured: false,
+    newArrival: false,
+    bestSeller: true,
+    limitedStock: false,
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -1704,4 +1991,9 @@ export function searchProducts(list: Product[], term: string): Product[] {
       .toLowerCase()
       .includes(query),
   );
+}
+
+/** Every shirt in the Custom Shirts department. */
+export function getCustomShirts(): Product[] {
+  return products.filter((product) => product.category === "custom-shirts");
 }

@@ -47,6 +47,15 @@ export const categories: Category[] = [
     image: "/assets/images/categories/toys.jpg",
     href: "/categories/toys",
   },
+  {
+    slug: "custom-shirts",
+    name: "Custom Shirts",
+    tagline: "Your design, printed to order",
+    description:
+      "Custom shirts online with your own logo or artwork. Upload a design, preview it on the shirt instantly, choose a style, color and size, then order printed shirts for a company, a team or an event.",
+    image: "/assets/images/categories/custom-shirts.jpg",
+    href: "/custom-shirts",
+  },
 ];
 
 /** Product families shown on the categories page and used by filters. */
@@ -268,6 +277,56 @@ export const subcategories: Subcategory[] = [
     image: "/assets/images/products/wooden-toy-vehicle-set-1.jpg",
     categories: ["toys"],
   },
+
+  // Custom Shirts
+  {
+    slug: "custom-tees",
+    name: "Custom T Shirts",
+    description:
+      "Heavyweight cotton tees printed with your own logo or artwork, from a single shirt to a full team order.",
+    image: "/assets/images/products/classic-custom-t-shirt-1.jpg",
+    categories: ["custom-shirts"],
+  },
+  {
+    slug: "custom-polos",
+    name: "Custom Polo Shirts",
+    description:
+      "Structured pique polos with an embroidered look print, cut for staff uniforms and client facing teams.",
+    image: "/assets/images/products/premium-custom-polo-shirt-1.jpg",
+    categories: ["custom-shirts"],
+  },
+  {
+    slug: "custom-long-sleeve",
+    name: "Custom Long Sleeve",
+    description:
+      "Full sleeve cotton shirts with room for a front logo and a larger back design.",
+    image: "/assets/images/products/custom-long-sleeve-shirt-1.jpg",
+    categories: ["custom-shirts"],
+  },
+  {
+    slug: "custom-sweatshirts",
+    name: "Custom Sweatshirts",
+    description:
+      "Brushed fleece crewnecks that carry a large print beautifully and wear well all season.",
+    image: "/assets/images/products/custom-sweatshirt-1.jpg",
+    categories: ["custom-shirts"],
+  },
+  {
+    slug: "custom-uniforms",
+    name: "Custom Uniforms",
+    description:
+      "Consistent branded shirts for storefronts, service teams and trade shows.",
+    image: "/assets/images/products/custom-company-uniform-shirt-1.jpg",
+    categories: ["custom-shirts"],
+  },
+  {
+    slug: "bulk-custom",
+    name: "Bulk Custom Orders",
+    description:
+      "Volume pricing that drops automatically at ten, twenty five and fifty shirts.",
+    image: "/assets/images/products/bulk-custom-shirt-package-1.jpg",
+    categories: ["custom-shirts"],
+  },
 ];
 
 export function getCategory(slug: string): Category | undefined {
@@ -286,4 +345,12 @@ export function subcategoriesFor(categorySlug: CategorySlug): Subcategory[] {
 /** Human readable label for a subcategory slug, used by cards and filters. */
 export function subcategoryLabel(slug: string): string {
   return getSubcategory(slug)?.name ?? slug;
+}
+
+/**
+ * Human readable label for a department slug. Slugs such as custom-shirts
+ * contain a hyphen, so they must never be rendered directly as visible text.
+ */
+export function categoryLabel(slug: string): string {
+  return getCategory(slug)?.name ?? slug.replace(/-/g, " ");
 }

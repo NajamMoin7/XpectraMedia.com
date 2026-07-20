@@ -45,10 +45,37 @@ export const site = {
 } as const;
 
 /** Standard shipping charge in USD when below the free shipping threshold. */
-export const SHIPPING_RATE = 6.95;
+export const SHIPPING_RATE = 6.99;
 
-/** Orders at or above this subtotal in USD ship free. */
+/** Express shipping charge in USD, always applied when chosen. */
+export const EXPRESS_SHIPPING_RATE = 14.99;
+
+/** Orders at or above this subtotal in USD ship free on standard shipping. */
 export const FREE_SHIPPING_THRESHOLD = 75;
+
+/** Number of days after delivery in which a return may be requested. */
+export const RETURN_WINDOW_DAYS = 7;
+
+/** The two shipping methods offered at checkout and on the support pages. */
+export const SHIPPING_METHODS = [
+  {
+    id: "standard",
+    name: "Standard Shipping",
+    price: SHIPPING_RATE,
+    estimate: "5 to 7 business days",
+    note: "Free on orders of $75 or more",
+  },
+  {
+    id: "express",
+    name: "Express Shipping",
+    price: EXPRESS_SHIPPING_RATE,
+    estimate: "2 to 3 business days",
+    note: "Flat rate on every order",
+  },
+] as const;
+
+/** Order handling time before a parcel is handed to the carrier. */
+export const PROCESSING_TIME = "1 to 2 business days";
 
 /** United States shipping destinations offered at checkout. */
 export const STATES = [

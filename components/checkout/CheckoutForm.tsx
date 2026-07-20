@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { OrderSummary } from "@/components/cart/OrderSummary";
+import { CardPaymentPanel } from "@/components/checkout/CardPaymentPanel";
 import { Button } from "@/components/ui/Button";
 import { EmptyState, LoadingSpinner, Skeleton } from "@/components/ui/Feedback";
 import { Icon } from "@/components/ui/Icon";
@@ -604,8 +605,8 @@ export function CheckoutForm() {
             </span>
           </div>
           <p className="mt-2 text-sm leading-relaxed text-slate">
-            Xpectra Media accepts one payment method, so there is nothing to set
-            up and no card details to enter.
+            Cash on Delivery is the only method available today, so there is
+            nothing to set up and no card details to enter.
           </p>
 
           <div role="radiogroup" aria-label="Payment method" className="mt-6">
@@ -639,6 +640,8 @@ export function CheckoutForm() {
                 </span>
               </span>
             </label>
+
+            <CardPaymentPanel />
           </div>
 
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -648,7 +651,7 @@ export function CheckoutForm() {
             </li>
             <li className="flex items-start gap-2.5 text-xs leading-relaxed text-slate">
               <Icon name="refresh" size={15} className="mt-0.5 shrink-0 text-brand" />
-              Easy returns within 30 days of delivery.
+              Easy returns within 7 days of delivery.
             </li>
           </ul>
         </section>

@@ -73,12 +73,12 @@ export const faqs: Faq[] = [
   {
     question: "How long does shipping take?",
     answer:
-      "Orders are processed within one business day. Standard shipping arrives in three to seven business days depending on your address. Express delivery is available at checkout for faster arrival.",
+      "Orders are processed within one business day. Standard shipping arrives in five to seven business days depending on your address. Express delivery is available at checkout for faster arrival.",
   },
   {
     question: "Do you offer free shipping?",
     answer:
-      "Yes. Standard shipping is free on every order over $75. Below that, standard shipping is a flat $6.95 anywhere in the United States.",
+      "Yes. Standard shipping is free on every order over $75. Below that, standard shipping is a flat $6.99 anywhere in the United States.",
   },
   {
     question: "Which payment method do you accept?",
@@ -88,7 +88,7 @@ export const faqs: Faq[] = [
   {
     question: "What is your return policy?",
     answer:
-      "You can return any item within 30 days of delivery as long as it is unworn, unwashed and still has the original tags attached. Return shipping is free on your first return per order.",
+      "You can return any item within 7 days of delivery as long as it is unworn, unwashed and still has the original tags attached. Return shipping is free on your first return per order.",
   },
   {
     question: "How do I choose the right size?",
@@ -117,13 +117,13 @@ export const shoppingBenefits = [
   {
     title: "Free Shipping Over $75",
     description:
-      "Standard shipping is free on every order over $75, with a flat $6.95 rate below that and express delivery available at checkout.",
+      "Standard shipping is free on every order over $75, with a flat $6.99 rate below that and express delivery available at checkout.",
     icon: "truck",
   },
   {
-    title: "Easy 30 Day Returns",
+    title: "Easy 7 Day Returns",
     description:
-      "Changed your mind or need a different size? Return any unworn item within 30 days, with free return shipping on your first return per order.",
+      "Changed your mind or need a different size? Return any unworn item within 7 days, with free return shipping on your first return per order.",
     icon: "refresh",
   },
   {

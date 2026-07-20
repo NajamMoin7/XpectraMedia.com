@@ -239,7 +239,7 @@ export function SizeGuide({
 
           <p className="mt-6 rounded-2xl border border-line bg-mist px-5 py-4 text-sm leading-relaxed text-slate">
             Still deciding between two sizes? Order both and send one back. Returns
-            are free within 30 days and there is nothing to explain.
+            are free within 7 days and there is nothing to explain.
           </p>
         </div>
       </div>

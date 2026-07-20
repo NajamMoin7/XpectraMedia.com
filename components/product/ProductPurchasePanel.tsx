@@ -7,7 +7,7 @@ import { SizeGuide } from "@/components/product/SizeGuide";
 import { Icon } from "@/components/ui/Icon";
 import { QuantitySelector } from "@/components/ui/QuantitySelector";
 import { Rating } from "@/components/ui/Rating";
-import { subcategoryLabel } from "@/lib/categories";
+import { categoryLabel, subcategoryLabel } from "@/lib/categories";
 import { useCart } from "@/lib/cart-context";
 import { calcDiscount, deliveryWindow, formatPrice } from "@/lib/format";
 import { useWishlist } from "@/lib/wishlist-context";
@@ -92,7 +92,7 @@ export function ProductPurchasePanel({
         <span aria-hidden="true" className="text-line-strong">
           /
         </span>
-        <span className="capitalize text-muted">{product.category}</span>
+        <span className="text-muted">{categoryLabel(product.category)}</span>
       </p>
 
       <h1 className="mt-3 font-display text-3xl font-bold leading-tight tracking-tight text-ink sm:text-[2.5rem] sm:leading-[1.12]">
@@ -293,7 +293,7 @@ export function ProductPurchasePanel({
       <ul className="mt-5 grid grid-cols-3 gap-3 text-center">
         {[
           { icon: "truck" as const, label: "Free shipping over $75" },
-          { icon: "refresh" as const, label: "30 day easy returns" },
+          { icon: "refresh" as const, label: "7 day easy returns" },
           { icon: "shield" as const, label: "Secure checkout" },
         ].map((item) => (
           <li

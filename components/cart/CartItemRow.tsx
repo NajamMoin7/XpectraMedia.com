@@ -13,6 +13,24 @@ interface CartItemRowProps {
   item: CartItem;
 }
 
+/** One label and value pair inside the customization detail list. */
+function CustomDetail({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 border-b border-line/70 py-1.5 last:border-b-0">
+      <dt className="shrink-0 text-muted">{label}</dt>
+      <dd className="text-right font-medium text-ink">{value}</dd>
+    </div>
+  );
+}
+
+/** Formats a signed percentage offset, for example 0 becomes "Centered". */
+function offsetLabel(x: number, y: number): string {
+  if (x === 0 && y === 0) return "Centered";
+  const horizontal = x === 0 ? "centered" : `${x > 0 ? "right" : "left"} ${Math.abs(x)}%`;
+  const vertical = y === 0 ? "centered" : `${y > 0 ? "down" : "up"} ${Math.abs(y)}%`;
+  return `${horizontal}, ${vertical}`;
+}
+
 /**
  * A single cart line on a white card surface. On large screens it reads as a
  * comfortable table style row, and on small screens it collapses into a
@@ -25,6 +43,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
   const key = cartLineKey(item);
   const lineTotal = item.price * item.quantity;
   const href = `/products/${item.slug}`;
+  const custom = item.custom;
 
   return (
     <li className="border-b border-line last:border-b-0">
@@ -45,6 +64,13 @@ export function CartItemRow({ item }: CartItemRowProps) {
 
         {/* Name, variant and unit price */}
         <div className="min-w-0 flex-1">
+          {custom ? (
+            <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand-tint px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-brand-deep">
+              <Icon name="sparkle" size={13} />
+              Custom Product
+            </span>
+          ) : null}
+
           <h3 className="font-display text-base font-semibold leading-snug text-ink">
             <Link href={href} className="transition-colors hover:text-brand">
               {item.name}
@@ -66,6 +92,76 @@ export function CartItemRow({ item }: CartItemRowProps) {
             <span className="text-muted">Unit price</span>{" "}
             <span className="font-semibold text-ink">{formatPrice(item.price)}</span>
           </p>
+
+          {custom ? (
+            <details className="group mt-3 rounded-2xl border border-line bg-mist/70 p-3">
+              <summary className="flex cursor-pointer list-none items-center gap-3 rounded-xl outline-none">
+                <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-xl border border-line bg-canvas">
+                  {/* Data URL artwork, so a plain img is used instead of next/image */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={custom.artwork}
+                    alt=""
+                    role="img"
+                    aria-label={`Uploaded artwork ${custom.artworkName}`}
+                    className="h-full w-full object-contain"
+                  />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-xs font-semibold text-ink">
+                    {custom.styleName}, {custom.printLabel}
+                  </span>
+                  <span className="mt-0.5 block truncate text-xs text-muted">
+                    {custom.artworkName}
+                  </span>
+                </span>
+                <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-brand">
+                  <span className="group-open:hidden">Details</span>
+                  <span className="hidden group-open:inline">Hide</span>
+                  <Icon
+                    name="chevronDown"
+                    size={14}
+                    className="transition-transform duration-300 group-open:rotate-180"
+                  />
+                </span>
+              </summary>
+
+              <dl className="animate-fade-up mt-3 border-t border-line pt-3 text-xs">
+                <CustomDetail label="Shirt style" value={custom.styleName} />
+                <CustomDetail label="Shirt color" value={custom.colorName} />
+                <CustomDetail label="Size" value={item.size} />
+                <CustomDetail label="Quantity" value={String(item.quantity)} />
+                <CustomDetail label="Print option" value={custom.printLabel} />
+                <CustomDetail label="Unit price" value={formatPrice(custom.unitPrice)} />
+                <CustomDetail
+                  label="Customization charge"
+                  value={
+                    custom.printCharge === 0
+                      ? "Included"
+                      : `${formatPrice(custom.printCharge)} per shirt`
+                  }
+                />
+                <CustomDetail
+                  label="Design position"
+                  value={offsetLabel(custom.transform.x, custom.transform.y)}
+                />
+                <CustomDetail
+                  label="Design size"
+                  value={`${Math.round(custom.transform.scale * 100)}% scale`}
+                />
+                <CustomDetail
+                  label="Design rotation"
+                  value={`${Math.round(custom.transform.rotation)} degrees`}
+                />
+              </dl>
+
+              <p className="mt-3 flex items-start gap-2 rounded-xl border border-line bg-canvas px-3 py-2 text-xs leading-relaxed text-slate">
+                <Icon name="shield" size={14} className="mt-0.5 shrink-0 text-brand" />
+                Custom printed shirts are non returnable unless they arrive
+                damaged, defective or different from the approved order.
+              </p>
+            </details>
+          ) : null}
         </div>
 
         {/* Quantity, line total and remove */}

@@ -13,7 +13,7 @@ import { site } from "@/lib/site";
 export const metadata = buildMetadata({
   title: "About Xpectra Media",
   description:
-    "Learn about Xpectra Media, an online clothing store offering affordable modern fashion for men, women and kids, plus baby clothes and toys, with free shipping over $75 and easy 30 day returns.",
+    "Learn about Xpectra Media, an online clothing store offering affordable modern fashion for men, women and kids, plus baby clothes and toys, with free shipping over $75 and easy 7 day returns.",
   path: "/about",
   keywords: [
     "about Xpectra Media",
@@ -44,7 +44,7 @@ const reasonsToChoose: { icon: IconName; title: string; description: string }[] 
     icon: "truck",
     title: "Free shipping over $75",
     description:
-      "Standard shipping is free once your order reaches $75, and a flat $6.95 below that, with most parcels arriving in three to seven business days.",
+      "Standard shipping is free once your order reaches $75, and a flat $6.99 below that, with most parcels arriving in five to seven business days.",
   },
   {
     icon: "wallet",
@@ -54,9 +54,9 @@ const reasonsToChoose: { icon: IconName; title: string; description: string }[] 
   },
   {
     icon: "refresh",
-    title: "Easy 30 day returns",
+    title: "Easy 7 day returns",
     description:
-      "If a size does not work, contact us within 30 days of delivery with the item unworn and tagged, and our team arranges the return or exchange without an argument.",
+      "If a size does not work, contact us within 7 days of delivery with the item unworn and tagged, and our team arranges the return or exchange without an argument.",
   },
   {
     icon: "headset",
@@ -132,7 +132,7 @@ export default function AboutPage() {
                 <p>
                   Checkout is Cash on Delivery. You place the order, we confirm
                   it with you, and you pay the courier once the parcel is in your
-                  hands. Standard shipping is a flat $6.95 and becomes free once
+                  hands. Standard shipping is a flat $6.99 and becomes free once
                   your subtotal reaches $75.
                 </p>
               </div>
@@ -487,7 +487,7 @@ export default function AboutPage() {
                     about it than have you quietly stop shopping with us.
                   </p>
                   <p>
-                    Returns and exchanges stay open for 30 days from the day your
+                    Returns and exchanges stay open for 7 days from the day your
                     parcel arrives, provided the item is unworn, unwashed and
                     still carries its original tags. Send us your order number by
                     email or through the contact form and we arrange the return
@@ -600,7 +600,7 @@ export default function AboutPage() {
                   Browse the full catalogue of clothing and toys, or talk to our
                   team first if you want help with sizing, fabric or gift ideas.
                   Shipping is free on orders of $75 and above, and every order is
-                  covered by 30 day returns.
+                  covered by 7 day returns.
                 </p>
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                   <Button href="/products" size="lg">

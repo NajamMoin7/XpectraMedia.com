@@ -13,12 +13,15 @@ import { buildMetadata } from "@/lib/seo";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/site";
 import type { CategorySlug } from "@/lib/types";
 
+/** Custom Shirts has a bespoke page at /custom-shirts, so it is excluded here. */
+type GenericCategory = Exclude<CategorySlug, "custom-shirts">;
+
 /**
  * Editorial copy per department. The highlight list names the specific
  * product families customers search for inside each category.
  */
 const CATEGORY_CONTENT: Record<
-  CategorySlug,
+  GenericCategory,
   {
     intro: string;
     note: string;
@@ -44,7 +47,7 @@ const CATEGORY_CONTENT: Record<
     ],
     seoTitle: "Men's Clothing Online",
     seoDescription:
-      "Shop men's clothing online at Xpectra Media. Heavyweight cotton tees, premium shirts, stretch denim, chino and cargo pants, fleece hoodies, sweatshirts and jackets, with free shipping over $75 and 30 day returns.",
+      "Shop men's clothing online at Xpectra Media. Heavyweight cotton tees, premium shirts, stretch denim, chino and cargo pants, fleece hoodies, sweatshirts and jackets, with free shipping over $75 and 7 day returns.",
   },
   women: {
     intro:
@@ -118,7 +121,9 @@ const CATEGORY_CONTENT: Record<
 
 /** Pre renders one page per department at build time. */
 export function generateStaticParams() {
-  return categories.map((category) => ({ category: category.slug }));
+  return categories
+    .filter((category) => category.slug !== "custom-shirts")
+    .map((category) => ({ category: category.slug }));
 }
 
 export async function generateMetadata({
@@ -128,9 +133,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { category: slug } = await params;
   const category = getCategory(slug);
-  if (!category) return {};
+  if (!category || category.slug === "custom-shirts") return {};
 
-  const content = CATEGORY_CONTENT[category.slug];
+  const content = CATEGORY_CONTENT[category.slug as GenericCategory];
   return buildMetadata({
     title: content.seoTitle,
     description: content.seoDescription,
@@ -147,9 +152,9 @@ export default async function CategoryPage({
 }) {
   const { category: slug } = await params;
   const category = getCategory(slug);
-  if (!category) notFound();
+  if (!category || category.slug === "custom-shirts") notFound();
 
-  const content = CATEGORY_CONTENT[category.slug];
+  const content = CATEGORY_CONTENT[category.slug as GenericCategory];
   const families = subcategoriesFor(category.slug);
   const allProducts = getProductsByCategory(category.slug);
   const stocked = families.filter((family) =>
@@ -288,7 +293,7 @@ export default async function CategoryPage({
             <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate">
               Add pieces from any department to the same order. Standard shipping
               is free once your order reaches ${FREE_SHIPPING_THRESHOLD}, and every
-              order comes with 30 day returns.
+              order comes with 7 day returns.
             </p>
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
               {categories

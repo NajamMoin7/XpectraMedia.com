@@ -3,17 +3,27 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { PageBanner } from "@/components/ui/PageBanner";
 import { Reveal } from "@/components/ui/Reveal";
+import { ACCEPTED_UPLOAD_LABEL, MAX_UPLOAD_BYTES } from "@/lib/custom-shirt";
+import { formatPrice } from "@/lib/format";
 import { buildMetadata } from "@/lib/seo";
-import { FREE_SHIPPING_THRESHOLD, SHIPPING_RATE, site } from "@/lib/site";
+import {
+  EXPRESS_SHIPPING_RATE,
+  FREE_SHIPPING_THRESHOLD,
+  PROCESSING_TIME,
+  RETURN_WINDOW_DAYS,
+  SHIPPING_RATE,
+  site,
+} from "@/lib/site";
 
 export const metadata = buildMetadata({
   title: "Privacy Policy",
   description:
-    "Read how Xpectra Media collects, uses and protects your personal information when you shop at our online clothing store, including order details, cookies, browser storage and your privacy rights.",
+    "Read how Xpectra Media collects, uses and protects your personal information when you shop at our online clothing store, including order details, custom shirt image uploads, cookies, browser storage and your privacy rights.",
   path: "/privacy-policy",
   keywords: [
     "Xpectra Media privacy policy",
     "online clothing store privacy",
+    "custom shirt printing privacy",
     "customer data protection",
     "ecommerce privacy policy",
   ],
@@ -21,16 +31,22 @@ export const metadata = buildMetadata({
 
 const LAST_UPDATED = "July 20, 2026";
 
+const MAX_UPLOAD_MB = Math.round(MAX_UPLOAD_BYTES / (1024 * 1024));
+
 /** Section anchors rendered in the sticky table of contents. */
 const sections = [
-  { id: "information-collected", label: "Information we collect" },
+  { id: "how-this-website-works", label: "How this website works today" },
+  { id: "information-collected", label: "Information you provide" },
+  { id: "custom-shirt-uploads", label: "Custom shirt images and uploads" },
   { id: "use-of-information", label: "How we use your information" },
+  { id: "payment-information", label: "Payment information" },
   { id: "cookies", label: "Cookies and browser storage" },
-  { id: "order-information", label: "Order information" },
-  { id: "customer-data", label: "Customer data we keep" },
-  { id: "data-protection", label: "How we protect your data" },
+  { id: "cookie-preferences", label: "Your cookie preferences" },
   { id: "third-party-services", label: "Third party services" },
+  { id: "data-retention", label: "Data retention" },
+  { id: "data-protection", label: "How we protect your data" },
   { id: "user-rights", label: "Your rights" },
+  { id: "childrens-privacy", label: "Children's privacy" },
   { id: "policy-updates", label: "Updates to this policy" },
   { id: "contact-information", label: "Contact information" },
 ];
@@ -41,6 +57,22 @@ const H3 = "mt-7 font-display text-base font-bold text-ink";
 const BODY = "text-base leading-relaxed text-slate";
 const LINK =
   "font-semibold text-brand underline-offset-4 transition-colors hover:text-brand-deep hover:underline";
+const CARD =
+  "mt-6 rounded-3xl border border-line bg-mist p-6 shadow-[var(--shadow-soft)] sm:p-7";
+
+/** Small helper so every bulleted list on this page looks identical. */
+function CheckList({ items }: { items: string[] }) {
+  return (
+    <ul className={`mt-4 space-y-3 ${BODY}`}>
+      {items.map((item) => (
+        <li key={item} className="flex gap-3">
+          <Icon name="check" size={18} className="mt-1 shrink-0 text-brand" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export default function PrivacyPolicyPage() {
   return (
@@ -48,7 +80,7 @@ export default function PrivacyPolicyPage() {
       <PageBanner
         eyebrow="Legal"
         title="Privacy Policy"
-        description="This policy explains exactly what Xpectra Media collects when you browse and order, why we collect it, how long we keep it and what you can ask us to do with it."
+        description="This policy explains exactly what Xpectra Media collects when you browse, customize a shirt and order, why we collect it, how long we keep it and what you can ask us to do with it."
         crumbs={[{ name: "Privacy Policy", href: "/privacy-policy" }]}
       />
 
@@ -104,131 +136,314 @@ export default function PrivacyPolicyPage() {
                 <Reveal>
                   <p className={BODY}>
                     Xpectra Media is an online clothing store operating in the
-                    United States. We sell clothing and toys and we ship them
-                    nationwide using Cash on Delivery. We are not a bank, we do
+                    United States. We sell clothing, toys and custom printed
+                    shirts, and we ship them nationwide. We are not a bank, we do
                     not run a loyalty program and we do not sell advertising, so
-                    the amount of personal information we genuinely need is small.
-                    This policy sets out that information in plain language rather
-                    than in legal boilerplate, and it describes only what our
-                    website actually does.
+                    the amount of personal information we genuinely need is
+                    small. This policy sets out that information in plain
+                    language rather than in legal boilerplate, and it describes
+                    only what our website actually does.
                   </p>
                 </Reveal>
 
                 {/* 1 */}
                 <Reveal>
-                  <section id="information-collected" className="scroll-mt-28">
-                    <h2 className={H2}>1. Information we collect</h2>
+                  <section id="how-this-website-works" className="scroll-mt-28">
+                    <h2 className={H2}>1. How this website works today</h2>
                     <div className={`mt-5 space-y-4 ${BODY}`}>
                       <p>
-                        You can browse our entire catalogue, use the search,
-                        filter products and read every product page without giving
-                        us any personal information at all. We only ask for
-                        details at the point where they become necessary to
-                        complete something you have asked us to do.
+                        We want to be straightforward about the current state of
+                        this website before describing anything else, because it
+                        changes what a privacy policy honestly means here.
                       </p>
-                      <p>The information we collect falls into three groups.</p>
+                      <p>
+                        Xpectra Media currently runs as a static website. The
+                        catalogue, the product pages, the shirt customization
+                        tool, the cart and the checkout screens are all rendered
+                        in your own browser from files served by our host. There
+                        is no customer account system, no customer database
+                        attached to this website, and no payment gateway
+                        connected to it.
+                      </p>
+                      <p>
+                        Because of that, the frontend order process is
+                        simulated. When you complete the checkout form, your
+                        order details and order number are generated and saved
+                        inside your own browser so that the confirmation page
+                        can display them. That checkout submission does not
+                        create a stored customer record on a server, and it does
+                        not transmit your details to a payment processor.
+                      </p>
+                      <p>
+                        Real orders, returns and support requests are handled
+                        through the contact channels published at the bottom of
+                        this page. Anything you send us by email or telephone
+                        does reach us, and the rest of this policy explains how
+                        we treat it. Where a section describes something that
+                        applies only once server side order processing is
+                        enabled, we say so plainly rather than implying it is
+                        already running.
+                      </p>
                     </div>
-
-                    <h3 className={H3}>Information you give us at checkout</h3>
-                    <ul className={`mt-4 space-y-3 ${BODY}`}>
-                      {[
-                        "Your full name, so the courier knows who to hand the parcel to.",
-                        "Your phone number and an optional alternate number, used to confirm the order and to resolve delivery problems.",
-                        "Your email address, used to send the order confirmation and to answer questions about the order.",
-                        "Your shipping address, including street address, apartment or suite, city, state and ZIP code.",
-                        "Any note you choose to add to the order, for example delivery timing preferences.",
-                      ].map((item) => (
-                        <li key={item} className="flex gap-3">
-                          <Icon name="check" size={18} className="mt-1 shrink-0 text-brand" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <h3 className={H3}>Information you give us when you contact us</h3>
-                    <p className={`mt-4 ${BODY}`}>
-                      When you write to us through the contact form, by email or
-                      through the newsletter signup, we receive whatever you
-                      choose to send: your name, the contact address you wrote
-                      from, your message and any order number you quote.
-                    </p>
-
-                    <h3 className={H3}>Information collected automatically</h3>
-                    <p className={`mt-4 ${BODY}`}>
-                      Like nearly every website, our hosting provider records
-                      standard technical request data such as the pages requested,
-                      the date and time, the browser and device type, and the
-                      network address the request came from. This is used to keep
-                      the site running, to diagnose faults and to understand which
-                      categories are popular. It is not used to build a profile of
-                      you as an individual.
-                    </p>
-                    <p className={`mt-4 ${BODY}`}>
-                      We do not knowingly collect information from children under
-                      13. Product pages for kids clothing online, baby clothes
-                      online and toys online are intended for parents and
-                      guardians to shop from. If you believe a child has provided
-                      us with personal information, contact us and we will delete
-                      it.
-                    </p>
                   </section>
                 </Reveal>
 
                 {/* 2 */}
                 <Reveal>
-                  <section id="use-of-information" className="scroll-mt-28">
-                    <h2 className={H2}>2. How we use your information</h2>
-                    <p className={`mt-5 ${BODY}`}>
-                      We use what you give us for a short and specific list of
-                      purposes:
+                  <section id="information-collected" className="scroll-mt-28">
+                    <h2 className={H2}>2. Information you provide</h2>
+                    <div className={`mt-5 space-y-4 ${BODY}`}>
+                      <p>
+                        You can browse our entire catalogue, use the search,
+                        filter products, read every product page and even build
+                        a custom shirt design without giving us any personal
+                        information at all. Details are requested only at the
+                        point where they become necessary to complete something
+                        you have asked for.
+                      </p>
+                      <p>
+                        The information involved falls into four groups.
+                      </p>
+                    </div>
+
+                    <h3 className={H3}>Contact and delivery details</h3>
+                    <CheckList
+                      items={[
+                        "Your full name, so the carrier knows who to hand the parcel to.",
+                        "Your email address, used to send the order confirmation and to answer questions about the order.",
+                        "Your phone number, and an optional alternate number, used to confirm the order and to resolve delivery problems.",
+                        "Your shipping address, including street address, apartment or suite, city, state and ZIP code.",
+                        "Your billing address, when it differs from the shipping address.",
+                        "Any note you choose to add to the order, for example delivery timing preferences.",
+                      ]}
+                    />
+
+                    <h3 className={H3}>Order details</h3>
+                    <p className={`mt-4 ${BODY}`}>
+                      The items, sizes, colors and quantities you selected, the
+                      shipping method you chose, the subtotal, the shipping
+                      charge and the order total. For custom shirts this also
+                      includes your product customization details: the shirt
+                      style, the shirt color, the size, the print placement you
+                      chose, the quantity, and the position, scale and rotation
+                      you set for your artwork on the shirt.
                     </p>
-                    <ul className={`mt-4 space-y-3 ${BODY}`}>
-                      {[
-                        "To confirm your order by phone or email before it is dispatched, which is a normal step for Cash on Delivery.",
-                        "To pack the correct items and print the shipping label with your delivery address.",
-                        "To send you the order confirmation and, once the parcel ships, a tracking link by email.",
-                        "To answer your questions about sizing, stock, shipping status, returns and cancellations.",
-                        "To arrange a return, an exchange or a cancellation when you request one.",
-                        "To understand in aggregate which products and categories customers are interested in, so we can stock better.",
-                        "To detect and prevent fraudulent or abusive orders, for example repeated refusals at the door under different names.",
-                      ].map((item) => (
-                        <li key={item} className="flex gap-3">
-                          <Icon name="check" size={18} className="mt-1 shrink-0 text-brand" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <p className={`mt-5 ${BODY}`}>
-                      We never sell, rent or trade your personal information. We
-                      do not share it with advertisers or data brokers. We only
-                      send marketing messages to people who have deliberately
-                      subscribed to our newsletter, and every one of those
-                      messages includes a way to stop receiving them.
+
+                    <h3 className={H3}>Uploaded custom shirt images</h3>
+                    <p className={`mt-4 ${BODY}`}>
+                      If you upload your own image in the shirt customization
+                      tool, that image is part of your design. It is handled
+                      very differently from everything else on this list, and
+                      the next section explains exactly how.
+                    </p>
+
+                    <h3 className={H3}>Device, browser and storage information</h3>
+                    <p className={`mt-4 ${BODY}`}>
+                      Like nearly every website, our hosting provider records
+                      standard technical request data such as the pages
+                      requested, the date and time, the device and browser type,
+                      the screen size class used to choose a layout, and the
+                      network address the request came from. This keeps the site
+                      running, helps us diagnose faults and shows us which
+                      categories are popular. It is not used to build a profile
+                      of you as an individual.
+                    </p>
+                    <p className={`mt-4 ${BODY}`}>
+                      Separately, your cart information, wishlist, most recently
+                      placed order summary and recently viewed products are
+                      written to localStorage in your own browser. That storage
+                      sits on your device, not on our servers.
                     </p>
                   </section>
                 </Reveal>
 
                 {/* 3 */}
                 <Reveal>
+                  <section id="custom-shirt-uploads" className="scroll-mt-28">
+                    <h2 className={H2}>3. Custom shirt images and uploads</h2>
+                    <div className={`mt-5 space-y-4 ${BODY}`}>
+                      <p>
+                        The shirt customization tool lets you upload your own
+                        image in {ACCEPTED_UPLOAD_LABEL} format, up to{" "}
+                        {MAX_UPLOAD_MB} MB, and place it on a live preview of
+                        the shirt. This is the most sensitive thing the website
+                        touches, so here is precisely what happens to that file.
+                      </p>
+                      <p>
+                        Your uploaded image is processed entirely inside your
+                        own browser. The file is read locally by your browser,
+                        drawn onto the preview on your screen, and downscaled
+                        locally to a small preview copy so that it can sit
+                        beside the item in your cart without filling up your
+                        browser storage. All of that happens on your device.
+                      </p>
+                      <p>
+                        The image is never transmitted to Xpectra Media and it
+                        is never stored on a server. There is no upload
+                        endpoint, no image hosting bucket and no third party
+                        image processing service involved. We do not receive the
+                        original file, we do not receive the downscaled preview,
+                        and we cannot see either of them.
+                      </p>
+                      <p>
+                        The only copy that persists is the downscaled preview
+                        held in browser storage on your own device, kept there so
+                        that your customized item survives a page refresh and
+                        still appears in your cart when you come back. Clearing
+                        your browser data, removing the item from your cart or
+                        switching to a different device removes it.
+                      </p>
+                      <p>
+                        The practical consequence is that we cannot retrieve a
+                        design for you. If you want to keep your artwork, keep
+                        your own copy of the original file. When real production
+                        begins, the print ready artwork will be collected from
+                        you directly by our team and this section will be updated
+                        to describe that process before it starts.
+                      </p>
+                    </div>
+
+                    <div className={CARD}>
+                      <p className="font-display text-base font-bold text-ink">
+                        In one sentence
+                      </p>
+                      <p className={`mt-2 ${BODY}`}>
+                        Your uploaded design stays on your computer or phone, is
+                        resized on your computer or phone, and is stored on your
+                        computer or phone. It does not travel to us.
+                      </p>
+                    </div>
+                  </section>
+                </Reveal>
+
+                {/* 4 */}
+                <Reveal>
+                  <section id="use-of-information" className="scroll-mt-28">
+                    <h2 className={H2}>4. How we use your information</h2>
+                    <p className={`mt-5 ${BODY}`}>
+                      What you send us is used for a short and specific list of
+                      purposes.
+                    </p>
+
+                    <h3 className={H3}>Order processing</h3>
+                    <CheckList
+                      items={[
+                        "To confirm the order with you and check that the items, sizes and customization details are the ones you intended.",
+                        "To pack the correct items and produce the shipping label with your delivery address.",
+                        `To hand the parcel to the carrier within our stated processing time of ${PROCESSING_TIME}.`,
+                        `To arrange a return, a replacement or a cancellation within the ${RETURN_WINDOW_DAYS} day return window.`,
+                      ]}
+                    />
+
+                    <h3 className={H3}>Customer communication</h3>
+                    <CheckList
+                      items={[
+                        "To send the order confirmation and, once the parcel ships, a tracking link by email.",
+                        "To answer your questions about sizing, stock, custom printing, shipping status, returns and cancellations.",
+                        "To reach you by phone or email if something about the order needs a decision from you.",
+                        "To send newsletters only to people who deliberately subscribed, with a way to stop in every message.",
+                      ]}
+                    />
+
+                    <h3 className={H3}>Website improvement</h3>
+                    <CheckList
+                      items={[
+                        "To understand in aggregate which products, categories and customization options customers are interested in, so we can stock and build better.",
+                        "To find and fix layout faults, broken pages and slow loading assets across different devices and browsers.",
+                      ]}
+                    />
+
+                    <h3 className={H3}>Fraud prevention</h3>
+                    <CheckList
+                      items={[
+                        "To detect and prevent fraudulent or abusive orders, for example repeated refusals at the door under different names.",
+                        "To review a custom order where the described design appears to breach our terms and conditions.",
+                      ]}
+                    />
+
+                    <h3 className={H3}>Legal compliance</h3>
+                    <CheckList
+                      items={[
+                        "To meet ordinary business record keeping and tax obligations.",
+                        "To respond to a lawful request from a court or a regulator, limited strictly to what the request covers.",
+                        "To establish or defend a legal claim connected to an order.",
+                      ]}
+                    />
+
+                    <p className={`mt-5 ${BODY}`}>
+                      We never sell, rent or trade your personal information. We
+                      do not share it with advertisers or data brokers, and we
+                      do not use your information to make automated decisions
+                      that produce a legal effect on you.
+                    </p>
+                  </section>
+                </Reveal>
+
+                {/* 5 */}
+                <Reveal>
+                  <section id="payment-information" className="scroll-mt-28">
+                    <h2 className={H2}>5. Payment information</h2>
+                    <div className={`mt-5 space-y-4 ${BODY}`}>
+                      <p>
+                        No payment card information is collected on this
+                        website. We do not collect, process, transmit or store
+                        card numbers, expiration dates, security codes,
+                        cardholder names entered on a card form, bank account
+                        numbers or digital wallet credentials.
+                      </p>
+                      <p>
+                        Cash on Delivery is the only active payment method.
+                        You pay the order total in cash to the carrier at the
+                        moment your parcel is handed over, and the receipt for
+                        that cash is issued at handover. No advance payment is
+                        requested at any stage.
+                      </p>
+                      <p>
+                        The card payment form you can see on the checkout page is
+                        a disabled preview of a future option. It cannot be
+                        selected, it does not accept input that leaves your
+                        browser, and it is not wired to any payment processor. It
+                        is shown so the checkout layout reflects where card
+                        payment will appear once it is genuinely available.
+                      </p>
+                      <p>
+                        If card payment is switched on later, we will publish an
+                        updated policy first, name the payment processor, and
+                        explain what that processor receives. Until you see that
+                        update on this page, assume no card data is being
+                        handled here, because none is.
+                      </p>
+                      <p>
+                        One safety note that follows from this. Nobody from
+                        Xpectra Media will ever telephone you to ask for a card
+                        number or a bank transfer. If someone does, it is not us.
+                      </p>
+                    </div>
+                  </section>
+                </Reveal>
+
+                {/* 6 */}
+                <Reveal>
                   <section id="cookies" className="scroll-mt-28">
-                    <h2 className={H2}>3. Cookies and browser storage</h2>
+                    <h2 className={H2}>6. Cookies and browser storage</h2>
                     <div className={`mt-5 space-y-4 ${BODY}`}>
                       <p>
                         Your shopping cart lives in your own browser, not on our
-                        servers. Xpectra Media stores your cart contents, your
-                        wishlist, your most recently placed order summary and your
-                        recently viewed products in browser localStorage on your
-                        device. That is what allows you to add a hoodie to your
-                        cart, close the tab, come back the next day and still find
-                        it waiting for you.
+                        servers. Xpectra Media stores your cart contents,
+                        including the preview image and placement of any custom
+                        shirt, your wishlist, your most recently placed order
+                        summary and your recently viewed products in browser
+                        localStorage on your device. That is what allows you to
+                        add a hoodie to your cart, close the tab, come back the
+                        next day and still find it waiting for you.
                       </p>
                       <p>
-                        Because the cart and the wishlist sit in localStorage on
-                        your own device, they are never transmitted to us until
-                        you actually submit an order. If you clear your browser
-                        storage, use a private browsing window or switch to a
-                        different device, your saved cart and wishlist will not
-                        follow you.
+                        Because that cart information sits in localStorage on
+                        your own device, it is never transmitted to us on its
+                        own. If you clear your browser storage, use a private
+                        browsing window or switch to a different device, your
+                        saved cart, wishlist and custom designs will not follow
+                        you.
                       </p>
                       <p>
                         We use a small number of cookies and equivalent storage
@@ -238,137 +453,61 @@ export default function PrivacyPolicyPage() {
                         we do not run cross site tracking pixels for advertising
                         networks.
                       </p>
-                      <p>
-                        You can block or delete cookies and clear localStorage at
-                        any time from your browser settings. Doing so is entirely
-                        your choice. The only effect is that your cart, wishlist
-                        and recently viewed list will be emptied and you will need
-                        to build your cart again.
-                      </p>
-                    </div>
-                  </section>
-                </Reveal>
-
-                {/* 4 */}
-                <Reveal>
-                  <section id="order-information" className="scroll-mt-28">
-                    <h2 className={H2}>4. Order information</h2>
-                    <div className={`mt-5 space-y-4 ${BODY}`}>
-                      <p>
-                        Xpectra Media accepts Cash on Delivery only. This matters
-                        for your privacy because it removes an entire category of
-                        sensitive data from the process. We do not ask for and we
-                        never receive card numbers, card expiration dates,
-                        security codes, bank account numbers or digital wallet
-                        credentials. There is no payment gateway on this website
-                        and no advance payment is required at any stage.
-                      </p>
-                      <p>
-                        When you place an order we record the items, sizes, colors
-                        and quantities you selected, the subtotal, the shipping
-                        charge and the total. Standard shipping is a flat $
-                        {SHIPPING_RATE.toFixed(2)} on orders below $
-                        {FREE_SHIPPING_THRESHOLD}, and is free at or above that
-                        amount, with delivery in three to seven business days.
-                        Payment is collected in cash by the courier at your door,
-                        and any receipt for that cash is issued by the courier at
-                        the time of handover.
-                      </p>
-                      <p>
-                        Your order confirmation is also written to localStorage on
-                        your device so that the confirmation page still works if
-                        you refresh it. You can remove that copy at any time by
-                        clearing your browser storage.
-                      </p>
-                    </div>
-                  </section>
-                </Reveal>
-
-                {/* 5 */}
-                <Reveal>
-                  <section id="customer-data" className="scroll-mt-28">
-                    <h2 className={H2}>5. Customer data we keep</h2>
-                    <div className={`mt-5 space-y-4 ${BODY}`}>
-                      <p>
-                        We keep order records for as long as they are useful to
-                        you and to us: to handle a return within the 30 day
-                        window, to resolve a delivery dispute with a carrier, to
-                        answer a question about something you bought months ago,
-                        and to meet ordinary business record keeping obligations.
-                      </p>
-                      <p>
-                        Access to customer records inside Xpectra Media is limited
-                        to the people who need it to do their job, which in
-                        practice means our order processing and customer support
-                        team. Staff are not permitted to export customer contact
-                        lists or to use a customer phone number for anything other
-                        than that customer order.
-                      </p>
-                      <p>
-                        Newsletter subscriptions are kept separately from order
-                        records and are removed as soon as you unsubscribe.
-                        Support conversations by email are retained only while
-                        they remain relevant to an open or recent order.
-                      </p>
-                    </div>
-                  </section>
-                </Reveal>
-
-                {/* 6 */}
-                <Reveal>
-                  <section id="data-protection" className="scroll-mt-28">
-                    <h2 className={H2}>6. How we protect your data</h2>
-                    <div className={`mt-5 space-y-4 ${BODY}`}>
-                      <p>
-                        The whole website is served over an encrypted HTTPS
-                        connection, so information travelling between your browser
-                        and our servers cannot be read in transit. Our checkout
-                        asks for the minimum set of fields needed to deliver a
-                        parcel and nothing beyond that.
-                      </p>
-                      <p>
-                        Internally, customer records are held on access controlled
-                        systems, accounts are protected by strong authentication,
-                        and permissions are reviewed when someone joins or leaves
-                        the team. Shipping partners receive only the name, address
-                        and phone number printed on the label, along with the
-                        amount to collect.
-                      </p>
-                      <p>
-                        No system connected to the internet can promise perfect
-                        security, and we will not pretend otherwise. What we do
-                        promise is that we collect as little as possible in the
-                        first place, that we keep it no longer than we need it,
-                        and that if we ever become aware of a breach affecting
-                        your information we will tell you about it promptly and
-                        explain what happened.
-                      </p>
-                      <p>
-                        You can help by keeping your order confirmation details
-                        private and by being cautious with anyone who contacts you
-                        claiming to be from Xpectra Media and asking for a bank
-                        transfer. We will never ask you to transfer money in
-                        advance, because we only accept cash paid to the courier
-                        at delivery.
-                      </p>
                     </div>
                   </section>
                 </Reveal>
 
                 {/* 7 */}
                 <Reveal>
+                  <section id="cookie-preferences" className="scroll-mt-28">
+                    <h2 className={H2}>7. Your cookie preferences</h2>
+                    <div className={`mt-5 space-y-4 ${BODY}`}>
+                      <p>
+                        You are in direct control of every cookie and storage
+                        entry this website creates, and you do not need to ask us
+                        to exercise that control.
+                      </p>
+                      <p>
+                        Every current browser lets you block cookies, delete
+                        cookies for a single site, clear site data including
+                        localStorage, or browse in a private window that discards
+                        everything when you close it. Any of those options works
+                        on this website and none of them requires our
+                        involvement.
+                      </p>
+                      <p>
+                        The only effect of clearing this data is functional
+                        rather than punitive. Your cart, wishlist, recently
+                        viewed list, saved order confirmation and any custom
+                        shirt preview will be emptied, and you will need to build
+                        your cart again. Nothing about the price you pay or the
+                        service you receive changes.
+                      </p>
+                      <p>
+                        If we ever introduce analytics or advertising cookies, we
+                        will ask for your consent before setting them and provide
+                        a preference control on the site itself. Today there is
+                        nothing optional to consent to, which is why you do not
+                        see a consent banner.
+                      </p>
+                    </div>
+                  </section>
+                </Reveal>
+
+                {/* 8 */}
+                <Reveal>
                   <section id="third-party-services" className="scroll-mt-28">
-                    <h2 className={H2}>7. Third party services</h2>
+                    <h2 className={H2}>8. Third party services</h2>
                     <p className={`mt-5 ${BODY}`}>
                       A small number of outside services are involved in running
                       the store, and each one receives only the narrow slice of
-                      information it needs:
+                      information it needs.
                     </p>
                     <ul className={`mt-4 space-y-4 ${BODY}`}>
                       {[
                         {
-                          title: "Shipping and logistics partners",
-                          body: "Receive your name, shipping address, phone number and the cash amount to collect, purely so the parcel can reach you.",
+                          title: "Shipping providers",
+                          body: "Carriers receive your name, shipping address, phone number and the cash amount to collect, purely so the parcel can reach you. They never receive your custom artwork or your order history.",
                         },
                         {
                           title: "Website hosting and content delivery",
@@ -377,6 +516,14 @@ export default function PrivacyPolicyPage() {
                         {
                           title: "Email providers",
                           body: "Carry the order confirmations, tracking notifications and support emails exchanged between you and our team.",
+                        },
+                        {
+                          title: "Analytics services",
+                          body: "Not currently running on this website. If we add a privacy respecting analytics service, we will name it here and describe what it measures before it is enabled.",
+                        },
+                        {
+                          title: "Payment services",
+                          body: "Planned for the future only. No payment processor is connected to this website today, and none receives any information from it. When card payment becomes available we will name the processor in this section first.",
                         },
                       ].map((item) => (
                         <li key={item.title} className="flex gap-3">
@@ -391,94 +538,189 @@ export default function PrivacyPolicyPage() {
                       ))}
                     </ul>
                     <p className={`mt-5 ${BODY}`}>
-                      These providers are expected to handle your information only
-                      for the task we engaged them for. Our social media profiles
-                      are hosted on platforms with their own privacy policies, and
-                      anything you post or send on those platforms is also
-                      governed by their terms rather than by this policy.
-                    </p>
-                  </section>
-                </Reveal>
-
-                {/* 8 */}
-                <Reveal>
-                  <section id="user-rights" className="scroll-mt-28">
-                    <h2 className={H2}>8. Your rights</h2>
-                    <p className={`mt-5 ${BODY}`}>
-                      Your information belongs to you. At any time you may ask us
-                      to:
-                    </p>
-                    <ul className={`mt-4 space-y-3 ${BODY}`}>
-                      {[
-                        "Tell you what personal information we hold about you and where it came from.",
-                        "Correct anything that is wrong, such as a misspelled name or an out of date address.",
-                        "Delete your details from our records, subject to any order that is still in progress or any record we are required to keep.",
-                        "Stop sending you newsletters or any other marketing message.",
-                        "Provide a copy of your order history in a readable format.",
-                        "Confirm that we have not sold or shared your personal information, which we never do.",
-                      ].map((item) => (
-                        <li key={item} className="flex gap-3">
-                          <Icon name="check" size={18} className="mt-1 shrink-0 text-brand" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <p className={`mt-5 ${BODY}`}>
-                      Residents of states with their own consumer privacy laws,
-                      including California, have these rights by statute, and we
-                      extend the same rights to every customer regardless of where
-                      they live. Exercising them will never affect the price you
-                      pay or the service you receive.
-                    </p>
-                    <p className={`mt-4 ${BODY}`}>
-                      Write to{" "}
-                      <a href={site.contact.emailHref} className={LINK}>
-                        {site.contact.email}
-                      </a>{" "}
-                      with your request and, where relevant, an order number so we
-                      can find the right record. We aim to respond within 30 days.
-                      We may ask a question or two to confirm that the request is
-                      genuinely coming from you, which protects your information
-                      from somebody else asking on your behalf.
-                    </p>
-                    <p className={`mt-4 ${BODY}`}>
-                      Remember that anything stored in your browser through
-                      localStorage, including your cart and your wishlist, is
-                      under your direct control and can be cleared by you at any
-                      time without contacting us.
+                      These providers are expected to handle your information
+                      only for the task we engaged them for. Our social media
+                      profiles are hosted on platforms with their own privacy
+                      policies, and anything you post or send on those platforms
+                      is governed by their terms rather than by this policy.
                     </p>
                   </section>
                 </Reveal>
 
                 {/* 9 */}
                 <Reveal>
-                  <section id="policy-updates" className="scroll-mt-28">
-                    <h2 className={H2}>9. Updates to this policy</h2>
+                  <section id="data-retention" className="scroll-mt-28">
+                    <h2 className={H2}>9. Data retention</h2>
                     <div className={`mt-5 space-y-4 ${BODY}`}>
                       <p>
-                        We will revise this policy whenever our practices change,
-                        for example if we add a new shipping partner, introduce an
-                        additional payment method or begin offering customer
-                        accounts. When that happens we will publish the revised
-                        policy on this page and change the last updated date at
-                        the top.
-                      </p>
-                      <p>
-                        If a change materially affects how we handle information we
-                        have already collected from you, we will make that clear
-                        rather than relying on you to notice a quiet edit.
-                        Continuing to use the website after a revision is published
-                        means you accept the current version, so it is worth
-                        glancing at this page occasionally.
+                        We keep information only for as long as it is doing
+                        useful work, and the period depends on what the
+                        information is.
                       </p>
                     </div>
+                    <CheckList
+                      items={[
+                        `Order records are kept while the order is in progress, through the ${RETURN_WINDOW_DAYS} day return window, and afterwards for as long as ordinary business and tax record keeping requires.`,
+                        "Support emails are retained while they remain relevant to an open or recent order, then removed.",
+                        "Newsletter subscriptions are held separately from order records and are removed as soon as you unsubscribe.",
+                        "Technical request logs held by our hosting provider are short lived and are rotated automatically.",
+                        "Uploaded custom shirt images are never retained by us at all, because we never receive them. The downscaled preview lives in your browser until you clear it.",
+                        "Cart information, wishlist entries and recently viewed products stay in your browser storage until you remove them or clear your browser data.",
+                      ]}
+                    />
+                    <p className={`mt-5 ${BODY}`}>
+                      When a retention period ends, records are deleted or
+                      reduced to an anonymous summary that can no longer be
+                      linked back to you.
+                    </p>
                   </section>
                 </Reveal>
 
                 {/* 10 */}
                 <Reveal>
+                  <section id="data-protection" className="scroll-mt-28">
+                    <h2 className={H2}>10. How we protect your data</h2>
+                    <div className={`mt-5 space-y-4 ${BODY}`}>
+                      <p>
+                        The whole website is served over an encrypted HTTPS
+                        connection, so information travelling between your
+                        browser and our host cannot be read in transit. Our
+                        checkout asks for the minimum set of fields needed to
+                        deliver a parcel and nothing beyond that.
+                      </p>
+                      <p>
+                        Keeping the custom shirt tool entirely in the browser is
+                        itself a protection measure. Artwork that is never
+                        uploaded cannot be exposed by a server breach, and a
+                        payment form that is not connected to a processor cannot
+                        leak card data, because there is no card data.
+                      </p>
+                      <p>
+                        Information you send us by email or telephone is held on
+                        access controlled systems, accounts are protected by
+                        strong authentication, and permissions are reviewed when
+                        someone joins or leaves the team. Shipping partners
+                        receive only the name, address and phone number printed
+                        on the label, along with the amount to collect.
+                      </p>
+                      <p>
+                        No system connected to the internet can promise perfect
+                        security, and we will not pretend otherwise. What we do
+                        promise is that we collect as little as possible in the
+                        first place, that we keep it no longer than we need it,
+                        and that if we ever become aware of a breach affecting
+                        your information we will tell you promptly and explain
+                        what happened.
+                      </p>
+                    </div>
+                  </section>
+                </Reveal>
+
+                {/* 11 */}
+                <Reveal>
+                  <section id="user-rights" className="scroll-mt-28">
+                    <h2 className={H2}>11. Your rights</h2>
+                    <p className={`mt-5 ${BODY}`}>
+                      Your information belongs to you. At any time you may ask us
+                      to:
+                    </p>
+                    <CheckList
+                      items={[
+                        "Tell you what personal information we hold about you and where it came from.",
+                        "Correct anything that is wrong, such as a misspelled name or an out of date address.",
+                        "Delete your details from our records, subject to any order still in progress or any record we are required to keep.",
+                        "Stop sending you newsletters or any other marketing message.",
+                        "Provide a copy of your order history in a readable format.",
+                        "Confirm that we have not sold or shared your personal information, which we never do.",
+                        "Limit how we use your information while we look into a complaint you have raised.",
+                      ]}
+                    />
+                    <p className={`mt-5 ${BODY}`}>
+                      Residents of states with their own consumer privacy laws,
+                      including California, have these rights by statute, and we
+                      extend the same rights to every customer regardless of
+                      where they live. Exercising them will never affect the
+                      price you pay or the service you receive.
+                    </p>
+                    <p className={`mt-4 ${BODY}`}>
+                      Write to{" "}
+                      <a href={site.contact.emailHref} className={LINK}>
+                        {site.contact.email}
+                      </a>{" "}
+                      with your request and, where relevant, an order number so
+                      we can find the right record. We aim to respond within
+                      seven days. We may ask a question or two to confirm the
+                      request is genuinely coming from you, which protects your
+                      information from somebody else asking on your behalf.
+                    </p>
+                    <p className={`mt-4 ${BODY}`}>
+                      Remember that anything stored in your browser through
+                      localStorage, including your cart, your wishlist and any
+                      custom shirt preview, is under your direct control and can
+                      be cleared by you at any time without contacting us.
+                    </p>
+                  </section>
+                </Reveal>
+
+                {/* 12 */}
+                <Reveal>
+                  <section id="childrens-privacy" className="scroll-mt-28">
+                    <h2 className={H2}>12. Children&apos;s privacy</h2>
+                    <div className={`mt-5 space-y-4 ${BODY}`}>
+                      <p>
+                        This website is intended for adults. We do not knowingly
+                        collect personal information from children under 13, and
+                        we do not create customer accounts, run profiling or
+                        serve targeted advertising to anyone.
+                      </p>
+                      <p>
+                        Product pages for kids clothing, baby clothes and toys
+                        are written for parents and guardians to shop from, and
+                        checkout is intended to be completed by an adult. The
+                        same applies to the shirt customization tool, including
+                        the image upload, which should be used by an adult or
+                        with adult supervision.
+                      </p>
+                      <p>
+                        If you believe a child has provided us with personal
+                        information, contact us using the details below and we
+                        will delete it promptly. A parent or guardian may also
+                        ask us to review, correct or delete anything a child
+                        submitted.
+                      </p>
+                    </div>
+                  </section>
+                </Reveal>
+
+                {/* 13 */}
+                <Reveal>
+                  <section id="policy-updates" className="scroll-mt-28">
+                    <h2 className={H2}>13. Updates to this policy</h2>
+                    <div className={`mt-5 space-y-4 ${BODY}`}>
+                      <p>
+                        We will revise this policy whenever our practices change,
+                        for example if we add a shipping partner, enable an
+                        analytics service, switch on card payment or begin
+                        storing custom artwork on a server for production. When
+                        that happens we will publish the revised policy on this
+                        page and change the last updated date at the top.
+                      </p>
+                      <p>
+                        If a change materially affects how we handle information
+                        we have already collected from you, we will make that
+                        clear rather than relying on you to notice a quiet edit.
+                        Continuing to use the website after a revision is
+                        published means you accept the current version, so it is
+                        worth glancing at this page occasionally.
+                      </p>
+                    </div>
+                  </section>
+                </Reveal>
+
+                {/* 14 */}
+                <Reveal>
                   <section id="contact-information" className="scroll-mt-28">
-                    <h2 className={H2}>10. Contact information</h2>
+                    <h2 className={H2}>14. Contact information</h2>
                     <p className={`mt-5 ${BODY}`}>
                       If you have a question about this policy, want to exercise
                       any of the rights described above, or believe your
@@ -519,15 +761,38 @@ export default function PrivacyPolicyPage() {
                         </li>
                       </ul>
                       <p className={`mt-6 ${BODY}`}>
+                        Standard shipping is{" "}
+                        {formatPrice(SHIPPING_RATE)} and is free at{" "}
+                        {formatPrice(FREE_SHIPPING_THRESHOLD)}, express shipping
+                        is {formatPrice(EXPRESS_SHIPPING_RATE)}, and returns run
+                        for {RETURN_WINDOW_DAYS} days. Full details live on our{" "}
+                        <Link href="/support/shipping-information" className={LINK}>
+                          shipping information
+                        </Link>{" "}
+                        and{" "}
+                        <Link href="/support/easy-returns" className={LINK}>
+                          easy returns
+                        </Link>{" "}
+                        pages.
+                      </p>
+                      <p className={`mt-4 ${BODY}`}>
                         You may also want to read our{" "}
                         <Link href="/terms-and-conditions" className={LINK}>
                           terms and conditions
+                        </Link>
+                        , learn how the{" "}
+                        <Link href="/support/shopping-cart" className={LINK}>
+                          shopping cart
                         </Link>{" "}
-                        or visit the{" "}
+                        and{" "}
+                        <Link href="/support/secure-checkout" className={LINK}>
+                          secure checkout
+                        </Link>{" "}
+                        work, or visit the{" "}
                         <Link href="/contact" className={LINK}>
                           contact page
                         </Link>{" "}
-                        for frequently asked questions about shipping and returns.
+                        for frequently asked questions.
                       </p>
                     </div>
                   </section>

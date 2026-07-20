@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 
 import { Hero } from "@/components/home/Hero";
 import { HomeRecentlyViewed } from "@/components/home/HomeRecentlyViewed";
@@ -26,7 +27,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: "Xpectra Media | Modern Clothing, Baby Essentials and Toys Online",
   description:
-    "Shop modern everyday fashion at Xpectra Media. Clothing for men, women and kids, plus baby essentials and creative toys, with free shipping over $75, easy 30 day returns and secure checkout.",
+    "Shop modern everyday fashion at Xpectra Media. Clothing for men, women and kids, baby essentials, creative toys and custom shirts online printed with your own logo, with free shipping over $75, easy 7 day returns and secure checkout.",
   path: "/",
   keywords: [
     "online clothing store",
@@ -35,9 +36,20 @@ export const metadata: Metadata = buildMetadata({
     "kids clothes online",
     "baby essentials online",
     "creative toys online",
+    "custom shirts online",
+    "custom logo shirts",
+    "design your own shirt",
     "free shipping fashion",
   ],
 });
+
+/** Short proof points shown beside the custom shirt pitch. */
+const CUSTOM_HIGHLIGHTS = [
+  "Upload a logo and preview it instantly",
+  "Tees, polos, long sleeve and sweatshirts",
+  "Order one shirt or a full team run",
+  "Bulk pricing at 10, 25 and 50 shirts",
+];
 
 export default function HomePage() {
   const trending = getBestSellers(4);
@@ -90,8 +102,8 @@ export default function HomePage() {
         <div className="shell">
           <SectionHeading
             eyebrow="Featured Collections"
-            title="Five departments, one checkout"
-            description="Everything is organized around how families really shop, so clothing, baby essentials and toys can travel in the same order."
+            title="Six departments, one checkout"
+            description="Everything is organized around how families really shop, so clothing, baby essentials, toys and custom shirts can travel in the same order."
             action={
               <Button href="/categories" variant="outline">
                 All Collections
@@ -109,12 +121,80 @@ export default function HomePage() {
                   image={category.image}
                   href={category.href}
                   count={countByCategory(category.slug)}
-                  wide={index === 4}
                 />
               </Reveal>
             ))}
           </div>
         </div>
+      </section>
+
+      {/* Custom shirts feature band */}
+      <section className="shell py-16 md:py-20">
+        <Reveal>
+          <div className="overflow-hidden rounded-3xl border border-line bg-card shadow-[var(--shadow-soft)]">
+            <div className="grid lg:grid-cols-2">
+              {/* Pitch */}
+              <div className="order-2 flex flex-col justify-center px-6 py-12 sm:px-10 lg:order-1 lg:py-16">
+                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-line bg-brand-tint px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-deep">
+                  <Icon name="sparkle" size={14} className="text-brand" />
+                  New Department
+                </span>
+
+                <h2 className="mt-6 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+                  Create Your Custom Shirt
+                </h2>
+                <p className="mt-4 max-w-xl text-base leading-relaxed text-slate">
+                  Custom shirts online, printed with your own logo or artwork.
+                  Upload a design, preview it on the shirt instantly, then pick
+                  a style, color and size. Perfect for company logo shirts,
+                  personalized shirts for a team and bulk custom shirts for an
+                  event, with volume pricing that drops as the order grows.
+                </p>
+
+                <ul className="mt-7 grid gap-3 sm:grid-cols-2">
+                  {CUSTOM_HIGHLIGHTS.map((highlight) => (
+                    <li
+                      key={highlight}
+                      className="flex items-start gap-2.5 text-sm text-slate"
+                    >
+                      <Icon
+                        name="check"
+                        size={15}
+                        className="mt-0.5 shrink-0 text-brand"
+                      />
+                      {highlight}
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                  <Button href="/custom-shirts/design">
+                    Design Your Own Shirt
+                    <Icon name="arrowRight" size={16} />
+                  </Button>
+                  <Button href="/custom-shirts" variant="outline">
+                    Explore Custom Shirts
+                  </Button>
+                </div>
+              </div>
+
+              {/* Imagery */}
+              <div className="relative order-1 min-h-[20rem] lg:order-2 lg:min-h-full">
+                <Image
+                  src="/assets/images/custom/hero.jpg"
+                  alt="A custom shirt printed with a company logo at Xpectra Media"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover"
+                />
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-gradient-to-t from-night/45 via-transparent to-transparent lg:bg-gradient-to-r lg:from-night/25 lg:to-transparent"
+                />
+              </div>
+            </div>
+          </div>
+        </Reveal>
       </section>
 
       {/* New season essentials */}

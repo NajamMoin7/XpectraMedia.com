@@ -8,7 +8,7 @@ import { Reveal } from "@/components/ui/Reveal";
 /** Trust points shown under the hero calls to action. */
 const TRUST = [
   { icon: "truck" as const, label: "Free shipping over $75" },
-  { icon: "refresh" as const, label: "Easy 30 day returns" },
+  { icon: "refresh" as const, label: "Easy 7 day returns" },
   { icon: "lock" as const, label: "Secure checkout" },
 ];
 

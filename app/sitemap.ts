@@ -17,6 +17,63 @@ export default function sitemap(): MetadataRoute.Sitemap {
       { url: site.url, changeFrequency: "weekly", priority: 1 },
       { url: `${site.url}/products`, changeFrequency: "daily", priority: 0.9 },
       { url: `${site.url}/categories`, changeFrequency: "weekly", priority: 0.9 },
+
+      // Custom Shirts department. The landing page and the design tool are the
+      // two entry points worth ranking, so they carry the highest priority.
+      { url: `${site.url}/custom-shirts`, changeFrequency: "weekly", priority: 1 },
+      {
+        url: `${site.url}/custom-shirts/design`,
+        changeFrequency: "weekly",
+        priority: 0.95,
+      },
+      {
+        url: `${site.url}/custom-shirts/pricing`,
+        changeFrequency: "monthly",
+        priority: 0.8,
+      },
+      {
+        url: `${site.url}/custom-shirts/bulk-orders`,
+        changeFrequency: "monthly",
+        priority: 0.8,
+      },
+      {
+        url: `${site.url}/custom-shirts/upload-guidelines`,
+        changeFrequency: "monthly",
+        priority: 0.6,
+      },
+      {
+        url: `${site.url}/custom-shirts/policy`,
+        changeFrequency: "yearly",
+        priority: 0.4,
+      },
+
+      // Customer support pages, one route per topic.
+      {
+        url: `${site.url}/support/shopping-cart`,
+        changeFrequency: "monthly",
+        priority: 0.5,
+      },
+      {
+        url: `${site.url}/support/secure-checkout`,
+        changeFrequency: "monthly",
+        priority: 0.5,
+      },
+      {
+        url: `${site.url}/support/shipping-information`,
+        changeFrequency: "monthly",
+        priority: 0.6,
+      },
+      {
+        url: `${site.url}/support/easy-returns`,
+        changeFrequency: "monthly",
+        priority: 0.6,
+      },
+      {
+        url: `${site.url}/support/shipping-and-returns`,
+        changeFrequency: "monthly",
+        priority: 0.6,
+      },
+
       { url: `${site.url}/about`, changeFrequency: "monthly", priority: 0.7 },
       { url: `${site.url}/contact`, changeFrequency: "monthly", priority: 0.7 },
       { url: `${site.url}/privacy-policy`, changeFrequency: "yearly", priority: 0.3 },
@@ -28,12 +85,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ] satisfies MetadataRoute.Sitemap
   ).map((entry) => ({ ...entry, lastModified: LAST_MODIFIED }));
 
-  const categoryRoutes: MetadataRoute.Sitemap = categories.map((category) => ({
-    url: `${site.url}/categories/${category.slug}`,
-    lastModified: LAST_MODIFIED,
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
+  // Custom Shirts is a department with its own top level page, so it has no
+  // /categories/custom-shirts route and must not be emitted here.
+  const categoryRoutes: MetadataRoute.Sitemap = categories
+    .filter((category) => category.href === `/categories/${category.slug}`)
+    .map((category) => ({
+      url: `${site.url}/categories/${category.slug}`,
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    }));
 
   // Filtered listing views for each product family are worth indexing too.
   const familyRoutes: MetadataRoute.Sitemap = subcategories.map((sub) => ({

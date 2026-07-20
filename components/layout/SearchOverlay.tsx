@@ -8,14 +8,26 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { formatPrice } from "@/lib/format";
 import { products, searchProducts } from "@/lib/products";
-import { subcategoryLabel } from "@/lib/categories";
+import { categoryLabel, subcategoryLabel } from "@/lib/categories";
 
 interface SearchOverlayProps {
   open: boolean;
   onClose: () => void;
 }
 
-const SUGGESTIONS = ["New Arrivals", "Hoodies", "Dresses", "Jeans", "Toys"];
+/**
+ * Popular search chips. The label is what the customer recognizes, while the
+ * term is what actually matches the catalogue, so every chip returns results.
+ */
+const SUGGESTIONS: { label: string; term: string }[] = [
+  { label: "Custom Shirts", term: "custom" },
+  { label: "Logo Shirts", term: "logo" },
+  { label: "New Arrivals", term: "New Arrivals" },
+  { label: "Hoodies", term: "Hoodies" },
+  { label: "Dresses", term: "Dresses" },
+  { label: "Jeans", term: "Jeans" },
+  { label: "Toys", term: "Toys" },
+];
 
 /**
  * Frosted light search panel. Matching runs against the local catalogue as the
@@ -96,7 +108,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
             type="search"
             value={term}
             onChange={(event) => setTerm(event.target.value)}
-            placeholder="Search hoodies, dresses, jeans, baby clothes, toys"
+            placeholder="Search custom shirts, hoodies, dresses, jeans, toys"
             autoComplete="off"
             className="w-full bg-transparent text-base text-ink placeholder:text-muted focus:outline-none"
           />
@@ -133,8 +145,8 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                       <span className="block truncate text-sm font-semibold text-ink">
                         {product.name}
                       </span>
-                      <span className="mt-0.5 block text-xs capitalize text-slate">
-                        {product.category} in {subcategoryLabel(product.subcategory)}
+                      <span className="mt-0.5 block text-xs text-slate">
+                        {categoryLabel(product.category)} in {subcategoryLabel(product.subcategory)}
                       </span>
                     </span>
                     <span className="shrink-0 text-sm font-semibold text-brand">
@@ -150,7 +162,8 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                 No products match {`"${term.trim()}"`}
               </p>
               <p className="mt-2 text-xs text-slate">
-                Try a different word such as hoodie, dress, jeans or toys.
+                Try a different word such as custom, hoodie, dress, jeans or
+                toys.
               </p>
             </div>
           ) : (
@@ -161,12 +174,12 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
               <div className="flex flex-wrap gap-2">
                 {SUGGESTIONS.map((suggestion) => (
                   <button
-                    key={suggestion}
+                    key={suggestion.label}
                     type="button"
-                    onClick={() => setTerm(suggestion)}
+                    onClick={() => setTerm(suggestion.term)}
                     className="rounded-full border border-line bg-mist px-4 py-2 text-sm text-slate transition-all hover:border-brand hover:bg-brand-tint hover:text-brand-deep"
                   >
-                    {suggestion}
+                    {suggestion.label}
                   </button>
                 ))}
               </div>
