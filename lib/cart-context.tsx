@@ -61,7 +61,16 @@ function readStorage(): string | null {
   }
 }
 
+/**
+ * Set when the last write could not be persisted, usually because custom
+ * artwork pushed the cart past the browser storage quota. While it is set the
+ * in memory cart is the source of truth, otherwise the next snapshot would
+ * re-read the stale stored copy and the newly added item would vanish.
+ */
+let memoryOnly = false;
+
 function getSnapshot(): CartItem[] {
+  if (memoryOnly) return cache;
   const raw = readStorage();
   if (raw !== cacheSource) {
     cacheSource = raw;
@@ -75,27 +84,44 @@ function getServerSnapshot(): CartItem[] {
   return EMPTY;
 }
 
+/** Another tab changed the stored cart, so storage is authoritative again. */
+function onStorage(event: StorageEvent, onChange: () => void): void {
+  if (event.key !== null && event.key !== STORAGE_KEYS.cart) return;
+  memoryOnly = false;
+  onChange();
+}
+
 function subscribe(onChange: () => void): () => void {
   listeners.add(onChange);
   // Keeps the cart in step when the store is open in more than one tab.
-  window.addEventListener("storage", onChange);
+  const handler = (event: StorageEvent) => onStorage(event, onChange);
+  window.addEventListener("storage", handler);
   return () => {
     listeners.delete(onChange);
-    window.removeEventListener("storage", onChange);
+    window.removeEventListener("storage", handler);
   };
 }
 
-/** Persists the next cart and notifies every subscriber. */
-function writeCart(next: CartItem[]): void {
+/**
+ * Persists the next cart and notifies every subscriber.
+ * Returns false when the browser refused to store it. The cart still holds
+ * the new value for this visit in that case.
+ */
+function writeCart(next: CartItem[]): boolean {
   const serialised = JSON.stringify(next);
   cacheSource = serialised;
   cache = next;
+  let persisted = true;
   try {
     window.localStorage.setItem(STORAGE_KEYS.cart, serialised);
+    memoryOnly = false;
   } catch {
-    // The cart still works for this session if persistence is blocked.
+    // Quota exceeded or storage blocked. Keep the in memory cart.
+    persisted = false;
+    memoryOnly = true;
   }
   for (const listener of listeners) listener();
+  return persisted;
 }
 
 /** True only once the browser has taken over from the server render. */
@@ -115,7 +141,8 @@ interface CartContextValue {
   subtotal: number;
   delivery: number;
   total: number;
-  addItem: (item: CartItem) => void;
+  /** Returns false when the cart could only be kept for this visit. */
+  addItem: (item: CartItem) => boolean;
   updateQuantity: (key: string, quantity: number) => void;
   removeItem: (key: string) => void;
   clearCart: () => void;
@@ -136,7 +163,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const key = cartLineKey(item);
     const existing = current.find((line) => cartLineKey(line) === key);
 
-    writeCart(
+    return writeCart(
       existing
         ? current.map((line) =>
             cartLineKey(line) === key
@@ -162,7 +189,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     writeCart(getSnapshot().filter((line) => cartLineKey(line) !== key));
   }, []);
 
-  const clearCart = useCallback(() => writeCart(EMPTY), []);
+  const clearCart = useCallback(() => {
+    writeCart(EMPTY);
+  }, []);
 
   const value = useMemo<CartContextValue>(() => {
     const subtotal = cartSubtotal(items);

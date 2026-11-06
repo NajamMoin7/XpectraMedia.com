@@ -70,15 +70,20 @@ function CustomOrderDetails({ item }: { item: CartItem }) {
     <div className="mt-3 rounded-2xl border border-line bg-mist/70 p-4">
       <div className="flex items-center gap-3">
         <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xl border border-line bg-canvas">
-          {/* Data URL artwork, so a plain img is used instead of next/image */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={custom.artwork}
-            alt=""
-            role="img"
-            aria-label={`Uploaded artwork ${custom.artworkName}`}
-            className="h-full w-full object-contain"
-          />
+          {/* The preview is dropped when storage was too full to keep it. */}
+          {custom.artwork ? (
+            // Data URL artwork, so a plain img is used instead of next/image
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={custom.artwork}
+              alt=""
+              role="img"
+              aria-label={`Uploaded artwork ${custom.artworkName}`}
+              className="h-full w-full object-contain"
+            />
+          ) : (
+            <Icon name="sparkle" size={20} className="text-brand" />
+          )}
         </span>
         <span className="min-w-0">
           <span className="block truncate text-sm font-semibold text-ink">
@@ -327,7 +332,7 @@ export function OrderConfirmationView() {
 
         <div className="mt-5 flex items-baseline justify-between gap-4 border-t border-line-strong pt-5">
           <span className="font-display text-base font-semibold text-ink">
-            Total payable
+            {order.payment ? "Total paid" : "Total payable"}
           </span>
           <span className="font-display text-2xl font-bold tabular-nums text-ink">
             {formatPrice(order.total)}
@@ -349,25 +354,54 @@ export function OrderConfirmationView() {
           </h2>
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-mist px-5 py-4">
-          <span>
-            <span className="block font-display text-base font-semibold text-ink">
-              {order.paymentMethod}
-            </span>
-            <span className="mt-1 block text-sm text-slate">
-              Pay {formatPrice(order.total)} when your order is delivered.
-            </span>
-          </span>
-          <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wide text-amber-700">
-            <Icon name="clock" size={14} />
-            Payment pending
-          </span>
-        </div>
+        {order.payment ? (
+          <>
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-mist px-5 py-4">
+              <span>
+                <span className="block font-display text-base font-semibold text-ink">
+                  {order.paymentMethod}
+                </span>
+                <span className="mt-1 block text-sm text-slate">
+                  {formatPrice(order.payment.amount)} charged
+                  {order.payment.cardMasked
+                    ? ` to card ending ${order.payment.cardMasked.slice(-4)}`
+                    : ""}
+                  .
+                </span>
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wide text-success">
+                <Icon name="checkCircle" size={14} />
+                Paid
+              </span>
+            </div>
+            <p className="mt-4 text-xs leading-relaxed text-muted">
+              Transaction reference {order.payment.transactionId}. Please keep it
+              for your records if you contact support about this payment.
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-mist px-5 py-4">
+              <span>
+                <span className="block font-display text-base font-semibold text-ink">
+                  {order.paymentMethod}
+                </span>
+                <span className="mt-1 block text-sm text-slate">
+                  Pay {formatPrice(order.total)} when your order is delivered.
+                </span>
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wide text-amber-700">
+                <Icon name="clock" size={14} />
+                Payment pending
+              </span>
+            </div>
 
-        <p className="mt-4 text-xs leading-relaxed text-muted">
-          Please keep the exact amount ready if you can. You will receive a
-          receipt once payment is collected.
-        </p>
+            <p className="mt-4 text-xs leading-relaxed text-muted">
+              Please keep the exact amount ready if you can. You will receive a
+              receipt once payment is collected.
+            </p>
+          </>
+        )}
       </section>
 
       {/* Next steps */}

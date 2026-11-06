@@ -91,11 +91,14 @@ function downscaleArtwork(dataUrl: string): Promise<string> {
       context.drawImage(image, 0, 0, width, height);
 
       try {
-        resolve(
-          dataUrl.startsWith("data:image/jpeg")
-            ? canvas.toDataURL("image/jpeg", 0.82)
-            : canvas.toDataURL("image/png"),
-        );
+        if (dataUrl.startsWith("data:image/jpeg")) {
+          resolve(canvas.toDataURL("image/jpeg", 0.82));
+          return;
+        }
+        // WebP keeps transparency at a fraction of the PNG size. Browsers
+        // that cannot encode it hand back a PNG, so check what came out.
+        const webp = canvas.toDataURL("image/webp", 0.86);
+        resolve(webp.startsWith("data:image/webp") ? webp : canvas.toDataURL("image/png"));
       } catch {
         resolve(dataUrl);
       }
@@ -130,6 +133,8 @@ export function ShirtCustomizer() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [added, setAdded] = useState(false);
+  /** False when the browser had no room left to remember the cart. */
+  const [persisted, setPersisted] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -261,7 +266,7 @@ export function ShirtCustomizer() {
       // stays in component state for the on screen preview.
       const storedArtwork = await downscaleArtwork(artwork);
 
-      addItem({
+      const stored = addItem({
         productId: product.id,
         slug: product.slug,
         name: `Custom ${style.name}`,
@@ -286,6 +291,7 @@ export function ShirtCustomizer() {
         },
       });
 
+      setPersisted(stored);
       setAdded(true);
       setErrors([]);
     } finally {
@@ -905,6 +911,12 @@ export function ShirtCustomizer() {
                 {pricing.quantity} shirt{pricing.quantity === 1 ? "" : "s"} in{" "}
                 {color.name}, size {size}, with {print.label.toLowerCase()}.
               </p>
+              {persisted ? null : (
+                <p className="mt-1.5 text-xs leading-relaxed text-slate">
+                  Your browser is out of space for saved designs, so this cart is
+                  kept for this visit only. Please check out before closing the tab.
+                </p>
+              )}
               <div className="mt-3 flex flex-wrap gap-3">
                 <Button href="/cart" variant="primary" size="sm">
                   View Cart

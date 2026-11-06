@@ -1,17 +1,59 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { OrderSummary } from "@/components/cart/OrderSummary";
-import { CardPaymentPanel } from "@/components/checkout/CardPaymentPanel";
+import {
+  CardEntryError,
+  CardPaymentPanel,
+  type CardTokenizer,
+} from "@/components/checkout/CardPaymentPanel";
 import { Button } from "@/components/ui/Button";
 import { EmptyState, LoadingSpinner, Skeleton } from "@/components/ui/Feedback";
 import { Icon } from "@/components/ui/Icon";
 import { useCart } from "@/lib/cart-context";
 import { generateOrderNumber } from "@/lib/format";
+import type { CheckoutLine } from "@/lib/order-pricing";
 import { STATES, STORAGE_KEYS, site } from "@/lib/site";
-import type { OrderDetails } from "@/lib/types";
+import type { CartItem, CardPaymentRecord, OrderDetails, PaymentMethod } from "@/lib/types";
+
+/** Strips a cart down to what the payment endpoint needs. No artwork is sent. */
+function toCheckoutLines(items: CartItem[]): CheckoutLine[] {
+  return items.map((item) => ({
+    productId: item.productId,
+    size: item.size,
+    color: item.color,
+    quantity: item.quantity,
+    ...(item.custom
+      ? { custom: { styleId: item.custom.styleId, printOption: item.custom.printOption } }
+      : {}),
+  }));
+}
+
+/**
+ * Saves the order for the confirmation page. Custom artwork can be large, so
+ * if storage is full the order is saved again without the artwork previews.
+ */
+function storeOrder(order: OrderDetails): void {
+  const attempts = [
+    order,
+    {
+      ...order,
+      items: order.items.map((item) =>
+        item.custom ? { ...item, custom: { ...item.custom, artwork: "" } } : item,
+      ),
+    },
+  ];
+  for (const attempt of attempts) {
+    try {
+      window.localStorage.setItem(STORAGE_KEYS.lastOrder, JSON.stringify(attempt));
+      return;
+    } catch {
+      // Try the lighter copy next. The confirmation page has its own fallback.
+    }
+  }
+}
 
 /** Accepts the common address shapes without being needlessly strict. */
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
@@ -149,18 +191,32 @@ const LABEL = "mb-2 block text-sm font-medium text-ink";
 const HINT = "mt-2 text-xs text-muted";
 const ERROR = "animate-fade-up mt-2 text-xs font-medium text-sale";
 
+interface CheckoutFormProps {
+  /** Public Collect.js tokenization key. Empty disables card payment. */
+  tokenizationKey: string;
+  collectJsUrl: string;
+}
+
 /**
- * Single page checkout. There is no backend, so the order is validated in the
- * browser, saved to localStorage and then read back by the confirmation page.
+ * Single page checkout. Card orders are tokenized by Collect.js and charged
+ * by the server route, Cash on Delivery orders are confirmed in the browser.
+ * Either way the order is saved to localStorage and read back by the
+ * confirmation page.
  */
-export function CheckoutForm() {
+export function CheckoutForm({ tokenizationKey, collectJsUrl }: CheckoutFormProps) {
   const router = useRouter();
   const { items, hydrated, subtotal, delivery, total, clearCart } = useCart();
 
+  const cardEnabled = Boolean(tokenizationKey && collectJsUrl);
   const [values, setValues] = useState<FormValues>(EMPTY_VALUES);
   const [errors, setErrors] = useState<FormErrors>({});
   const [attempted, setAttempted] = useState(false);
   const [placing, setPlacing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+    cardEnabled ? "Credit or Debit Card" : "Cash on Delivery",
+  );
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const tokenizerRef = useRef<CardTokenizer | null>(null);
 
   function update(field: FieldName, value: string) {
     const next = { ...values, [field]: value };
@@ -178,11 +234,70 @@ export function CheckoutForm() {
     setErrors((current) => ({ ...current, [field]: found[field] }));
   }
 
-  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+  /** Tokenizes the card and charges it. Returns the receipt, or null on failure. */
+  async function chargeCard(orderNumber: string): Promise<CardPaymentRecord | null> {
+    const tokenizer = tokenizerRef.current;
+    if (!tokenizer) {
+      setPaymentError("Card payment is still loading. Please wait a moment and try again.");
+      return null;
+    }
+
+    try {
+      const card = await tokenizer.requestToken();
+      const response = await fetch("/api/checkout/charge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: card.token,
+          orderNumber,
+          expectedTotal: total,
+          lines: toCheckoutLines(items),
+          customer: {
+            fullName: values.fullName,
+            email: values.email,
+            phone: values.phone,
+            street: values.street,
+            apartment: values.apartment,
+            city: values.city,
+            state: values.state,
+            zipCode: values.zipCode,
+          },
+        }),
+      });
+      const result = (await response.json().catch(() => null)) as
+        | { ok: true; transactionId: string; authCode: string; amount: number }
+        | { ok: false; message: string }
+        | null;
+
+      if (!result || !result.ok) {
+        setPaymentError(
+          result?.message ?? "We could not complete the payment. You have not been charged.",
+        );
+        return null;
+      }
+      return {
+        transactionId: result.transactionId,
+        authCode: result.authCode,
+        cardMasked: card.cardMasked,
+        cardType: card.cardType,
+        amount: result.amount,
+      };
+    } catch (error) {
+      setPaymentError(
+        error instanceof CardEntryError
+          ? error.message
+          : "We could not reach the payment service. Please check your connection and try again.",
+      );
+      return null;
+    }
+  }
+
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (placing) return;
 
     setAttempted(true);
+    setPaymentError(null);
     const found = validate(values);
     setErrors(found);
 
@@ -195,9 +310,20 @@ export function CheckoutForm() {
     if (items.length === 0) return;
 
     setPlacing(true);
+    const orderNumber = generateOrderNumber();
+
+    let payment: CardPaymentRecord | undefined;
+    if (paymentMethod === "Credit or Debit Card") {
+      const receipt = await chargeCard(orderNumber);
+      if (!receipt) {
+        setPlacing(false);
+        return;
+      }
+      payment = receipt;
+    }
 
     const order: OrderDetails = {
-      orderNumber: generateOrderNumber(),
+      orderNumber,
       placedAt: new Date().toISOString(),
       fullName: values.fullName.trim(),
       email: values.email.trim(),
@@ -213,21 +339,22 @@ export function CheckoutForm() {
       items,
       subtotal,
       shipping: delivery,
-      total,
-      paymentMethod: "Cash on Delivery",
+      total: payment?.amount ?? total,
+      paymentMethod,
+      ...(payment ? { payment } : {}),
     };
 
-    // Short delay so the processing state reads as a genuine action.
-    window.setTimeout(() => {
-      try {
-        window.localStorage.setItem(STORAGE_KEYS.lastOrder, JSON.stringify(order));
-      } catch {
-        // Storage can be unavailable in private browsing. The confirmation
-        // page shows its own friendly fallback when nothing was stored.
-      }
-      clearCart();
-      router.push("/order-confirmation");
-    }, 900);
+    // Short delay so the processing state reads as a genuine action. Card
+    // orders have already waited on the gateway, so they continue at once.
+    window.setTimeout(
+      () => {
+        // The cart is cleared first so its artwork frees storage for the order.
+        clearCart();
+        storeOrder(order);
+        router.push("/order-confirmation");
+      },
+      payment ? 0 : 900,
+    );
   }
 
   if (!hydrated) {
@@ -266,14 +393,15 @@ export function CheckoutForm() {
 
   const hasErrors = FIELD_ORDER.some((field) => errors[field]);
 
+  const payingByCard = paymentMethod === "Credit or Debit Card";
   const placeOrderContent = placing ? (
     <>
       <LoadingSpinner size={18} label="Placing your order" />
-      Placing Order
+      {payingByCard ? "Processing Payment" : "Placing Order"}
     </>
   ) : (
     <>
-      Place Order
+      {payingByCard ? "Pay and Place Order" : "Place Order"}
       <Icon name="arrowRight" size={16} />
     </>
   );
@@ -605,22 +733,41 @@ export function CheckoutForm() {
             </span>
           </div>
           <p className="mt-2 text-sm leading-relaxed text-slate">
-            Cash on Delivery is the only method available today, so there is
-            nothing to set up and no card details to enter.
+            Pay securely by card now, or choose Cash on Delivery and pay when
+            your package arrives.
           </p>
 
           <div role="radiogroup" aria-label="Payment method" className="mt-6">
+            <CardPaymentPanel
+              tokenizationKey={tokenizationKey}
+              collectJsUrl={collectJsUrl}
+              selected={paymentMethod === "Credit or Debit Card"}
+              onSelect={() => {
+                setPaymentMethod("Credit or Debit Card");
+                setPaymentError(null);
+              }}
+              amount={total}
+              tokenizerRef={tokenizerRef}
+            />
+
             <label
               htmlFor="checkout-payment-cod"
-              className="flex cursor-default items-start gap-4 rounded-2xl border border-brand/45 bg-brand-tint p-5 ring-2 ring-brand/20"
+              className={`mt-4 flex cursor-pointer items-start gap-4 rounded-2xl border p-5 transition-colors ${
+                paymentMethod === "Cash on Delivery"
+                  ? "border-brand/45 bg-brand-tint ring-2 ring-brand/20"
+                  : "border-line bg-canvas hover:border-brand/40"
+              }`}
             >
               <input
                 id="checkout-payment-cod"
                 type="radio"
                 name="paymentMethod"
                 value="Cash on Delivery"
-                checked
-                readOnly
+                checked={paymentMethod === "Cash on Delivery"}
+                onChange={() => {
+                  setPaymentMethod("Cash on Delivery");
+                  setPaymentError(null);
+                }}
                 className="mt-1 h-4 w-4 shrink-0 accent-[#0d7ff2]"
               />
               <span>
@@ -629,9 +776,11 @@ export function CheckoutForm() {
                   <span className="font-display text-base font-semibold text-ink">
                     Cash on Delivery
                   </span>
-                  <span className="rounded-full bg-brand px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-white">
-                    Selected
-                  </span>
+                  {paymentMethod === "Cash on Delivery" ? (
+                    <span className="rounded-full bg-brand px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-white">
+                      Selected
+                    </span>
+                  ) : null}
                 </span>
                 <span className="mt-2 block text-sm leading-relaxed text-slate">
                   You pay when the order is delivered to your door. Nothing is
@@ -640,14 +789,22 @@ export function CheckoutForm() {
                 </span>
               </span>
             </label>
-
-            <CardPaymentPanel />
           </div>
+
+          {paymentError ? (
+            <p
+              role="alert"
+              className="animate-fade-up mt-5 flex items-start gap-2.5 rounded-2xl border border-sale/40 bg-sale/5 px-4 py-3 text-sm font-medium leading-relaxed text-sale"
+            >
+              <Icon name="close" size={16} className="mt-0.5 shrink-0" />
+              {paymentError}
+            </p>
+          ) : null}
 
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
             <li className="flex items-start gap-2.5 text-xs leading-relaxed text-slate">
               <Icon name="shield" size={15} className="mt-0.5 shrink-0 text-brand" />
-              No advance transfer and no card details are ever requested.
+              Card details are handled by our PCI compliant processor and never stored by us.
             </li>
             <li className="flex items-start gap-2.5 text-xs leading-relaxed text-slate">
               <Icon name="refresh" size={15} className="mt-0.5 shrink-0 text-brand" />
@@ -735,8 +892,10 @@ export function CheckoutForm() {
             </Button>
           </div>
           <p className="mt-4 text-center text-xs leading-relaxed text-muted lg:mt-0 lg:pt-4">
-            By placing this order you agree to our terms and conditions. You pay
-            only when the package reaches you.
+            By placing this order you agree to our terms and conditions.{" "}
+            {payingByCard
+              ? "Your card is charged when you place the order."
+              : "You pay only when the package reaches you."}
           </p>
         </OrderSummary>
       </div>

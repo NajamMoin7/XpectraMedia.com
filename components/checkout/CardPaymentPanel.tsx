@@ -1,274 +1,273 @@
 "use client";
 
-import { useState } from "react";
-import type { ReactNode } from "react";
+import Script from "next/script";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 
 import { Icon } from "@/components/ui/Icon";
 
 /**
- * A preview of a future card payment option.
+ * Card payment fields powered by the gateway's Collect.js.
  *
- * Nothing in this component reads, holds, saves, submits or sends card data.
- * Every input is disabled, is marked readOnly, carries an empty value and has
- * no name attribute, so the browser cannot include any of them in a form
- * submission. The only piece of state here is a boolean that decides whether
- * the "currently unavailable" notice is visible.
+ * Card number, expiry and security code are typed into iframes served by the
+ * payment gateway, so the values never enter this page, its state or our
+ * server. When the order is placed, Collect.js swaps them for a single use
+ * payment token, which is the only thing the checkout endpoint receives.
  */
 
-/** Exact wording shown when the customer tries to pick the card option. */
-const UNAVAILABLE_MESSAGE =
-  "Card payment is currently unavailable. Please select Cash on Delivery to place your order.";
+type CollectField = "ccnumber" | "ccexp" | "cvv";
 
-interface PreviewField {
-  id: string;
-  label: string;
-  placeholder: string;
-  /** Spans both columns on wider screens. */
-  wide?: boolean;
-  hint?: string;
+interface CollectResponse {
+  token: string;
+  card?: { number?: string; type?: string; exp?: string };
 }
 
-/** Field order matches a familiar card checkout so the preview reads clearly. */
-const PREVIEW_FIELDS: PreviewField[] = [
-  {
-    id: "name",
-    label: "Name on Card",
-    placeholder: "Jordan Ellis",
-    wide: true,
-    hint: "Exactly as it appears on the front of the card",
-  },
-  {
-    id: "number",
-    label: "Card Number",
-    placeholder: "0000 0000 0000 0000",
-    wide: true,
-    hint: "16 digits, no spaces required",
-  },
-  { id: "expiry", label: "Expiration Date", placeholder: "MM / YY" },
-  { id: "cvc", label: "Security Code", placeholder: "000" },
-  {
-    id: "billing",
-    label: "Billing Address",
-    placeholder: "785 Oak Grove Rd",
-    wide: true,
-  },
-  { id: "city", label: "City", placeholder: "Concord" },
-  { id: "state", label: "State", placeholder: "California" },
-  { id: "zip", label: "ZIP Code", placeholder: "94518" },
+interface CollectJSApi {
+  configure: (config: Record<string, unknown>) => void;
+  startPaymentRequest: () => void;
+}
+
+declare global {
+  interface Window {
+    CollectJS?: CollectJSApi;
+  }
+}
+
+export interface CardToken {
+  token: string;
+  cardMasked: string;
+  cardType: string;
+}
+
+/** Handle the checkout form uses to request a token on submit. */
+export interface CardTokenizer {
+  requestToken: () => Promise<CardToken>;
+}
+
+export class CardEntryError extends Error {}
+
+const FIELDS: { id: CollectField; label: string; placeholder: string; wide?: boolean }[] = [
+  { id: "ccnumber", label: "Card Number", placeholder: "0000 0000 0000 0000", wide: true },
+  { id: "ccexp", label: "Expiration Date", placeholder: "MM / YY" },
+  { id: "cvv", label: "Security Code", placeholder: "CVV" },
 ];
 
-/** Abstract network mark. Drawn inline so no external asset is requested. */
-function NetworkMark({ children }: { children: ReactNode }) {
-  return (
-    <span className="grid h-7 w-11 place-items-center rounded-md border border-line bg-canvas">
-      <svg
-        viewBox="0 0 36 22"
-        width={30}
-        height={18}
-        aria-hidden="true"
-        focusable="false"
-      >
-        {children}
-      </svg>
-      <span className="sr-only">Card network mark</span>
-    </span>
-  );
+/** Styles applied inside the gateway iframes, matched to the site inputs. */
+const IFRAME_CSS = {
+  "font-family": "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+  "font-size": "14px",
+  color: "#0b1220",
+  "background-color": "transparent",
+  border: "0",
+  outline: "none",
+  padding: "0",
+  height: "44px",
+  width: "100%",
+};
+
+interface CardPaymentPanelProps {
+  /** Public tokenization key. Safe to expose, it can only create tokens. */
+  tokenizationKey: string;
+  collectJsUrl: string;
+  selected: boolean;
+  onSelect: () => void;
+  /** Amount shown to wallets and fraud tools, in dollars. */
+  amount: number;
+  tokenizerRef: RefObject<CardTokenizer | null>;
 }
 
-function NetworkMarks({ className = "" }: { className?: string }) {
-  return (
-    <span className={`flex items-center gap-2 ${className}`}>
-      <NetworkMark>
-        <rect x="2" y="4" width="32" height="14" rx="3" fill="#eef2f9" />
-        <rect x="6" y="9" width="18" height="4" rx="2" fill="#0d7ff2" />
-      </NetworkMark>
-      <NetworkMark>
-        <rect x="2" y="4" width="32" height="14" rx="3" fill="#eef2f9" />
-        <circle cx="15" cy="11" r="5" fill="#0a5cc0" opacity="0.85" />
-        <circle cx="22" cy="11" r="5" fill="#4da6ff" opacity="0.85" />
-      </NetworkMark>
-      <NetworkMark>
-        <rect x="2" y="4" width="32" height="14" rx="3" fill="#eef2f9" />
-        <rect x="7" y="8" width="22" height="2.4" rx="1.2" fill="#4a5568" />
-        <rect x="7" y="12" width="14" height="2.4" rx="1.2" fill="#8b95a5" />
-      </NetworkMark>
-      <NetworkMark>
-        <rect x="2" y="4" width="32" height="14" rx="3" fill="#eef2f9" />
-        <rect x="6" y="7" width="8" height="8" rx="2" fill="#0d7ff2" />
-        <rect x="16" y="7" width="14" height="8" rx="2" fill="#d2dae5" />
-      </NetworkMark>
-    </span>
-  );
-}
+export function CardPaymentPanel({
+  tokenizationKey,
+  collectJsUrl,
+  selected,
+  onSelect,
+  amount,
+  tokenizerRef,
+}: CardPaymentPanelProps) {
+  const enabled = Boolean(tokenizationKey && collectJsUrl);
+  const [ready, setReady] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<CollectField, string>>>({});
 
-/** Stylized card face using only placeholder text. No value is ever bound. */
-function CardFace() {
-  return (
-    <div
-      aria-hidden="true"
-      className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-line-strong bg-gradient-to-br from-brand-tint via-mist to-mist-2 p-5 shadow-[var(--shadow-soft)]"
-    >
-      <div className="flex items-start justify-between">
-        <span className="h-8 w-11 rounded-md border border-line-strong bg-canvas/80" />
-        <span className="rounded-full border border-line-strong bg-canvas px-2.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-[0.16em] text-muted">
-          Preview
-        </span>
-      </div>
+  const pending = useRef<{ resolve: (t: CardToken) => void; reject: (e: Error) => void } | null>(null);
+  const fieldValid = useRef<Partial<Record<CollectField, boolean>>>({});
+  const configured = useRef(false);
+  const amountRef = useRef(amount);
+  useEffect(() => {
+    amountRef.current = amount;
+  }, [amount]);
 
-      <p className="mt-6 font-display text-lg font-bold tracking-[0.18em] text-ink/70 tabular-nums">
-        0000 0000 0000 0000
-      </p>
+  const configure = useCallback(() => {
+    const collect = window.CollectJS;
+    if (!collect || configured.current) return;
+    configured.current = true;
 
-      <div className="mt-5 flex items-end justify-between gap-4">
-        <span className="min-w-0">
-          <span className="block text-[0.55rem] font-semibold uppercase tracking-[0.18em] text-muted">
-            Name on Card
-          </span>
-          <span className="mt-1 block truncate text-sm font-semibold uppercase tracking-wide text-ink/70">
-            Your Name Here
-          </span>
-        </span>
-        <span className="shrink-0 text-right">
-          <span className="block text-[0.55rem] font-semibold uppercase tracking-[0.18em] text-muted">
-            Valid Thru
-          </span>
-          <span className="mt-1 block text-sm font-semibold tabular-nums text-ink/70">
-            MM / YY
-          </span>
-        </span>
-      </div>
-    </div>
-  );
-}
+    collect.configure({
+      variant: "inline",
+      styleSniffer: false,
+      customCss: IFRAME_CSS,
+      placeholderCss: { color: "#8b95a5" },
+      invalidCss: { color: "#d9343f" },
+      validCss: { color: "#0b1220" },
+      focusCss: { color: "#0b1220" },
+      price: amountRef.current.toFixed(2),
+      currency: "USD",
+      country: "US",
+      fields: Object.fromEntries(
+        FIELDS.map((field) => [
+          field.id,
+          {
+            selector: `#checkout-${field.id}`,
+            title: field.label,
+            placeholder: field.placeholder,
+            ...(field.id === "cvv" ? { display: "show" } : {}),
+          },
+        ]),
+      ),
+      fieldsAvailableCallback: () => setReady(true),
+      validationCallback: (field: CollectField, valid: boolean, message: string) => {
+        fieldValid.current[field] = valid;
+        setFieldErrors((current) => ({ ...current, [field]: valid ? undefined : message }));
+      },
+      timeoutDuration: 15000,
+      timeoutCallback: () => {
+        pending.current?.reject(
+          new CardEntryError("Please check your card number, expiry date and security code."),
+        );
+        pending.current = null;
+      },
+      callback: (response: CollectResponse) => {
+        pending.current?.resolve({
+          token: response.token,
+          cardMasked: response.card?.number ?? "",
+          cardType: response.card?.type ?? "",
+        });
+        pending.current = null;
+      },
+    });
+  }, []);
 
-const PREVIEW_FIELD_CLASS =
-  "w-full cursor-not-allowed rounded-2xl border border-line bg-mist px-4 py-3 text-sm " +
-  "text-muted placeholder:text-muted/70";
-
-export function CardPaymentPanel() {
-  // The only state in this component. It holds a boolean, never a card value.
-  const [showNotice, setShowNotice] = useState(false);
-
-  function reject() {
-    setShowNotice(true);
-  }
-
-  function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
-    if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
-      event.preventDefault();
-      reject();
-    }
-  }
+  // Returning to checkout remounts the panel with fresh refs, and Script's
+  // onReady fires again for the already loaded script, so the new field
+  // containers are configured each visit.
+  useEffect(() => {
+    tokenizerRef.current = {
+      requestToken: () =>
+        new Promise<CardToken>((resolve, reject) => {
+          const collect = window.CollectJS;
+          if (!enabled || !collect || !ready) {
+            reject(new CardEntryError("Card payment is still loading. Please wait a moment and try again."));
+            return;
+          }
+          pending.current = { resolve, reject };
+          collect.startPaymentRequest();
+        }),
+    };
+    return () => {
+      tokenizerRef.current = null;
+    };
+  }, [enabled, ready, tokenizerRef]);
 
   return (
     <div className="mt-4">
-      {/* The option itself. It can be focused and announced, never selected. */}
-      <div
-        role="radio"
-        aria-checked={false}
-        aria-disabled="true"
-        aria-describedby="checkout-payment-card-note"
-        tabIndex={0}
-        onClick={reject}
-        onKeyDown={onKeyDown}
-        className="flex cursor-not-allowed items-start gap-4 rounded-2xl border border-line bg-mist p-5 transition-colors hover:border-line-strong"
+      {enabled ? (
+        <Script
+          id="collect-js"
+          src={collectJsUrl}
+          data-tokenization-key={tokenizationKey}
+          data-variant="inline"
+          strategy="afterInteractive"
+          onReady={configure}
+          onError={() => setLoadFailed(true)}
+        />
+      ) : null}
+
+      <label
+        htmlFor="checkout-payment-card"
+        className={`flex items-start gap-4 rounded-2xl border p-5 transition-colors ${
+          !enabled
+            ? "cursor-not-allowed border-line bg-mist"
+            : selected
+              ? "cursor-pointer border-brand/45 bg-brand-tint ring-2 ring-brand/20"
+              : "cursor-pointer border-line bg-canvas hover:border-brand/40"
+        }`}
       >
-        <span
-          aria-hidden="true"
-          className="mt-1 grid h-4 w-4 shrink-0 place-items-center rounded-full border border-line-strong bg-canvas"
+        <input
+          id="checkout-payment-card"
+          type="radio"
+          name="paymentMethod"
+          value="Credit or Debit Card"
+          checked={selected}
+          onChange={onSelect}
+          disabled={!enabled}
+          className="mt-1 h-4 w-4 shrink-0 accent-[#0d7ff2]"
         />
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-2">
-            <Icon name="lock" size={18} className="text-muted" />
-            <span className="font-display text-base font-semibold text-slate">
+            <Icon name="lock" size={18} className="text-brand-deep" />
+            <span className="font-display text-base font-semibold text-ink">
               Credit or Debit Card
             </span>
-            <span className="rounded-full border border-line-strong bg-mist-2 px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-muted">
-              Coming Soon
-            </span>
+            {selected ? (
+              <span className="rounded-full bg-brand px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-white">
+                Selected
+              </span>
+            ) : null}
           </span>
-          <span
-            id="checkout-payment-card-note"
-            className="mt-2 block text-sm leading-relaxed text-slate"
-          >
-            Card payment is not available yet. We are preparing it for a future
-            release, so the form below is a preview only and cannot be used.
+          <span className="mt-2 block text-sm leading-relaxed text-slate">
+            {enabled
+              ? "Pay securely now with Visa, Mastercard, American Express or Discover. Card details are encrypted by our payment processor and never stored on our site."
+              : "Card payment is currently unavailable. Please select Cash on Delivery to place your order."}
           </span>
-          <NetworkMarks className="mt-4 flex-wrap" />
         </span>
-      </div>
+      </label>
 
-      {showNotice ? (
-        <p
-          role="alert"
-          aria-live="assertive"
-          className="animate-fade-up mt-3 flex items-start gap-2.5 rounded-2xl border border-sale/40 bg-sale/5 px-4 py-3 text-sm font-medium leading-relaxed text-sale"
-        >
-          <Icon name="close" size={16} className="mt-0.5 shrink-0" />
-          {UNAVAILABLE_MESSAGE}
-        </p>
-      ) : null}
-
-      {/* Preview only card form. Every control is inert. */}
+      {/* Kept mounted so the gateway iframes survive switching methods. */}
       <fieldset
-        disabled
-        aria-disabled="true"
-        className="mt-5 rounded-2xl border border-line bg-canvas p-5 sm:p-6"
+        hidden={!selected || !enabled}
+        className="mt-4 rounded-2xl border border-line bg-canvas p-5 sm:p-6"
       >
-        <legend className="px-2 font-display text-sm font-semibold text-slate">
-          Card Details Preview
-        </legend>
+        <legend className="px-2 font-display text-sm font-semibold text-ink">Card Details</legend>
 
-        <p className="text-sm leading-relaxed text-slate">
-          This is how card payment will look once it is available. All fields
-          are turned off and nothing you see here can be filled in or sent.
-        </p>
+        {loadFailed ? (
+          <p role="alert" className="mb-4 rounded-2xl border border-sale/40 bg-sale/5 px-4 py-3 text-sm text-sale">
+            The secure card form could not be loaded. Please check your connection, disable
+            any content blockers for this page, or choose Cash on Delivery.
+          </p>
+        ) : null}
 
-        <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-start">
-          <CardFace />
-
-          <div className="grid flex-1 gap-4 sm:grid-cols-2">
-            {PREVIEW_FIELDS.map((field) => (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {FIELDS.map((field) => (
+            <div key={field.id} className={field.wide ? "sm:col-span-2" : undefined}>
+              <span id={`checkout-${field.id}-label`} className="mb-2 block text-sm font-medium text-ink">
+                {field.label}
+              </span>
               <div
-                key={field.id}
-                className={field.wide ? "sm:col-span-2" : undefined}
+                id={`checkout-${field.id}`}
+                aria-labelledby={`checkout-${field.id}-label`}
+                className={`relative h-[46px] w-full overflow-hidden rounded-2xl border bg-canvas px-4 ${
+                  fieldErrors[field.id] ? "border-sale" : "border-line"
+                }`}
               >
-                <label
-                  htmlFor={`card-preview-${field.id}`}
-                  className="mb-2 flex items-center gap-1.5 text-sm font-medium text-slate"
-                >
-                  {field.label}
-                  <span className="text-xs font-normal text-muted">
-                    (required)
+                {ready ? null : (
+                  <span className="absolute inset-0 flex items-center px-4 text-sm text-muted/70">
+                    {field.placeholder}
                   </span>
-                </label>
-                <input
-                  id={`card-preview-${field.id}`}
-                  type="text"
-                  value=""
-                  placeholder={field.placeholder}
-                  disabled
-                  readOnly
-                  aria-disabled="true"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  className={PREVIEW_FIELD_CLASS}
-                />
-                {field.hint ? (
-                  <p className="mt-2 text-xs text-muted">{field.hint}</p>
-                ) : null}
+                )}
               </div>
-            ))}
-          </div>
+              {fieldErrors[field.id] ? (
+                <p role="alert" className="animate-fade-up mt-2 text-xs font-medium text-sale">
+                  {fieldErrors[field.id]}
+                </p>
+              ) : null}
+            </div>
+          ))}
         </div>
 
-        <p className="mt-6 flex items-start gap-2.5 rounded-2xl border border-line bg-mist px-4 py-3 text-xs leading-relaxed text-slate">
+        <p className="mt-5 flex items-start gap-2.5 rounded-2xl border border-line bg-mist px-4 py-3 text-xs leading-relaxed text-slate">
           <Icon name="shield" size={16} className="mt-0.5 shrink-0 text-brand" />
           <span>
-            No card information is collected, stored, processed or transmitted.
-            This form is shown purely as a preview of a future payment option,
-            it accepts no input and sends nothing anywhere. Card network marks
-            are illustrations only.
+            Your card is charged only when you place the order. The billing address used for
+            verification is the shipping address entered above.
           </span>
         </p>
       </fieldset>

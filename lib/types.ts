@@ -192,7 +192,21 @@ export interface OrderDetails {
   subtotal: number;
   shipping: number;
   total: number;
-  paymentMethod: "Cash on Delivery";
+  paymentMethod: PaymentMethod;
+  /** Present when the order was paid by card through the payment gateway. */
+  payment?: CardPaymentRecord;
+}
+
+export type PaymentMethod = "Credit or Debit Card" | "Cash on Delivery";
+
+/** Non sensitive receipt details returned by the gateway after a sale. */
+export interface CardPaymentRecord {
+  transactionId: string;
+  authCode: string;
+  /** Masked card number as returned by the tokenizer, for example ************1111. */
+  cardMasked: string;
+  cardType: string;
+  amount: number;
 }
 
 export type SortOption =
