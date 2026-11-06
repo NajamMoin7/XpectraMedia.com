@@ -19,6 +19,11 @@
 [build.environment]
   NODE_VERSION = "22"
   NEXT_TELEMETRY_DISABLED = "1"
+  # PUBLIC_KEY is the Collect.js tokenization key, which is public by design
+  # and must be embedded in the checkout page. POST_URL is the gateway's public
+  # endpoint. Neither is sensitive, so the secrets scanner skips them.
+  # SECRET_KEY is deliberately NOT listed: it must never appear in the build.
+  SECRETS_SCAN_OMIT_KEYS = "PUBLIC_KEY,POST_URL"
 
 # ---------------------------------------------------------------------------
 # Security headers for every response
