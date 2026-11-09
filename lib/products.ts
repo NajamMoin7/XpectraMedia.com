@@ -1,10 +1,4 @@
-import type {
-  CategorySlug,
-  Product,
-  ProductBadge,
-  SortOption,
-  SubcategorySlug,
-} from "@/lib/types";
+import type { Product } from "@/lib/types";
 
 /** Builds the three gallery image paths for a product. */
 function img(slug: string): string[] {
@@ -97,20 +91,21 @@ const CUSTOM_SHIPPING =
 const CUSTOM_RETURN =
   "Custom printed shirts are made specifically for your order and cannot be returned or exchanged unless the product arrives damaged, defective, or different from the approved order details.";
 
-const SHIP_STANDARD =
+export const SHIP_STANDARD =
   "Free standard shipping on orders over $75. Standard shipping is $6.99 and arrives in five to seven business days. Express delivery is available at checkout.";
 const SHIP_LIGHT =
   "Ships free on orders over $75. Standard shipping is $6.99 and typically arrives in five to seven business days.";
-const RETURN_STANDARD =
+export const RETURN_STANDARD =
   "Easy returns within 7 days of delivery. Items must be unworn, unwashed and have the original tags attached. Return shipping is free on your first return per order.";
 const RETURN_TOYS =
   "Easy returns within 7 days of delivery. Toys must be unused and returned in the original packaging. Return shipping is free on your first return per order.";
 
 /**
- * The full Xpectra Media catalogue.
- * Prices are in USD and every entry is realistic sample data.
+ * The starting Xpectra Media catalogue.
+ * The live catalogue is edited in the admin panel and stored by
+ * lib/server/catalog.ts. This list seeds it until the first admin save.
  */
-export const products: Product[] = [
+export const seedProducts: Product[] = [
   /* ------------------------------------------------------------- MEN */
   {
     id: "xm101",
@@ -1831,169 +1826,3 @@ export const products: Product[] = [
 /* ------------------------------------------------------------------ */
 /* Query helpers. All data is static, so these are plain array reads.  */
 /* ------------------------------------------------------------------ */
-
-export function getProductBySlug(slug: string): Product | undefined {
-  return products.find((product) => product.slug === slug);
-}
-
-export function getProductsByCategory(category: CategorySlug): Product[] {
-  return products.filter((product) => product.category === category);
-}
-
-export function getProductsBySubcategory(sub: SubcategorySlug): Product[] {
-  return products.filter((product) => product.subcategory === sub);
-}
-
-export function getFeaturedProducts(limit = 8): Product[] {
-  return products.filter((product) => product.featured).slice(0, limit);
-}
-
-export function getNewArrivals(limit = 8): Product[] {
-  return products.filter((product) => product.newArrival).slice(0, limit);
-}
-
-export function getBestSellers(limit = 8): Product[] {
-  return products.filter((product) => product.bestSeller).slice(0, limit);
-}
-
-export function getLimitedStock(limit = 4): Product[] {
-  return products.filter((product) => product.limitedStock).slice(0, limit);
-}
-
-/** Products currently discounted, sorted by the deepest saving first. */
-export function getSaleProducts(limit = 8): Product[] {
-  return products
-    .filter((product) => (product.discount ?? 0) > 0)
-    .sort((a, b) => (b.discount ?? 0) - (a.discount ?? 0))
-    .slice(0, limit);
-}
-
-export function countByCategory(category: CategorySlug): number {
-  return getProductsByCategory(category).length;
-}
-
-export function countBySubcategory(sub: SubcategorySlug): number {
-  return getProductsBySubcategory(sub).length;
-}
-
-/** The badge shown on a product card, in priority order. */
-export function productBadge(product: Product): ProductBadge | null {
-  if (product.limitedStock) return "limited";
-  if (product.newArrival) return "new";
-  if (product.bestSeller) return "bestseller";
-  if ((product.discount ?? 0) >= 25) return "sale";
-  return null;
-}
-
-/**
- * Related products prefer the same subcategory, then fall back to the same
- * department so the section is never left short of items.
- */
-export function getRelatedProducts(product: Product, limit = 4): Product[] {
-  const sameSub = products.filter(
-    (item) => item.id !== product.id && item.subcategory === product.subcategory,
-  );
-  const sameCategory = products.filter(
-    (item) =>
-      item.id !== product.id &&
-      item.category === product.category &&
-      !sameSub.includes(item),
-  );
-  const rest = products.filter(
-    (item) =>
-      item.id !== product.id &&
-      !sameSub.includes(item) &&
-      !sameCategory.includes(item),
-  );
-  return [...sameSub, ...sameCategory, ...rest].slice(0, limit);
-}
-
-/** Complementary picks used by the frequently bought together module. */
-export function getFrequentlyBoughtTogether(product: Product, limit = 2): Product[] {
-  const sameDepartment = products.filter(
-    (item) => item.id !== product.id && item.category === product.category,
-  );
-  const complements = sameDepartment.filter(
-    (item) => item.subcategory !== product.subcategory,
-  );
-  return (complements.length >= limit ? complements : sameDepartment).slice(0, limit);
-}
-
-export function getProductsByIds(ids: string[]): Product[] {
-  return ids
-    .map((id) => products.find((product) => product.id === id))
-    .filter((product): product is Product => Boolean(product));
-}
-
-/** Lowest and highest price in the catalogue, used to seed the price filter. */
-export const PRICE_BOUNDS = {
-  min: Math.floor(Math.min(...products.map((product) => product.price))),
-  max: Math.ceil(Math.max(...products.map((product) => product.price))),
-};
-
-/** Every size offered anywhere in the catalogue, used by the size filter. */
-export const ALL_SIZES = Array.from(
-  new Set(products.flatMap((product) => product.sizes)),
-);
-
-/** Every color name offered anywhere, used by the color filter. */
-export const ALL_COLORS = Array.from(
-  new Map(
-    products
-      .flatMap((product) => product.colors)
-      .map((color) => [color.name, color]),
-  ).values(),
-);
-
-/** Sorts a list without mutating the input. */
-export function sortProducts(list: Product[], sort: SortOption): Product[] {
-  const sorted = [...list];
-  switch (sort) {
-    case "price-low":
-      return sorted.sort((a, b) => a.price - b.price);
-    case "price-high":
-      return sorted.sort((a, b) => b.price - a.price);
-    case "rating":
-      return sorted.sort((a, b) => b.rating - a.rating);
-    case "popularity":
-      return sorted.sort(
-        (a, b) => b.rating * b.reviewCount - a.rating * a.reviewCount,
-      );
-    case "latest":
-      return sorted.sort((a, b) => {
-        if (a.newArrival !== b.newArrival) return a.newArrival ? -1 : 1;
-        return b.id.localeCompare(a.id);
-      });
-    case "featured":
-    default:
-      return sorted.sort((a, b) => {
-        if (a.featured !== b.featured) return a.featured ? -1 : 1;
-        if (a.bestSeller !== b.bestSeller) return a.bestSeller ? -1 : 1;
-        return b.rating - a.rating;
-      });
-  }
-}
-
-/** Simple case insensitive match across name, category and description. */
-export function searchProducts(list: Product[], term: string): Product[] {
-  const query = term.trim().toLowerCase();
-  if (!query) return list;
-  return list.filter((product) =>
-    [
-      product.name,
-      product.category,
-      product.subcategory.replace(/-/g, " "),
-      product.subtitle,
-      product.shortDescription,
-      product.material,
-    ]
-      .join(" ")
-      .toLowerCase()
-      .includes(query),
-  );
-}
-
-/** Every shirt in the Custom Shirts department. */
-export function getCustomShirts(): Product[] {
-  return products.filter((product) => product.category === "custom-shirts");
-}

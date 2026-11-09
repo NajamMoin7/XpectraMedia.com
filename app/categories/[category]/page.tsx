@@ -8,7 +8,8 @@ import { Icon } from "@/components/ui/Icon";
 import { PageBanner, SectionHeading } from "@/components/ui/PageBanner";
 import { Reveal } from "@/components/ui/Reveal";
 import { categories, getCategory, subcategoriesFor } from "@/lib/categories";
-import { getProductsByCategory } from "@/lib/products";
+import { getProductsByCategory } from "@/lib/catalog";
+import { getCatalog } from "@/lib/server/catalog";
 import { buildMetadata } from "@/lib/seo";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/site";
 import type { CategorySlug } from "@/lib/types";
@@ -156,7 +157,7 @@ export default async function CategoryPage({
 
   const content = CATEGORY_CONTENT[category.slug as GenericCategory];
   const families = subcategoriesFor(category.slug);
-  const allProducts = getProductsByCategory(category.slug);
+  const allProducts = getProductsByCategory(await getCatalog(), category.slug);
   const stocked = families.filter((family) =>
     allProducts.some((product) => product.subcategory === family.slug),
   );

@@ -199,6 +199,52 @@ export interface OrderDetails {
 
 export type PaymentMethod = "Credit or Debit Card" | "Cash on Delivery";
 
+/** The fields the checkout endpoint accepts for a cart line. */
+export interface CheckoutLine {
+  productId: string;
+  size: string;
+  color: string;
+  quantity: number;
+  custom?: {
+    styleId: string;
+    printOption: PrintOption;
+    colorName?: string;
+    artwork?: string;
+    artworkName?: string;
+    transform?: DesignTransform;
+  };
+}
+
+export const ORDER_STATUSES = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"] as const;
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+
+export const PAYMENT_STATUSES = ["Paid", "Unpaid", "Refunded"] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
+export const CHARGEBACK_STATUSES = ["Open", "Won", "Lost"] as const;
+export type ChargebackStatus = (typeof CHARGEBACK_STATUSES)[number];
+
+/** A payment dispute raised by the customer's bank against an order. */
+export interface Chargeback {
+  amount: number;
+  reason: string;
+  status: ChargebackStatus;
+  openedAt: string;
+  updatedAt: string;
+  notes: string;
+}
+
+/**
+ * An order as saved for the admin panel. Prices are the ones the server
+ * calculated. Custom artwork is stored separately and referenced by URL.
+ */
+export interface StoredOrder extends OrderDetails {
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+  updatedAt: string;
+  chargeback?: Chargeback;
+}
+
 /** Non sensitive receipt details returned by the gateway after a sale. */
 export interface CardPaymentRecord {
   transactionId: string;

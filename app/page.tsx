@@ -21,7 +21,8 @@ import {
   getFeaturedProducts,
   getNewArrivals,
   getProductsByCategory,
-} from "@/lib/products";
+} from "@/lib/catalog";
+import { getCatalog } from "@/lib/server/catalog";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -51,14 +52,15 @@ const CUSTOM_HIGHLIGHTS = [
   "Bulk pricing at 10, 25 and 50 shirts",
 ];
 
-export default function HomePage() {
-  const trending = getBestSellers(4);
-  const featured = getFeaturedProducts(4);
-  const bestSellers = getBestSellers(8);
-  const newArrivals = getNewArrivals(4);
-  const kidsPicks = getProductsByCategory("kids").slice(0, 4);
-  const babyPicks = getProductsByCategory("baby").slice(0, 4);
-  const toyPicks = getProductsByCategory("toys").slice(0, 4);
+export default async function HomePage() {
+  const catalog = await getCatalog();
+  const trending = getBestSellers(catalog, 4);
+  const featured = getFeaturedProducts(catalog, 4);
+  const bestSellers = getBestSellers(catalog, 8);
+  const newArrivals = getNewArrivals(catalog, 4);
+  const kidsPicks = getProductsByCategory(catalog, "kids").slice(0, 4);
+  const babyPicks = getProductsByCategory(catalog, "baby").slice(0, 4);
+  const toyPicks = getProductsByCategory(catalog, "toys").slice(0, 4);
 
   return (
     <>
@@ -120,7 +122,7 @@ export default function HomePage() {
                   description={category.tagline}
                   image={category.image}
                   href={category.href}
-                  count={countByCategory(category.slug)}
+                  count={countByCategory(catalog, category.slug)}
                 />
               </Reveal>
             ))}

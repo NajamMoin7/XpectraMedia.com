@@ -5,11 +5,14 @@ import "./globals.css";
 
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { SiteChrome } from "@/components/layout/SiteChrome";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { LoadingOverlay } from "@/components/loading/LoadingOverlay";
 import { NavigationProgress } from "@/components/loading/NavigationProgress";
 import { RouteLoadingProvider } from "@/components/loading/RouteLoadingProvider";
 import { CartProvider } from "@/lib/cart-context";
+import { CatalogProvider } from "@/lib/catalog-context";
+import { getCatalog, toClientCatalog } from "@/lib/server/catalog";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -88,7 +91,13 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+/**
+ * Store pages are cached and refreshed at least every minute. Admin edits
+ * also refresh them immediately through revalidatePath.
+ */
+export const revalidate = 60;
+
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
@@ -115,13 +124,13 @@ export default function RootLayout({
           <NavigationProgress />
           <LoadingOverlay />
 
-          <CartProvider>
-            <Header />
-            <main id="main-content" className="flex-1">
-              {children}
-            </main>
-            <Footer />
-          </CartProvider>
+          <CatalogProvider products={toClientCatalog(await getCatalog())}>
+            <CartProvider>
+              <SiteChrome header={<Header />} footer={<Footer />}>
+                {children}
+              </SiteChrome>
+            </CartProvider>
+          </CatalogProvider>
         </RouteLoadingProvider>
       </body>
     </html>

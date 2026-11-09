@@ -6,7 +6,8 @@ import { ProductGrid } from "@/components/product/ProductGrid";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { SectionHeading } from "@/components/ui/PageBanner";
-import { getProductsByIds } from "@/lib/products";
+import { getProductsByIds } from "@/lib/catalog";
+import { useCatalog } from "@/lib/catalog-context";
 import { STORAGE_KEYS } from "@/lib/site";
 import type { Product } from "@/lib/types";
 
@@ -20,6 +21,7 @@ const MAX_SHOWN = 4;
  */
 export function HomeRecentlyViewed() {
   const [recent, setRecent] = useState<Product[]>([]);
+  const catalog = useCatalog();
 
   useEffect(() => {
     let ids: string[] = [];
@@ -40,8 +42,8 @@ export function HomeRecentlyViewed() {
     // The server cannot read the browser viewing history, so the list can only
     // be resolved once the component has mounted in the browser.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setRecent(getProductsByIds(ids).slice(0, MAX_SHOWN));
-  }, []);
+    setRecent(getProductsByIds(catalog, ids).slice(0, MAX_SHOWN));
+  }, [catalog]);
 
   if (recent.length === 0) return null;
 

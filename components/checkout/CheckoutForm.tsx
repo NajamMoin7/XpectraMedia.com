@@ -13,12 +13,19 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState, LoadingSpinner, Skeleton } from "@/components/ui/Feedback";
 import { Icon } from "@/components/ui/Icon";
 import { useCart } from "@/lib/cart-context";
-import { generateOrderNumber } from "@/lib/format";
-import type { CheckoutLine } from "@/lib/order-pricing";
 import { STATES, STORAGE_KEYS, site } from "@/lib/site";
-import type { CartItem, CardPaymentRecord, OrderDetails, PaymentMethod } from "@/lib/types";
+import type {
+  CardPaymentRecord,
+  CartItem,
+  CheckoutLine,
+  OrderDetails,
+  PaymentMethod,
+} from "@/lib/types";
 
-/** Strips a cart down to what the payment endpoint needs. No artwork is sent. */
+/**
+ * What the checkout endpoint needs for each cart line. Custom shirt artwork
+ * is included so the order can be printed from the admin panel.
+ */
 function toCheckoutLines(items: CartItem[]): CheckoutLine[] {
   return items.map((item) => ({
     productId: item.productId,
@@ -26,9 +33,27 @@ function toCheckoutLines(items: CartItem[]): CheckoutLine[] {
     color: item.color,
     quantity: item.quantity,
     ...(item.custom
-      ? { custom: { styleId: item.custom.styleId, printOption: item.custom.printOption } }
+      ? {
+          custom: {
+            styleId: item.custom.styleId,
+            printOption: item.custom.printOption,
+            colorName: item.custom.colorName,
+            artwork: item.custom.artwork,
+            artworkName: item.custom.artworkName,
+            transform: item.custom.transform,
+          },
+        }
       : {}),
   }));
+}
+
+interface PlacedOrder {
+  orderNumber: string;
+  placedAt: string;
+  subtotal: number;
+  shipping: number;
+  total: number;
+  payment: CardPaymentRecord | null;
 }
 
 /**
@@ -234,59 +259,73 @@ export function CheckoutForm({ tokenizationKey, collectJsUrl }: CheckoutFormProp
     setErrors((current) => ({ ...current, [field]: found[field] }));
   }
 
-  /** Tokenizes the card and charges it. Returns the receipt, or null on failure. */
-  async function chargeCard(orderNumber: string): Promise<CardPaymentRecord | null> {
-    const tokenizer = tokenizerRef.current;
-    if (!tokenizer) {
-      setPaymentError("Card payment is still loading. Please wait a moment and try again.");
-      return null;
+  /**
+   * Sends the order to the server. Card orders are tokenized first and
+   * charged by the server. Returns the placed order, or null on failure.
+   */
+  async function placeOrder(): Promise<PlacedOrder | null> {
+    let card: { token: string; cardMasked: string; cardType: string } | undefined;
+
+    if (paymentMethod === "Credit or Debit Card") {
+      const tokenizer = tokenizerRef.current;
+      if (!tokenizer) {
+        setPaymentError("Card payment is still loading. Please wait a moment and try again.");
+        return null;
+      }
+      try {
+        card = await tokenizer.requestToken();
+      } catch (error) {
+        setPaymentError(
+          error instanceof CardEntryError
+            ? error.message
+            : "Please check your card number, expiry date and security code.",
+        );
+        return null;
+      }
     }
 
     try {
-      const card = await tokenizer.requestToken();
-      const response = await fetch("/api/checkout/charge", {
+      const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          token: card.token,
-          orderNumber,
+          paymentMethod,
+          token: card?.token,
+          card: card ? { cardMasked: card.cardMasked, cardType: card.cardType } : undefined,
           expectedTotal: total,
           lines: toCheckoutLines(items),
           customer: {
             fullName: values.fullName,
             email: values.email,
             phone: values.phone,
+            altPhone: values.altPhone,
             street: values.street,
             apartment: values.apartment,
             city: values.city,
             state: values.state,
             zipCode: values.zipCode,
+            notes: values.notes,
           },
         }),
       });
       const result = (await response.json().catch(() => null)) as
-        | { ok: true; transactionId: string; authCode: string; amount: number }
+        | ({ ok: true } & PlacedOrder)
         | { ok: false; message: string }
         | null;
 
       if (!result || !result.ok) {
         setPaymentError(
-          result?.message ?? "We could not complete the payment. You have not been charged.",
+          result?.message ??
+            (card
+              ? "We could not complete the payment. You have not been charged."
+              : "We could not place your order. Please try again."),
         );
         return null;
       }
-      return {
-        transactionId: result.transactionId,
-        authCode: result.authCode,
-        cardMasked: card.cardMasked,
-        cardType: card.cardType,
-        amount: result.amount,
-      };
-    } catch (error) {
+      return result;
+    } catch {
       setPaymentError(
-        error instanceof CardEntryError
-          ? error.message
-          : "We could not reach the payment service. Please check your connection and try again.",
+        "We could not reach our server. Please check your connection and try again.",
       );
       return null;
     }
@@ -310,21 +349,15 @@ export function CheckoutForm({ tokenizationKey, collectJsUrl }: CheckoutFormProp
     if (items.length === 0) return;
 
     setPlacing(true);
-    const orderNumber = generateOrderNumber();
-
-    let payment: CardPaymentRecord | undefined;
-    if (paymentMethod === "Credit or Debit Card") {
-      const receipt = await chargeCard(orderNumber);
-      if (!receipt) {
-        setPlacing(false);
-        return;
-      }
-      payment = receipt;
+    const placed = await placeOrder();
+    if (!placed) {
+      setPlacing(false);
+      return;
     }
 
     const order: OrderDetails = {
-      orderNumber,
-      placedAt: new Date().toISOString(),
+      orderNumber: placed.orderNumber,
+      placedAt: placed.placedAt,
       fullName: values.fullName.trim(),
       email: values.email.trim(),
       phone: values.phone.trim(),
@@ -337,24 +370,17 @@ export function CheckoutForm({ tokenizationKey, collectJsUrl }: CheckoutFormProp
       country: LOCKED_COUNTRY,
       notes: values.notes.trim(),
       items,
-      subtotal,
-      shipping: delivery,
-      total: payment?.amount ?? total,
+      subtotal: placed.subtotal,
+      shipping: placed.shipping,
+      total: placed.total,
       paymentMethod,
-      ...(payment ? { payment } : {}),
+      ...(placed.payment ? { payment: placed.payment } : {}),
     };
 
-    // Short delay so the processing state reads as a genuine action. Card
-    // orders have already waited on the gateway, so they continue at once.
-    window.setTimeout(
-      () => {
-        // The cart is cleared first so its artwork frees storage for the order.
-        clearCart();
-        storeOrder(order);
-        router.push("/order-confirmation");
-      },
-      payment ? 0 : 900,
-    );
+    // The cart is cleared first so its artwork frees storage for the order.
+    clearCart();
+    storeOrder(order);
+    router.push("/order-confirmation");
   }
 
   if (!hydrated) {

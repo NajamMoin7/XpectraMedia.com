@@ -9,7 +9,7 @@ import { NavLink } from "@/components/ui/NavLink";
 import { subcategoryLabel } from "@/lib/categories";
 import { useCart } from "@/lib/cart-context";
 import { calcDiscount, formatPrice } from "@/lib/format";
-import { productBadge } from "@/lib/products";
+import { productBadge } from "@/lib/catalog";
 import { useWishlist } from "@/lib/wishlist-context";
 import type { Product, ProductBadge, ViewMode } from "@/lib/types";
 

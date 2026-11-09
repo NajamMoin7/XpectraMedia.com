@@ -15,7 +15,8 @@ import { EmptyState } from "@/components/ui/Feedback";
 import { Icon } from "@/components/ui/Icon";
 import { NavLink } from "@/components/ui/NavLink";
 import { categories, subcategories } from "@/lib/categories";
-import { products, searchProducts, sortProducts } from "@/lib/products";
+import { PRICE_BOUNDS, searchProducts, sortProducts } from "@/lib/catalog";
+import { useCatalog } from "@/lib/catalog-context";
 import { useWishlist } from "@/lib/wishlist-context";
 import type {
   CategorySlug,
@@ -93,6 +94,7 @@ function BrowserPanel({
   const [panelOpen, setPanelOpen] = useState(false);
 
   const wishlist = useWishlist();
+  const products = useCatalog();
   const savedIds = wishlist.ids;
 
   const dirty = isDirty(filters);
@@ -106,7 +108,9 @@ function BrowserPanel({
       if (filters.types.length && !filters.types.includes(product.subcategory)) {
         return false;
       }
-      if (product.price < filters.min || product.price > filters.max) return false;
+      // The top of the slider means no upper limit.
+      if (product.price < filters.min) return false;
+      if (filters.max < PRICE_BOUNDS.max && product.price > filters.max) return false;
       if (filters.sizes.length && !product.sizes.some((size) => filters.sizes.includes(size))) {
         return false;
       }
@@ -127,7 +131,7 @@ function BrowserPanel({
 
     list = searchProducts(list, filters.query);
     return sortProducts(list, sort);
-  }, [filters, sort, savedIds]);
+  }, [filters, sort, savedIds, products]);
 
   const emptyWishlist = filters.wishlistOnly && savedIds.length === 0;
 

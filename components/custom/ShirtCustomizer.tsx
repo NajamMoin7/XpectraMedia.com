@@ -29,7 +29,8 @@ import {
   priceCustomShirt,
 } from "@/lib/custom-shirt";
 import { formatPrice } from "@/lib/format";
-import { getCustomShirts } from "@/lib/products";
+import { getCustomShirts } from "@/lib/catalog";
+import { useCatalog } from "@/lib/catalog-context";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/site";
 import type { DesignTransform, PrintOption } from "@/lib/types";
 
@@ -148,10 +149,16 @@ export function ShirtCustomizer() {
     [styleId, printOption, quantity],
   );
 
+  const catalog = useCatalog();
   const product = useMemo(() => {
     const slug = STYLE_PRODUCT_SLUG[styleId] ?? STYLE_PRODUCT_SLUG.tshirt;
-    return getCustomShirts().find((item) => item.slug === slug) ?? getCustomShirts()[0];
-  }, [styleId]);
+    const match = getCustomShirts(catalog).find((item) => item.slug === slug);
+    // Custom pricing comes from the shirt style, so the cart line still works
+    // if the admin has removed or renamed the matching catalogue product.
+    return match
+      ? { id: match.id, slug: match.slug, image: match.images[0] }
+      : { id: `custom-${styleId}`, slug, image: `/assets/images/products/${slug}-1.jpg` };
+  }, [styleId, catalog]);
 
   /** Per shirt price after the volume discount, so cart totals stay correct. */
   const discountedUnitPrice =
@@ -270,7 +277,7 @@ export function ShirtCustomizer() {
         productId: product.id,
         slug: product.slug,
         name: `Custom ${style.name}`,
-        image: product.images[0],
+        image: product.image,
         price: discountedUnitPrice,
         size,
         color: color.name,

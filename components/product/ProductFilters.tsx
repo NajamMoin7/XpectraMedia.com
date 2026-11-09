@@ -5,7 +5,8 @@ import { useMemo } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { categories, subcategories, subcategoryLabel } from "@/lib/categories";
 import { formatPrice } from "@/lib/format";
-import { ALL_COLORS, ALL_SIZES, PRICE_BOUNDS } from "@/lib/products";
+import { PRICE_BOUNDS, allColors, allSizes } from "@/lib/catalog";
+import { useCatalog } from "@/lib/catalog-context";
 import type { CategorySlug, SubcategorySlug } from "@/lib/types";
 
 /** Every filter the customer can apply on the products page. */
@@ -123,7 +124,7 @@ export function activeChips(value: FilterState): FilterChip[] {
   if (value.min !== defaultFilters.min || value.max !== defaultFilters.max) {
     chips.push({
       key: "price",
-      label: `${formatPrice(value.min)} to ${formatPrice(value.max)}`,
+      label: `${formatPrice(value.min)} to ${formatPrice(value.max)}${value.max >= PRICE_BOUNDS.max ? "+" : ""}`,
       remove: (state) => ({
         ...state,
         min: defaultFilters.min,
@@ -218,6 +219,9 @@ interface ProductFiltersProps {
  * through onChange so the parent owns a single source of truth.
  */
 export function ProductFilters({ value, onChange, onClear, dirty }: ProductFiltersProps) {
+  const catalog = useCatalog();
+  const sizeOptions = useMemo(() => allSizes(catalog), [catalog]);
+  const colorOptions = useMemo(() => allColors(catalog), [catalog]);
   /** Product families narrow to the chosen departments once one is picked. */
   const visibleTypes = useMemo(() => {
     if (value.categories.length === 0) return subcategories;
@@ -367,7 +371,7 @@ export function ProductFilters({ value, onChange, onClear, dirty }: ProductFilte
       <fieldset>
         <legend className={LEGEND}>Price Range</legend>
         <p className="mt-3 text-sm font-medium text-ink">
-          {formatPrice(value.min)} to {formatPrice(value.max)}
+          {formatPrice(value.min)} to {formatPrice(value.max)}{value.max >= PRICE_BOUNDS.max ? "+" : ""}
         </p>
 
         <div className="mt-4 space-y-4">
@@ -415,7 +419,7 @@ export function ProductFilters({ value, onChange, onClear, dirty }: ProductFilte
       <fieldset>
         <legend className={LEGEND}>Size</legend>
         <div className="mt-3 flex flex-wrap gap-2">
-          {ALL_SIZES.map((size) => {
+          {sizeOptions.map((size) => {
             const active = value.sizes.includes(size);
             return (
               <button
@@ -440,7 +444,7 @@ export function ProductFilters({ value, onChange, onClear, dirty }: ProductFilte
       <fieldset>
         <legend className={LEGEND}>Color</legend>
         <div className="mt-3 flex flex-wrap gap-2.5">
-          {ALL_COLORS.map((color) => {
+          {colorOptions.map((color) => {
             const active = value.colors.includes(color.name);
             return (
               <button

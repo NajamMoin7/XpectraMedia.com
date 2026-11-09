@@ -19,13 +19,16 @@ import {
   getProductBySlug,
   getRelatedProducts,
   productBadge,
-  products,
-} from "@/lib/products";
+} from "@/lib/catalog";
+import { getCatalog } from "@/lib/server/catalog";
 import { buildMetadata, productJsonLd } from "@/lib/seo";
 
-/** Every product page is generated statically at build time. */
-export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
+/**
+ * Product pages are prerendered at build time. Products the admin adds later
+ * render on their first visit and are cached after that.
+ */
+export async function generateStaticParams() {
+  return (await getCatalog()).map((product) => ({ slug: product.slug }));
 }
 
 export async function generateMetadata({
@@ -34,7 +37,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = getProductBySlug(await getCatalog(), slug);
   if (!product) return {};
 
   const family = subcategoryLabel(product.subcategory).toLowerCase();
@@ -60,14 +63,15 @@ export default async function ProductDetailsPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const catalog = await getCatalog();
+  const product = getProductBySlug(catalog, slug);
   if (!product) notFound();
 
   const category = getCategory(product.category);
   const familyName = subcategoryLabel(product.subcategory);
   const discount = product.discount ?? calcDiscount(product.price, product.originalPrice);
-  const related = getRelatedProducts(product, 4);
-  const complements = getFrequentlyBoughtTogether(product, 2);
+  const related = getRelatedProducts(catalog, product, 4);
+  const complements = getFrequentlyBoughtTogether(catalog, product, 2);
   const deliveryEstimate = deliveryWindow(new Date().toISOString());
 
   /** Service promises assembled from the product's own copy. */

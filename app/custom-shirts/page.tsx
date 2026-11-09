@@ -19,7 +19,8 @@ import {
   SHIRT_STYLES,
 } from "@/lib/custom-shirt";
 import { formatPrice } from "@/lib/format";
-import { getCustomShirts } from "@/lib/products";
+import { getCustomShirts } from "@/lib/catalog";
+import { getCatalog } from "@/lib/server/catalog";
 import { buildMetadata, faqJsonLd } from "@/lib/seo";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/site";
 import type { Faq } from "@/lib/types";
@@ -131,8 +132,8 @@ const USE_CASE_ICONS: IconName[] = [
   "grid",
 ];
 
-export default function CustomShirtsPage() {
-  const products = getCustomShirts();
+export default async function CustomShirtsPage() {
+  const products = getCustomShirts(await getCatalog());
   const lowestPrice = Math.min(...SHIRT_STYLES.map((style) => style.price));
 
   return (

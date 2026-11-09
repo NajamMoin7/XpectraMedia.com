@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { categories, subcategories } from "@/lib/categories";
-import { products } from "@/lib/products";
+import { getCatalog } from "@/lib/server/catalog";
 import { site } from "@/lib/site";
 
 /** Fixed publication date for the static marketing and policy pages. */
@@ -11,7 +11,8 @@ const LAST_MODIFIED = new Date("2026-07-20");
  * Generates sitemap.xml covering every static page, category landing page and
  * product detail page in the catalogue.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const products = await getCatalog();
   const staticRoutes: MetadataRoute.Sitemap = (
     [
       { url: site.url, changeFrequency: "weekly", priority: 1 },

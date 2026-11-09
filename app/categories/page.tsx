@@ -6,7 +6,8 @@ import { Icon } from "@/components/ui/Icon";
 import { PageBanner, SectionHeading } from "@/components/ui/PageBanner";
 import { Reveal } from "@/components/ui/Reveal";
 import { categories, getSubcategory, subcategories } from "@/lib/categories";
-import { countByCategory, countBySubcategory } from "@/lib/products";
+import { countByCategory, countBySubcategory } from "@/lib/catalog";
+import { getCatalog } from "@/lib/server/catalog";
 import { buildMetadata } from "@/lib/seo";
 import type { CategorySlug, SubcategorySlug } from "@/lib/types";
 
@@ -110,7 +111,8 @@ const FAMILY_GROUPS: {
   },
 ];
 
-export default function CategoriesPage() {
+export default async function CategoriesPage() {
+  const catalog = await getCatalog();
   return (
     <>
       <PageBanner
@@ -136,7 +138,7 @@ export default function CategoriesPage() {
                 description={category.description}
                 image={category.image}
                 href={category.href}
-                count={countByCategory(category.slug)}
+                count={countByCategory(catalog, category.slug)}
                 buttonLabel={`Explore ${category.name}`}
                 priority={index === 0}
               />
@@ -183,7 +185,7 @@ export default function CategoriesPage() {
                           description={sub.description}
                           image={sub.image}
                           href={`/products?type=${sub.slug}`}
-                          count={countBySubcategory(sub.slug)}
+                          count={countBySubcategory(catalog, sub.slug)}
                           buttonLabel={`Shop ${sub.name}`}
                         />
                       </Reveal>

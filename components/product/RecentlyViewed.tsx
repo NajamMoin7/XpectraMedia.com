@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { SectionHeading } from "@/components/ui/PageBanner";
-import { getProductsByIds } from "@/lib/products";
+import { getProductsByIds } from "@/lib/catalog";
+import { useCatalog } from "@/lib/catalog-context";
 import { STORAGE_KEYS } from "@/lib/site";
 import type { Product } from "@/lib/types";
 
@@ -16,6 +17,7 @@ const MAX_TRACKED = 8;
  */
 export function RecentlyViewed({ currentId }: { currentId: string }) {
   const [items, setItems] = useState<Product[]>([]);
+  const catalog = useCatalog();
 
   useEffect(() => {
     let history: string[] = [];
@@ -33,7 +35,7 @@ export function RecentlyViewed({ currentId }: { currentId: string }) {
     // read has to happen after mount because the server cannot see the
     // browser history, and rendering it during hydration would not match.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setItems(getProductsByIds(history.filter((id) => id !== currentId)).slice(0, 4));
+    setItems(getProductsByIds(catalog, history.filter((id) => id !== currentId)).slice(0, 4));
 
     const next = [currentId, ...history.filter((id) => id !== currentId)].slice(
       0,
@@ -45,7 +47,7 @@ export function RecentlyViewed({ currentId }: { currentId: string }) {
       // Private browsing can block storage. Viewing history is a convenience,
       // so failing here should never interrupt the page.
     }
-  }, [currentId]);
+  }, [currentId, catalog]);
 
   if (items.length === 0) return null;
 

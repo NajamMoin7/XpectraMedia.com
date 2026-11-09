@@ -1,33 +1,29 @@
+import "server-only";
+
 import { PRINT_OPTIONS, SHIRT_COLORS, SHIRT_SIZES, SHIRT_STYLES, discountForQuantity } from "@/lib/custom-shirt";
-import { products } from "@/lib/products";
+import { getCatalog } from "@/lib/server/catalog";
 import { FREE_SHIPPING_THRESHOLD, SHIPPING_RATE } from "@/lib/site";
-import type { PrintOption } from "@/lib/types";
+import type { CheckoutLine, Product } from "@/lib/types";
 
 /**
  * Server side price check for a checkout.
  *
  * The browser cart is never trusted for money. Every line is looked up in the
- * catalogue (or, for custom shirts, re-priced from the style, print option and
- * quantity) and the total charged is the one computed here.
+ * live catalogue (or, for custom shirts, re-priced from the style, print
+ * option and quantity) and the total charged is the one computed here.
  */
-
-/** The only fields the payment endpoint accepts for a cart line. */
-export interface CheckoutLine {
-  productId: string;
-  size: string;
-  color: string;
-  quantity: number;
-  /** Custom shirt options. Artwork is deliberately not sent to the server. */
-  custom?: { styleId: string; printOption: PrintOption };
-}
 
 export interface PricedLine {
   productId: string;
+  slug: string;
   name: string;
+  image: string;
   size: string;
   color: string;
   quantity: number;
   unitPrice: number;
+  /** The original request line, used to keep custom shirt details. */
+  source: CheckoutLine;
 }
 
 export interface PricedOrder {
@@ -47,20 +43,16 @@ function toCents(value: number): number {
 
 export class PricingError extends Error {}
 
-function priceLine(line: CheckoutLine): PricedLine {
-  const product = products.find((item) => item.id === line.productId);
-  if (!product) throw new PricingError("An item in your cart is no longer available.");
+function priceLine(catalog: Product[], line: CheckoutLine): PricedLine {
+  const quantity = Math.floor(Number(line?.quantity));
+  const product = catalog.find((item) => item.id === line?.productId);
 
-  const quantity = Math.floor(Number(line.quantity));
-  if (!Number.isFinite(quantity) || quantity < 1 || quantity > MAX_LINE_QUANTITY) {
-    throw new PricingError(`Please check the quantity for ${product.name}.`);
-  }
-
-  if (line.custom) {
+  if (line?.custom) {
+    // Custom shirts are priced from the style, so they do not depend on the
+    // catalogue entry still existing.
     const style = SHIRT_STYLES.find((item) => item.id === line.custom?.styleId);
     const print = PRINT_OPTIONS.find((item) => item.id === line.custom?.printOption);
     if (
-      product.category !== "custom-shirts" ||
       !style ||
       !print ||
       !SHIRT_SIZES.includes(line.size) ||
@@ -68,20 +60,29 @@ function priceLine(line: CheckoutLine): PricedLine {
     ) {
       throw new PricingError("A custom shirt in your cart has invalid options.");
     }
+    if (!Number.isFinite(quantity) || quantity < 1 || quantity > MAX_LINE_QUANTITY) {
+      throw new PricingError("Please check the quantity of your custom shirts.");
+    }
     // Mirrors the customizer: print charge added per shirt, then the volume
     // discount for the line quantity applied to the unit price.
     const unitTotal = toCents(style.price + print.charge);
-    const unitPrice = toCents(unitTotal * ((100 - discountForQuantity(quantity)) / 100));
     return {
-      productId: product.id,
+      productId: String(line.productId),
+      slug: product?.slug ?? "",
       name: `Custom ${style.name}`,
+      image: product?.images[0] ?? "",
       size: line.size,
       color: line.color,
       quantity,
-      unitPrice,
+      unitPrice: toCents(unitTotal * ((100 - discountForQuantity(quantity)) / 100)),
+      source: line,
     };
   }
 
+  if (!product) throw new PricingError("An item in your cart is no longer available.");
+  if (!Number.isFinite(quantity) || quantity < 1 || quantity > MAX_LINE_QUANTITY) {
+    throw new PricingError(`Please check the quantity for ${product.name}.`);
+  }
   if (product.stock <= 0) throw new PricingError(`${product.name} is out of stock.`);
   if (!product.sizes.includes(line.size) || !product.colors.some((c) => c.name === line.color)) {
     throw new PricingError(`Please choose a valid size and color for ${product.name}.`);
@@ -89,21 +90,25 @@ function priceLine(line: CheckoutLine): PricedLine {
 
   return {
     productId: product.id,
+    slug: product.slug,
     name: product.name,
+    image: product.images[0] ?? "",
     size: line.size,
     color: line.color,
     quantity,
     unitPrice: product.price,
+    source: line,
   };
 }
 
-export function priceOrder(lines: CheckoutLine[]): PricedOrder {
+export async function priceOrder(lines: CheckoutLine[]): Promise<PricedOrder> {
   if (!Array.isArray(lines) || lines.length === 0) {
     throw new PricingError("Your cart is empty.");
   }
   if (lines.length > MAX_LINES) throw new PricingError("Your cart has too many lines.");
 
-  const priced = lines.map(priceLine);
+  const catalog = await getCatalog();
+  const priced = lines.map((line) => priceLine(catalog, line));
   const subtotal = toCents(priced.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0));
   const shipping = subtotal <= 0 ? 0 : subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_RATE;
   return { lines: priced, subtotal, shipping, total: toCents(subtotal + shipping) };

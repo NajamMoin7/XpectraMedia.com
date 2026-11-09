@@ -7,7 +7,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { NavLink } from "@/components/ui/NavLink";
 import { formatPrice } from "@/lib/format";
-import { products, searchProducts } from "@/lib/products";
+import { searchProducts } from "@/lib/catalog";
+import { useCatalog } from "@/lib/catalog-context";
 import { categoryLabel, subcategoryLabel } from "@/lib/categories";
 
 interface SearchOverlayProps {
@@ -37,6 +38,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [term, setTerm] = useState("");
+  const products = useCatalog();
 
   // Dismissing clears the field, so the panel always opens ready to type.
   const close = useCallback(() => {
@@ -66,7 +68,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
   const results = useMemo(() => {
     if (term.trim().length < 2) return [];
     return searchProducts(products, term).slice(0, 6);
-  }, [term]);
+  }, [term, products]);
 
   function submit(event: React.FormEvent) {
     event.preventDefault();

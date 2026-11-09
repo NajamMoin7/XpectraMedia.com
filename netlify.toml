@@ -9,8 +9,17 @@
 # them for BOTH the "Builds" and "Functions" scopes, since PUBLIC_KEY and
 # POST_URL are read while the checkout page is prerendered at build time:
 #   PUBLIC_KEY  Collect.js public tokenization key (safe for the browser)
-#   SECRET_KEY  Gateway security key, used only by /api/checkout/charge
+#   SECRET_KEY  Gateway security key, used only by /api/checkout
 #   POST_URL    https://daystarpayments.transactiongateway.com/api/transact.php
+#
+# Admin panel (/admin). Leave these on "All scopes", because the login check
+# in proxy.ts runs as an edge function:
+#   ADMIN_USERNAME        login name, defaults to "admin"
+#   ADMIN_PASSWORD        login password (required, the panel is locked without it)
+#   ADMIN_SESSION_SECRET  optional long random string that signs admin sessions
+#
+# Products, orders and uploaded photos are stored in Netlify Blobs, which is
+# built into the site. Nothing extra needs to be set up for storage.
 
 [build]
   command = "npm run build"
