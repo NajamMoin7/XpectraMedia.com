@@ -170,6 +170,100 @@ export function EmptyRow({ colSpan, children }: { colSpan: number; children: Rea
   );
 }
 
+/** Page numbers to show: first, last, and a window around the current page. */
+function pageList(page: number, pages: number): (number | "gap")[] {
+  const wanted = new Set([1, pages, page - 1, page, page + 1]);
+  const list: (number | "gap")[] = [];
+  for (let n = 1; n <= pages; n += 1) {
+    if (wanted.has(n)) list.push(n);
+    else if (list[list.length - 1] !== "gap") list.push("gap");
+  }
+  return list;
+}
+
+/**
+ * Numbered pager for admin tables. Links keep the current search and filters
+ * through `params`, so changing page never loses them.
+ */
+export function Pagination({
+  page,
+  pages,
+  total,
+  perPage,
+  basePath,
+  params,
+}: {
+  page: number;
+  pages: number;
+  total: number;
+  perPage: number;
+  basePath: string;
+  params: Record<string, string | undefined>;
+}) {
+  if (total === 0) return null;
+
+  const href = (n: number) => {
+    const search = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) if (value) search.set(key, value);
+    if (n > 1) search.set("page", String(n));
+    const query = search.toString();
+    return query ? `${basePath}?${query}` : basePath;
+  };
+
+  const from = (page - 1) * perPage + 1;
+  const to = Math.min(page * perPage, total);
+  const step =
+    "inline-flex h-9 min-w-9 items-center justify-center rounded-lg border px-3 text-sm font-semibold transition-colors";
+  const idle = `${step} border-line bg-card text-slate hover:border-brand hover:text-brand`;
+  const disabled = `${step} pointer-events-none border-line bg-mist text-muted/60`;
+
+  return (
+    <nav aria-label="Pagination" className="mt-4 flex flex-wrap items-center justify-between gap-3">
+      <p className="text-sm text-muted">
+        Showing {from}–{to} of {total}
+      </p>
+      {pages > 1 ? (
+        <div className="flex flex-wrap items-center gap-1.5">
+          {page > 1 ? (
+            <Link href={href(page - 1)} className={idle} rel="prev">
+              ← Prev
+            </Link>
+          ) : (
+            <span className={disabled} aria-disabled="true">
+              ← Prev
+            </span>
+          )}
+          {pageList(page, pages).map((item, index) =>
+            item === "gap" ? (
+              <span key={`gap-${index}`} className="px-1 text-sm text-muted">
+                …
+              </span>
+            ) : (
+              <Link
+                key={item}
+                href={href(item)}
+                aria-current={item === page ? "page" : undefined}
+                className={item === page ? `${step} border-brand bg-brand text-white` : idle}
+              >
+                {item}
+              </Link>
+            ),
+          )}
+          {page < pages ? (
+            <Link href={href(page + 1)} className={idle} rel="next">
+              Next →
+            </Link>
+          ) : (
+            <span className={disabled} aria-disabled="true">
+              Next →
+            </span>
+          )}
+        </div>
+      ) : null}
+    </nav>
+  );
+}
+
 export function formatDateTime(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",

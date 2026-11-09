@@ -11,6 +11,7 @@ import {
   INPUT,
   Notice,
   PageHeader,
+  Pagination,
   TD,
   TH,
   Table,
@@ -21,23 +22,38 @@ import { getCatalog } from "@/lib/server/catalog";
 
 export const metadata = { title: "Products" };
 
+/** Rows shown on each page of the products table. */
+const PER_PAGE = 15;
+
 export default async function AdminProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; stock?: string; saved?: string; deleted?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    stock?: string;
+    saved?: string;
+    deleted?: string;
+    page?: string;
+  }>;
 }) {
-  const { q = "", stock, saved, deleted } = await searchParams;
+  const { q = "", stock, saved, deleted, page: pageParam } = await searchParams;
   const query = q.trim().toLowerCase();
   const lowOnly = stock === "low";
 
   const catalog = await getCatalog();
-  const products = catalog.filter((product) => {
+  const matches = catalog.filter((product) => {
     if (lowOnly && product.stock > 5) return false;
     if (!query) return true;
     return `${product.name} ${product.id} ${product.category} ${product.subcategory}`
       .toLowerCase()
       .includes(query);
   });
+
+  // Out of range pages (for example after deleting the last item on a page)
+  // fall back to the nearest valid page.
+  const pages = Math.max(1, Math.ceil(matches.length / PER_PAGE));
+  const page = Math.min(Math.max(1, Math.floor(Number(pageParam)) || 1), pages);
+  const products = matches.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   return (
     <>
@@ -143,6 +159,15 @@ export default async function AdminProductsPage({
           ))}
         </tbody>
       </Table>
+
+      <Pagination
+        page={page}
+        pages={pages}
+        total={matches.length}
+        perPage={PER_PAGE}
+        basePath="/admin/products"
+        params={{ q: q || undefined, stock: lowOnly ? "low" : undefined }}
+      />
     </>
   );
 }
