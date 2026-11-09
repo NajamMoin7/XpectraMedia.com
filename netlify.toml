@@ -31,8 +31,11 @@
   # PUBLIC_KEY is the Collect.js tokenization key, which is public by design
   # and must be embedded in the checkout page. POST_URL is the gateway's public
   # endpoint. Neither is sensitive, so the secrets scanner skips them.
-  # SECRET_KEY is deliberately NOT listed: it must never appear in the build.
-  SECRETS_SCAN_OMIT_KEYS = "PUBLIC_KEY,POST_URL"
+  # ADMIN_USERNAME is a login name, not a secret, and "admin" appears in every
+  # /admin route path, so it is skipped too.
+  # SECRET_KEY, ADMIN_PASSWORD and ADMIN_SESSION_SECRET are deliberately NOT
+  # listed: they must never appear in the code or the build.
+  SECRETS_SCAN_OMIT_KEYS = "PUBLIC_KEY,POST_URL,ADMIN_USERNAME"
 
 # ---------------------------------------------------------------------------
 # Security headers for every response
