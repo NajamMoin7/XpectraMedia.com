@@ -12,6 +12,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+/**
+ * Admin pages read live orders and products on every request and must never
+ * be prerendered at build time (Netlify Blobs is not available during builds).
+ */
+export const dynamic = "force-dynamic";
+
 export default async function AdminPanelLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
 

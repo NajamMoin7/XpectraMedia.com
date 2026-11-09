@@ -20,7 +20,12 @@ export async function getCatalog(): Promise<Product[]> {
   } catch (error) {
     // The build can run without access to Netlify Blobs. Pages prerendered
     // from the seed refresh from the live store on their next revalidation.
-    if (process.env.NEXT_PHASE === "phase-production-build") return seedProducts;
+    if (
+      process.env.NEXT_PHASE === "phase-production-build" ||
+      (error as Error)?.name === "MissingBlobsEnvironmentError"
+    ) {
+      return seedProducts;
+    }
     throw error;
   }
 }

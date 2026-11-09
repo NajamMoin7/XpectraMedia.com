@@ -76,10 +76,13 @@ export const metadata: Metadata = {
     description: site.description,
     images: ["/opengraph-image"],
   },
+  // Renders <meta name="robots" content="noindex, nofollow"> in the <head> of
+  // every page, so search engines do not index the site. To allow indexing
+  // again, set index and follow back to true.
   robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false },
   },
   category: "shopping",
 };
