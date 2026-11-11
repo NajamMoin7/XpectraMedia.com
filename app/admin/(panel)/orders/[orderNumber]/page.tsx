@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { ChargebackForm, OrderStatusForm } from "@/components/admin/OrderForms";
 import {
+  Badge,
   Card,
   ChargebackBadge,
   OrderStatusBadge,
@@ -30,6 +31,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 const SAVED_MESSAGES: Record<string, string> = {
+  created: "Order created.",
   status: "Order updated.",
   chargeback: "Chargeback saved.",
   removed: "Chargeback record removed.",
@@ -66,6 +68,7 @@ export default async function AdminOrderPage({
           <div className="flex flex-wrap gap-2">
             <OrderStatusBadge status={order.status} />
             <PaymentBadge status={order.paymentStatus} />
+            {order.source === "admin" ? <Badge tone="gray">Created by admin</Badge> : null}
             {order.chargeback ? <ChargebackBadge status={order.chargeback.status} /> : null}
           </div>
         }

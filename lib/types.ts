@@ -215,6 +215,9 @@ export interface CheckoutLine {
   };
 }
 
+/** "store" is the customer checkout, "admin" the admin panel order form. */
+export type OrderSource = "store" | "admin";
+
 export const ORDER_STATUSES = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
@@ -239,6 +242,8 @@ export interface Chargeback {
  * calculated. Custom artwork is stored separately and referenced by URL.
  */
 export interface StoredOrder extends OrderDetails {
+  /** Where the order came from. Older orders have no value and are "store". */
+  source?: OrderSource;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
   updatedAt: string;

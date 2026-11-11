@@ -6,6 +6,7 @@ import { kv } from "@/lib/server/kv";
 import type {
   CardPaymentRecord,
   CartItem,
+  OrderSource,
   PaymentMethod,
   StoredOrder,
 } from "@/lib/types";
@@ -116,8 +117,9 @@ export async function createOrder(input: {
   customer: OrderCustomer;
   paymentMethod: PaymentMethod;
   payment?: CardPaymentRecord;
+  source?: OrderSource;
 }): Promise<StoredOrder> {
-  const { orderNumber, priced, customer, paymentMethod, payment } = input;
+  const { orderNumber, priced, customer, paymentMethod, payment, source = "store" } = input;
   const now = new Date().toISOString();
 
   const items = await Promise.all(
@@ -136,6 +138,7 @@ export async function createOrder(input: {
     total: priced.total,
     paymentMethod,
     ...(payment ? { payment } : {}),
+    source,
     status: "Pending",
     paymentStatus: payment ? "Paid" : "Unpaid",
   };

@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { OrdersTable } from "@/components/admin/OrdersTable";
-import { BUTTON_OUTLINE, INPUT, PageHeader } from "@/components/admin/ui";
+import { BUTTON, BUTTON_OUTLINE, INPUT, PageHeader } from "@/components/admin/ui";
 import { listOrders } from "@/lib/server/orders";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/types";
 
@@ -27,7 +27,15 @@ export default async function AdminOrdersPage({
 
   return (
     <>
-      <PageHeader title="Orders" description="Search an order, then open it to see details or change its status." />
+      <PageHeader
+        title="Orders"
+        description="Search an order, then open it to see details or change its status."
+        action={
+          <Link href="/admin/orders/new" className={BUTTON}>
+            + New Order
+          </Link>
+        }
+      />
 
       <form className="mb-4 flex flex-wrap gap-3" role="search">
         <input
